@@ -15,7 +15,7 @@ Research notes, paper analyses, and design proposals on behavior foundation mode
 
 ## Notes
 
-- [Orchestrating AI Research Teams for Large Scientific Problems](notes/orchestrating-ai-research-teams.md) — a process for coordinating multiple AI agents and human researchers so proposals are decomposed, competed under a pre-written rubric, and checked with a short experiment before they are locked. An optional appendix covers multi-model role separation.
+- [Orchestrating AI Research Teams for Large Scientific Problems](notes/orchestrating-ai-research-teams.md) — a process for coordinating multiple AI agents and human researchers so proposals are decomposed, competed under a pre-written rubric, and checked with a short experiment before they are locked. An optional appendix covers multi-model role separation. The methodology also includes a principle-necessity protocol (Appendix B).
 
 ## Note
 

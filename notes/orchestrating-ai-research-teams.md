@@ -162,7 +162,7 @@ Everything else (slides, long essays, exploratory chat) is optional support mate
 
 ## 9. Summary
 
-Treat AI agents as **parallel researchers plus a strict reviewer**, not as a committee that must agree. The human lead owns the brief and the final signature. Competition and rubrics create pressure; short experiments discard elegant nonsense. With that rhythm, large scientific questions can converge instead of diverging forever in shared chat.
+Treat AI agents as **parallel researchers plus a strict reviewer**, not as a committee that must agree. The human lead owns the brief and the final signature. Competition and rubrics create pressure; short experiments discard elegant nonsense. With that rhythm, large scientific questions can converge instead of diverging forever in shared chat. Appendix B states how to judge a claim by necessity, so a strong score cannot be promoted into a locked principle.
 
 ---
 
@@ -205,7 +205,129 @@ The brief-first rubric, blind review, minimal spike, single source of truth, and
 
 ---
 
+## Appendix B — Principle necessity protocol
+
+This appendix is about **judging claims by necessity**, not by benchmark score. The goal is to extract constraints that can **rule routes in or out before the fact**—closer to physical laws and mathematical theorems—rather than justifying a technique only because some implementation performed well.
+
+It does not replace the main orchestration cycle (§4) or Appendix A (model roster). It adds a **Principle track** that can veto purely phenomenological justifications.
+
+### B.1 Two different kinds of judgment
+
+| | **Phenomenological / performance judgment** | **Principle / necessity judgment** |
+|---|---|---|
+| Evidence | Scores, demos, correlations from a specific implementation | Constraints, invariants, impossibilities, obligatory functional roles |
+| Force | “This can work” (sufficiency) | “That path is blocked / any solution must …” (necessity) |
+| Analogy | Trying many machines; one is fastest | Thermodynamics: perpetual motion need not be tried again |
+| Output | Engineering baseline | Transferable theorem-like conclusions |
+
+Multi-agent research on open scientific programs should **pursue both**, but must not let the left column quietly promote itself into the right.
+
+### B.2 Three grades of necessity (do not conflate)
+
+#### Grade 1 — Hard necessity (theorem-like)
+
+Under stated assumptions, prove **impossibility** or **obligation**:
+
+- Information: without information gain, states cannot be distinguished (sensing lower bounds)
+- Control: unstable plants cannot be arbitrarily stabilized under given delay/bandwidth limits
+- Computation: a class of maps is unrealizable under given resource bounds
+- Embodiment: without force/contact channels, some manipulation classes are impossible
+
+**Use:** routes that violate a locked Grade-1 claim may be rejected **without** further bake-offs.
+
+#### Grade 2 — Structural necessity (obligatory functional roles)
+
+Implementation need not be unique, but certain **functional roles** must appear for a competence class, for example:
+
+- State estimation (explicit or implicit)
+- Error-driven corrective closed loops
+- Multiple timescales (fast reflexive versus slower intentional)
+- Treating body dynamics as part of prediction, not as decorative outputs
+
+Neuroscience and convergent evolution often supply **candidates** for Grade 2 (recurring functional decomposition), not a unique wiring diagram.
+
+**Use:** a proposal must state how each locked role is realized; missing roles mark the design **incomplete** in principle—not “maybe it will emerge, so lock it as the mainline.”
+
+#### Grade 3 — Path contingency (historical fact, not law)
+
+“Earth life happened to take this path” is **not** “every intelligence must.” Specific cortical maps, receptor layouts, or phylogenetic accidents are often Grade 3.
+
+**Use:** strong inspiration and existence proofs (the path is feasible). **Do not** write them as the only admissible road unless upgraded to Grade 1 or 2 (missing it is impossible, or the functional role is obligatory).
+
+**Core research action for agents:** try to **upgrade** literature and anatomy from Grade 3 → 2 → 1. If the upgrade fails, keep the claim labeled as inspiration and **forbid theorem-style use**.
+
+### B.3 What a valid necessity claim looks like
+
+A principle claim eligible for locking must have:
+
+1. **Explicit premises** (organism/machine class, environment, task, resources)
+2. A conclusion of only these shapes: impossibility; lower bound (“any solution must…”); functional completeness (roles R1…Rk); invariant (conserved or monotonic relation)
+3. **Implementation independence** (applies across model families and classical methods alike)
+4. A clear **violation / falsification mode** (a counterexample downgrades the claim or adds premises)
+5. **Ban:** benchmark wins alone must never prove necessity—scores support sufficiency only
+
+Special cautions:
+
+- **Evolution:** lawful use is feasible-region shrinkage under constraints; unlawful use is “mammals did X, therefore every robot must copy X.”
+- **Neural structure:** lawful use is candidate Grade-2 roles (for example, fast/slow pathways → multi-timescale loops); unlawful use is renaming a brain area as a mandatory network module.
+
+### B.4 Lifecycle: Candidate / Locked / Challenged
+
+A necessity claim is not fixed at the start, and it is not endlessly fluid. Each claim is in exactly one of three states:
+
+| State | May | Must not |
+|---|---|---|
+| **Candidate** | Guide exploration and shape proposals | Veto the mainline |
+| **Locked** | Veto routes justified only by phenomenology. An implementation obeys the claim or files a challenge | Depart from the claim without a challenge packet |
+| **Challenged** | Stay on record and pause the old lock’s veto until adjudication | Apply that lock as a veto while the challenge is open |
+
+Path for one claim:
+
+propose → grade (1, 2, or 3) and scope → **Candidate** → proof or other non-score evidence → **Locked** → counterexample or a change of premises → **Challenged** → upgrade, downgrade, narrow the scope, or retire.
+
+Rules:
+
+- Phenomenology scores never promote **Candidate → Locked** and never rewrite a **Locked** claim. A score may only open a challenge packet.
+- A narrow Grade-1 formal bound may lock early.
+- Grade 2 often stays **Candidate**, then locks as the role converges.
+- Grade 3 stays inspiration unless it is upgraded. It does not enter **Locked** on its own.
+
+### B.5 Principle track versus phenomenology track
+
+| Track | Output | Authority |
+|---|---|---|
+| **Principle track** | Premise → necessity claim → grade (1/2/3) → scope of validity | May **veto** lines of work justified only by phenomena |
+| **Phenomenology / baseline track** | Performance, demos, correlations | Proves sufficiency only; cannot alone promote a claim to necessity |
+| **Implementation track** | Algorithms and systems | Must declare which locked principles it obeys; if it violates one, challenge the principle first—do not silently ignore it |
+
+Priority when judging a viewpoint:
+
+1. Conflicts with a locked Grade-1 claim → reject (no need to try)
+2. Missing a locked Grade-2 role → mark incomplete (exploration allowed; not eligible as the locked mainline)
+3. Performance advantage with no principle support → baseline only; not “essentially correct”
+4. Proposal to upgrade a principle → proof or counterexample, not leaderboard climbing
+
+### B.6 Honest scope
+
+For life-like perception–action, stable yields today are mostly **information/control/embodiment lower bounds** plus **Grade-2 structural candidates**. Evolutionary narratives more often give **constructive existence proofs and inspiration** than hard laws.
+
+The aim is not to pretend biology-grade Newtonian laws already exist. The aim is to **maintain an explicit necessity ladder**, upgrade what can be upgraded, and forbid theorem-style wording for what cannot—thereby **shrinking the trial-and-error space**.
+
+### B.7 Minimal artifacts
+
+For each candidate principle, keep a short record:
+
+- `claim.md` — premises, conclusion shape, grade, scope
+- `upgrade-log.md` — attempts to move 3→2→1 and outcomes
+- `violations.md` — known counterexamples or failed transfers
+
+Orchestration rule: no implementation work package may treat a Grade-3 note as a hard constraint; no phenomenology result may rewrite a locked Grade-1 claim without an explicit challenge packet.
+
+---
+
 ## Changelog
 
 - 2026-10-23: Initial methodology (generic multi-agent research orchestration).
 - 2026-10-23: Appendix A — optional heterogeneous model roster (Orchestrator, Competing author, Experiment runner) for multi-model role separation.
+- 2026-10-23: Appendix B — Principle necessity protocol (necessity grades, principle versus performance tracks, minimal claim artifacts).
+- 2026-10-23: Appendix B.4 — claim lifecycle (Candidate, Locked, Challenged). Scores may open a challenge; they do not promote or rewrite a lock.
