@@ -166,6 +166,46 @@ Treat AI agents as **parallel researchers plus a strict reviewer**, not as a com
 
 ---
 
+## Appendix A — Heterogeneous model roster (optional)
+
+When several different AI systems (or model families) work the same research problem, keep the six-step cycle in §4 unchanged. Add only a **fixed role roster** so authorship, critique, execution, and judgment stay separated.
+
+### A.1 Three slots (do not merge)
+
+| Slot | Duty | Typical fit | Must not |
+|---|---|---|---|
+| **Orchestrator** | Write the brief and rubric; assign packets; fill the adjudication table; lock the decision | Strongest at long-horizon planning, structured writing, and process fidelity | Author *and* finally score its own proposal on the same packet |
+| **Competing author** | Produce an independent proposal (and/or red-team another draft) under the same brief | Strong at broad synthesis, alternate framings, and finding holes | See the other author’s draft during drafting; rewrite the rubric mid-contest |
+| **Experiment runner** | Implement the spike for the *recommended* candidate; return raw logs and metrics | Strong at coding, repo edits, and running scripts | Change goals, rewrite `decision.md`, or alter rubric scores |
+
+You may rename the slots. You may swap which model sits in which slot across *different* packets. You may **not** collapse two slots into one agent on the same packet.
+
+### A.2 Default binding pattern
+
+For a high-stakes subproblem:
+
+1. Orchestrator publishes `brief.md` (problem, constraints, rubric, spike criteria).  
+2. At least two competing drafts: one from the Orchestrator track (or a domain specialist) and one from a **different** model family in the Competing-author slot — drafts isolated until review.  
+3. Cross red-team: each side files objections keyed to rubric rows.  
+4. Orchestrator adjudicates (Recommend / Alternate / Reject). Ties go to the human lead.  
+5. Experiment runner implements only the recommended spike; artifacts go to the shared source of truth.  
+6. Orchestrator locks the versioned `decision.md`. Spike failure returns to brief amendment or the alternate candidate — the runner does not redefine the goal on the fly.
+
+### A.3 Extra hard rules for multi-model teams
+
+1. **Model diversity is a competition requirement**, not a nice-to-have — when stakes are high, require at least two drafts from different model families.  
+2. **Physical draft isolation** — separate directories or branches; no shared scratch chat for Step 2 drafting.  
+3. **Execution ≠ judgment** — the Experiment runner may change code and deposit results; only the Orchestrator (or human lead) may edit the brief, rubric, or `decision.md`.  
+4. **No dual hat on one packet** — the model that authored a proposal must not be the sole final adjudicator of that same proposal.  
+5. **Human gate unchanged** — paid compute, production changes, and public releases still need explicit human approval.
+
+### A.4 What not to change
+
+The brief-first rubric, blind review, minimal spike, single source of truth, and human final authority remain exactly as in the main methodology. Heterogeneity only binds *who* fills each role.
+
+---
+
 ## Changelog
 
 - 2026-10-23: Initial methodology (generic multi-agent research orchestration).
+- 2026-10-23: Appendix A — optional heterogeneous model roster (Orchestrator, Competing author, Experiment runner) for multi-model role separation.
