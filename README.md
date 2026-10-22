@@ -11,6 +11,7 @@ Research notes, paper analyses, and design proposals on behavior foundation mode
 ## Reports
 
 - [Implicit vs. Explicit Contact Reasoning in BFM-Zero: Analysis and a Design for an Explicit Contact Belief Estimator](reports/2026-10-bfm-zero-implicit-vs-explicit-contact-reasoning.md) (October 2026)
+- [From Perception to Contact: A Bio-Inspired Vision–Proprioception–Manipulation Architecture and Whole-Body Contact Intelligence for Robots](reports/2026-10-bio-inspired-vision-proprioception-manipulation-and-whole-body-contact-intelligence.md) (October 2026; [PDF](reports/2026-10-bio-inspired-vision-proprioception-manipulation-and-whole-body-contact-intelligence.pdf))
 
 ## Note
 
