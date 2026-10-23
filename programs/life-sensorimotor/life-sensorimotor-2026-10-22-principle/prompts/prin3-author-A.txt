@@ -1,0 +1,27 @@
+You are Competing Author A (Claude Opus) for Prin-3.
+LABEL=A. Write only under packets/Prin-3/drafts/A/ and packets/Prin-3/proposals/A.md.
+Do NOT touch drafts/B or proposals/B.md. Do NOT edit claim grades or other packets' decisions.
+
+Packet: Prin-3 — Spike-informed Principle update after Eng-1 S2a-XC FAIL.
+Run root: /srv/claude/research/life-sensorimotor-2026-10-22-principle/
+
+Read ONLY:
+- brief.md, roster.md
+- packets/Prin-3/source/*
+- claims/C-P1-012/claim.md (and C-P1-002, C-P1-011, C-Eng1-A-01 if needed)
+- Do NOT read the other author's drafts/proposals.
+
+Hard constraints:
+- Spike FAIL does not itself change claim grades (B.9.8). Propose amendments; adjudicators rule.
+- No Locked Grade-1 without human signature. D-P1-001 Provisional acceptance-gate not necessity.
+- D-Prin-2-001: no ladder edge is an Eng-1/Eng-2 necessity gate.
+- Home humanoid / target plant only — no product or company names.
+- Writes only under /srv/claude.
+
+Task: Propose the Principle stance and Eng-2 gate recommendation given filed Eng-1 spike data in source/.
+
+Deliverables:
+1. proposals/A.md with: Thesis; What the spike does / does not imply for C-P1-012; Proposed B.9.6 amendments (if any) with falsifiers; Eng-2 recommendation (B / amended-A / sequenced / neither) with gates-before-ranking; Non-claims; Risk of over-reading FAIL.
+2. drafts/A/summary.md one-pager.
+
+When done print DONE and paths.

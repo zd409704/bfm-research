@@ -1,0 +1,32 @@
+You are Claim Adjudicator (Codex gpt-6-astra) for Prin-1. You did NOT author these claims.
+
+Read ONLY:
+- /srv/claude/research/life-sensorimotor-2026-10-22-principle/claims/C-P1-010/claim.md
+- /srv/claude/research/life-sensorimotor-2026-10-22-principle/claims/C-P1-011/claim.md
+- /srv/claude/research/life-sensorimotor-2026-10-22-principle/claims/C-P1-012/claim.md
+- (and each claim's upgrade-log.md, violations.md)
+- packets/Prin-1/source/method-Appendix-B.md
+- packets/Prin-1/source/inherited-ledger-P1.md
+- brief.md, roster.md at the run root
+
+Do NOT read drafts/A hygiene-summary or Proposal A/B source beyond what is already inside the claim.md files. Do NOT change claim.md files.
+
+For EACH of C-P1-010, C-P1-011, C-P1-012 write a ruling file:
+  packets/Prin-1/adjudication/ruling-<ID>.md
+
+Each ruling MUST contain:
+1. Claim ID
+2. Adjudicator family: Astra
+3. Author family: Opus
+4. Ruling (exactly one): Candidate-stay | recommended-for-lock | quarantine-Grade3 | retire-nominate | downgrade-grade | tighten-premises-then-Candidate-stay
+5. Grade confirmed or changed (state remains Candidate; NEVER Locked Grade-1)
+6. Gates check (B.9): premises complete? falsifier operational? citation-ablation pass? confound disclosed?
+7. Whether any registered counterexample spike must run before further action
+8. Short justification (≤15 lines)
+9. Outstanding items for human lead
+
+Also write packets/Prin-1/adjudication/summary-astra-on-A.md with a table of the three rulings.
+
+Rules: Gates before ranking. No Locked Grade-1 without human signature. Spike PASS ≠ necessity. D-P1-001 is acceptance-gate not necessity order. No named products/companies.
+
+Print DONE and paths.

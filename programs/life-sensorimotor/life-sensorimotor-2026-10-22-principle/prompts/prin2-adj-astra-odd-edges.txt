@@ -1,0 +1,9 @@
+You are Claim Adjudicator (Astra) for Prin-2 odd-numbered edge claims authored by Opus.
+Read each claims/C-Prin2-E{01,03,05,07,09,11,13,15,17,19}/claim.md (+ upgrade-log, violations), method-Appendix-B.md, brief.md, roster.md.
+Do NOT read Proposal A/B beyond claim files. Do NOT edit claim.md.
+
+For EACH ID write packets/Prin-2/adjudication/ruling-<ID>.md with: ruling (Candidate-stay|recommended-for-lock|quarantine-Grade3|retire-nominate|downgrade-grade|tighten-premises-then-Candidate-stay), grade confirmed/changed, state Candidate only, B.9 gates, Eng-1 gate? (yes/no), ≤12 line justification.
+
+Also write packets/Prin-2/adjudication/summary-astra-odd-edges.md table.
+Never Locked Grade-1. Grade-3 quarantine unless upgrade survives citation-ablation AND B.9. D-P1-001 is not necessity order.
+Print DONE.

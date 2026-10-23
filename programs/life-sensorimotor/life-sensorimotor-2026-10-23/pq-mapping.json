@@ -1,0 +1,17 @@
+{
+  "flip_bit": 0,
+  "sha256_seal_prefix": "28aca8b8331fdd84",
+  "mapping": {
+    "P": "A",
+    "Q": "B"
+  },
+  "order_pass1": [
+    "P",
+    "Q"
+  ],
+  "order_pass2": [
+    "Q",
+    "P"
+  ],
+  "note": "Labels P/Q only in adjudicator prompts; mapping sealed here"
+}

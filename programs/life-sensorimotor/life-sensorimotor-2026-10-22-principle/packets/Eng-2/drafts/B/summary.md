@@ -1,0 +1,17 @@
+# Eng-2 B — one-page summary
+
+**Recommendation:** contract-first → one bounded amended-A channel discriminator → stop and choose again. This is a **proposed override** of D-Eng-1-001's Alternate-B routing, pending the human lead's branch choice under filed D-Prin-3-001. Proposal/PLAN only; no execution.
+
+**Inherited result:** D-Eng-1-001 is Closed — Recommend A spike FAIL. H1–H4 passed; A02 was unmet. The harness was valid. SUB_DOWN_NOT_MET is not evidence that effort information is absent. UP is outside C-P1-012's retained scope. No hardware-transfer conclusion or automatic claim downgrade follows.
+
+**Distinct thesis:** a detector-only retry cannot distinguish a poor detector from a channel that cannot support the requested operating point. Use an exactly specified Gaussian proprioceptive surrogate with a likelihood-ratio reference that supplies both an attainable performance and a model-scoped ceiling. Compare one frozen boxcar residual detector across the full rate × effort × duration × magnitude grid. Outcomes distinguish reference/detector gaps, model/channel shortfalls, sufficiency and unresolved evidence. This is a new diagnostic surrogate, not a historical A02 rerun or a reconstruction of Eng-1's detector.
+
+**Binding gate:** before any spike execution, the human lead must ratify the complete task `(q,r)` table or explicitly approve the exploratory placeholder policy, declare the effort measurement point, and choose the branch. The proposed primary policy is q=.90 at r=.0006 per independent 60 ms window; its .01/s conversion applies only to disjoint reset windows. Nothing is approved by this draft.
+
+**Minimal plan:** CPU/NumPy and standard library, 15 minutes/1 GiB, 36 primary cells, fixed downstream nuisance, independent calibration/evaluation windows, exact channel reference plus independent algebra checker, simultaneous binomial bounds, no class pruning, no detector search and no automatic retry. Read-only publication must leave control/plant trajectories unchanged. The sealable deferred PLAN is `packets/Eng-2/drafts/B/PLAN.md`; seal the completed approval manifest, code, contract and PLAN before data. PASS = harness only.
+
+**Alternative:** select amended-B only for the independent question of a checked 200 ms coupled-mode envelope with retained actuator/history memory. PLAN §9 supplies two modes, reset, delays, controller, bounds, ownership and CERTIFIED/VIOLATION/UNRESOLVED semantics. That alternative still needs its own checker-specific sealed PLAN. Delaying it by one bounded discriminator is the explicit cost of this recommendation. Neither branch is compulsory if eligibility fails.
+
+**Principle integrity:** D-P1-001 remains Provisional acceptance-gate, not necessity. D-Prin-2-001 supplies no ladder-edge gates. C-P1-001/010/011 and C-Eng1-A-01 remain narrow/conditional Grade-1 Candidates; C-P1-002/012 Grade-2 Candidates; C-P1-003 Grade-3 quarantined. New C-Eng2-B-01…04 are untested engineering Candidates, grade N/A, with falsifiers in the proposal. No locks or state changes; C-P1-012 amendments/event accounting belong to its adjudicator.
+
+**Main risk:** an exact surrogate ceiling can be mistaken for a target limit. Every output is qualified by this fixture, detector and calibration; known onset and Gaussian nuisance are explicit assumptions. No placement claim, universal information-absence result, task acceptance or hardware transfer follows. If run, record waived Grade-3 prerequisites E05/E06, E08/E09 and E14; E10/E11 are not traversed and E17 acquisition is not invoked.

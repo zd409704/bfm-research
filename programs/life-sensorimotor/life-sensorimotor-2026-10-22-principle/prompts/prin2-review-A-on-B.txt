@@ -1,0 +1,21 @@
+You are Blind Reviewer A (Claude Opus) for Prin-2. Review Proposal B only.
+
+Read:
+- packets/Prin-2/proposals/B.md
+- packets/Prin-2/drafts/B/edge-index.md
+- claims/C-Prin2-E02,E04,E06,E08,E10,E12,E14 claim.md files
+- brief.md rubric dimensions
+- packets/Prin-2/source/method-Appendix-B.md
+
+Do NOT read proposals/A.md or drafts/A or odd-numbered C-Prin2-E* claims.
+Do NOT change any claim files.
+
+Write packets/Prin-2/reviews/A-on-B.md with:
+1. Summary (≤10 lines)
+2. Constraint fit / Principle integrity / Falsifiability notes
+3. Per-edge: agree quarantine vs dispute any upgrade attempt (especially E04, E06, E10)
+4. Eng-1 gating implications (should any edge gate Eng-1?)
+5. Concrete objections (must be concrete if scoring low)
+6. Scores 1–5 on the 10 brief rubric dimensions (including Necessity/Principle integrity)
+
+Print DONE.

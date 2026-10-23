@@ -1,0 +1,8 @@
+You are Blind Reviewer A (Claude Opus) for Eng-2. Review rival B only.
+Write packets/Eng-2/reviews/B-on-A.md wait — write packets/Eng-2/reviews/A-on-B.md.
+
+Read: packets/Eng-2/proposals/B.md, packets/Eng-2/source/packet-brief.md, packets/Eng-2/source/Prin-3-decision.md, brief.md rubric.
+Do NOT read proposals/A.md. Do NOT change claims. Do NOT run spikes.
+
+Cover gates (esp. deferred-spike / (q,r) ratification); Principle integrity; falsifiability of deferred PLAN; concrete objections. Score 1–5 per rubric dim.
+Print DONE.

@@ -1,0 +1,14 @@
+You are Claim Adjudicator (Claude Opus) for C-P1-001. Cross-family: claim author is Astra. You must not author this claim.
+
+Run: /srv/claude/research/life-sensorimotor-2026-10-22-principle/
+
+Read: claims/C-P1-001/claim.md, upgrade-log.md, violations.md; packets/Prin-4/decision.md; packets/Prin-4/source/method-Appendix-B.md (B.9); program-ledger.md row for C-P1-001.
+Do NOT assert Locked Grade-1. Do NOT run spikes. Do NOT change other claims.
+
+Tasks:
+1. Reconcile claim.md vs ledger "recommended-for-lock (conditional)" — append upgrade-log note naming governing state and conditions; do not rewrite history.
+2. Rule: Candidate stay / recommended-for-lock (cond.) with explicit conditions / retire-nominate. State B.9.6 narrowing count classification for Prin-1 expansion if addressable.
+3. Write claims/C-P1-001/adjudication-prin4/ruling.md; append upgrade-log.md; minimal claim.md status-field edits only.
+4. List what must still happen before human signature (B.9.2 checklist pointer; do not claim verified).
+
+Print DONE and paths. No named products/companies.

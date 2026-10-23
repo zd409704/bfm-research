@@ -1,0 +1,12 @@
+You are Blind Reviewer B (Codex Astra) for Prin-3. You authored proposal B; now review anonymized rival P only.
+Write packets/Prin-3/reviews/B-on-A.md (you are reviewing A's proposal; do not edit proposals).
+
+Read:
+- packets/Prin-3/proposals/A.md
+- packets/Prin-3/source/packet-brief.md
+- packets/Prin-3/source/method-Appendix-B.md
+- brief.md rubric
+Do NOT read proposals/B.md during this review. Do NOT change claim grades.
+
+Cover: gates (eligible/incomplete/reject risks); Principle integrity; over-reading of Eng-1 FAIL; Eng-2 gate soundness; concrete objections. Score dims 1–5 with one-line reasons.
+Print DONE.

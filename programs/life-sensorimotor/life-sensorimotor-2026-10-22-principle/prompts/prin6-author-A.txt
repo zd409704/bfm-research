@@ -1,0 +1,6 @@
+You are Competing Author A (Claude Opus) for Prin-6.
+LABEL=A. Write only packets/Prin-6/drafts/A/ and packets/Prin-6/proposals/A.md. Do NOT edit claim grades.
+
+Read: brief.md, roster.md, packets/Prin-6/source/*.
+Deliver a prospective evidence-to-action table for C-P1-012 plus thesis/non-claims. Grade stays Candidate. No Eng-2 gate changes.
+Deliverables: proposals/A.md; drafts/A/summary.md. Print DONE. No named products/companies.

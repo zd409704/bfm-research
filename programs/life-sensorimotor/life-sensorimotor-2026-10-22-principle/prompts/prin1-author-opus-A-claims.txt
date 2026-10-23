@@ -1,0 +1,51 @@
+You are Claim Author for packet Prin-1 (claim hygiene) in run life-sensorimotor-2026-10-22-principle.
+
+Working directory: /srv/claude
+Write ONLY under:
+  /srv/claude/research/life-sensorimotor-2026-10-22-principle/packets/Prin-1/drafts/A/
+  and final claim files under:
+  /srv/claude/research/life-sensorimotor-2026-10-22-principle/claims/C-P1-010/
+  /srv/claude/research/life-sensorimotor-2026-10-22-principle/claims/C-P1-011/
+  /srv/claude/research/life-sensorimotor-2026-10-22-principle/claims/C-P1-012/
+
+Do NOT read or write drafts/B or any C-P1-001/002/003 paths. Do NOT write outside /srv/claude. Do NOT modify brief.md, roster.md, pinned/, or deadline_epoch.txt.
+
+Read these sealed sources only:
+- packets/Prin-1/source/P1-proposal-A.md
+- packets/Prin-1/source/P1-decision.md
+- packets/Prin-1/source/inherited-ledger-P1.md
+- packets/Prin-1/source/method-Appendix-B.md
+- brief.md and roster.md at the run root (read-only)
+
+Task: Produce complete Appendix B claim records for inherited IDs that originated in Proposal A:
+- C-P1-010 = A-C1 (passivity / fast-tier bound)
+- C-P1-011 = A-C2 (information ceiling / DPI on contact export)
+- C-P1-012 = A-C7 (observer-vs-policy contact residual; confounded as written in P1)
+
+For EACH claim write:
+  claims/<ID>/claim.md
+  claims/<ID>/upgrade-log.md   (may be empty template if no upgrades yet)
+  claims/<ID>/violations.md    (may be empty template)
+
+claim.md MUST contain:
+1. ID, short title
+2. Author family: Opus (P1 Proposal A)
+3. Grade (1/2/3) and current state Candidate (do NOT mark Locked)
+4. Premises (numbered, explicit)
+5. Conclusion shape (impossibility / lower bound / obligatory role / inspiration)
+6. Scope (what it does and does not cover; home humanoid / target plant only — no product or company names)
+7. Falsifier / challenge mode
+8. Hygiene notes from P1 decision: confounds, unused premises, stretch beyond cited assumptions
+9. Recommended adjudicator action: Candidate-stay | recommended-for-lock | quarantine-Grade3 | retire-nominate | downgrade-grade | tighten-premises
+10. Whether a counterexample-search spike is registered (yes/no + one-line PLAN if yes)
+
+Rules from Appendix B:
+- Grade 3 stays inspiration / quarantine; no theorem-style use.
+- Do not claim Locked Grade-1. Human lead must sign later.
+- Citation-ablation: if an argument collapses without evolution/anatomy citation, mark Grade 3.
+- Phenomenology/spikes prove sufficiency only.
+- D-P1-001 is Provisional S0a acceptance-gate, NOT necessity order — do not restate it as necessity.
+
+Also write a short drafts/A/hygiene-summary.md listing the three IDs and your recommended actions.
+
+When done, print DONE and the paths written.

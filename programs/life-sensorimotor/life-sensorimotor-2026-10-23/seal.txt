@@ -1,0 +1,13 @@
+seal_utc=2026-10-22T19:16:55Z
+seal_box_local=2026-10-22 15:16:55 EDT
+method_pin=v0 3cb8fd5 sha256 9bc0d7807e81e221508bcbb998dbd0084347521ca661370b8f9da99ac7fec1bb
+pinned_path=/srv/claude/research/methodology-upgrade-2026-10-23/pinned/orchestrating-ai-research-teams.v0-3cb8fd5.md
+01734f4cf7cad625ef74ca9b73c10f50f97487d9abc5646badaa812f5177db15  /srv/claude/research/life-sensorimotor-2026-10-23/proposals/A.md
+f64fc2ed52dfad9c2824003dcd8118449362f606b0c33611d4211f76556f3206  /srv/claude/research/life-sensorimotor-2026-10-23/proposals/B.md
+f64fc2ed52dfad9c2824003dcd8118449362f606b0c33611d4211f76556f3206  /srv/claude/research/life-sensorimotor-2026-10-23/logs/proposal-B-astra.stdout.txt
+01734f4cf7cad625ef74ca9b73c10f50f97487d9abc5646badaa812f5177db15  /srv/claude/research/life-sensorimotor-2026-10-23/drafts/A/proposal.md
+f64fc2ed52dfad9c2824003dcd8118449362f606b0c33611d4211f76556f3206  /srv/claude/research/life-sensorimotor-2026-10-23/drafts/B/proposal.md
+B_cmp_vs_stdout_extract: IDENTICAL
+plan_seal_box_local=2026-10-22 15:18:41 EDT
+d76cf314ade716eba238f6b2cdbe871278f9f7926f0f1d3d37877d3a2a02d4f5  /srv/claude/research/life-sensorimotor-2026-10-23/spikes/PLAN.md
+573b7feac76e1f3a0352ce95bcfcabadc9e42f8a200c7e24686f984f517702b3  /srv/claude/research/life-sensorimotor-2026-10-23/decision.md

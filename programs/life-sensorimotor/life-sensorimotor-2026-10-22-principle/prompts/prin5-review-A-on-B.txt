@@ -1,0 +1,3 @@
+You are Blind Reviewer A (Claude Opus) for Prin-5. Write packets/Prin-5/reviews/A-on-B.md.
+Read proposals/B.md, source/packet-brief.md, method-Appendix-B.md, brief.md rubric. Do NOT read A. Do NOT change claims.
+Gates, Principle integrity, inventory completeness vs laundry-list risk, Eng-2 non-interference. Score dims 1–5. Print DONE.

@@ -1,0 +1,345 @@
+{
+ "alpha": 0.05,
+ "bonferroni_alpha": 0.00029761904761904765,
+ "channel": "R1_REAL_DOWN",
+ "classes": [
+  {
+   "M_N": 2,
+   "d_cert_bits": 0.0,
+   "d_cert_bits_bonferroni": 0.0,
+   "d_ms": 5,
+   "fpr_U": 0.0004642152,
+   "fpr_hat": 8.33333e-05,
+   "meets": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "meets_bonferroni": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "n_pos": 6000,
+   "p95_latency_ms": "inf",
+   "pre_onset_alarm_rate": 0.0,
+   "subset_split_tpr": 0.0,
+   "tpr_L": 0.0,
+   "tpr_hat": 0.0,
+   "tpr_per_seed": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "M_N": 5,
+   "d_cert_bits": 0.0,
+   "d_cert_bits_bonferroni": 0.0,
+   "d_ms": 5,
+   "fpr_U": 0.0004642152,
+   "fpr_hat": 8.33333e-05,
+   "meets": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "meets_bonferroni": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "n_pos": 6000,
+   "p95_latency_ms": "inf",
+   "pre_onset_alarm_rate": 0.0,
+   "subset_split_tpr": 0.002,
+   "tpr_L": 4.2196e-06,
+   "tpr_hat": 0.0001666667,
+   "tpr_per_seed": [
+    0.0,
+    0.0,
+    0.0005
+   ]
+  },
+  {
+   "M_N": 10,
+   "d_cert_bits": 0.0112787865,
+   "d_cert_bits_bonferroni": 0.0036695742,
+   "d_ms": 5,
+   "fpr_U": 0.0004642152,
+   "fpr_hat": 8.33333e-05,
+   "meets": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "meets_bonferroni": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "n_pos": 6000,
+   "p95_latency_ms": "inf",
+   "pre_onset_alarm_rate": 0.0,
+   "subset_split_tpr": 0.008,
+   "tpr_L": 0.0051912666,
+   "tpr_hat": 0.0071666667,
+   "tpr_per_seed": [
+    0.0055,
+    0.008,
+    0.008
+   ]
+  },
+  {
+   "M_N": 2,
+   "d_cert_bits": 0.0,
+   "d_cert_bits_bonferroni": 0.0,
+   "d_ms": 10,
+   "fpr_U": 0.0004642152,
+   "fpr_hat": 8.33333e-05,
+   "meets": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "meets_bonferroni": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "n_pos": 6000,
+   "p95_latency_ms": "inf",
+   "pre_onset_alarm_rate": 0.0,
+   "subset_split_tpr": 0.001,
+   "tpr_L": 0.000367068,
+   "tpr_hat": 0.001,
+   "tpr_per_seed": [
+    0.0015,
+    0.0005,
+    0.001
+   ]
+  },
+  {
+   "M_N": 5,
+   "d_cert_bits": 0.1301637147,
+   "d_cert_bits_bonferroni": 0.0852405578,
+   "d_ms": 10,
+   "fpr_U": 0.0004642152,
+   "fpr_hat": 8.33333e-05,
+   "meets": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "meets_bonferroni": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "n_pos": 6000,
+   "p95_latency_ms": "inf",
+   "pre_onset_alarm_rate": 0.0,
+   "subset_split_tpr": 0.035,
+   "tpr_L": 0.0286249067,
+   "tpr_hat": 0.033,
+   "tpr_per_seed": [
+    0.031,
+    0.033,
+    0.035
+   ]
+  },
+  {
+   "M_N": 10,
+   "d_cert_bits": 2.0868545909,
+   "d_cert_bits_bonferroni": 1.7383187282,
+   "d_ms": 10,
+   "fpr_U": 0.0004642152,
+   "fpr_hat": 8.33333e-05,
+   "meets": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "meets_bonferroni": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "n_pos": 6000,
+   "p95_latency_ms": "inf",
+   "pre_onset_alarm_rate": 0.0,
+   "subset_split_tpr": 0.286,
+   "tpr_L": 0.2635656212,
+   "tpr_hat": 0.2748333333,
+   "tpr_per_seed": [
+    0.2825,
+    0.2875,
+    0.2545
+   ]
+  },
+  {
+   "M_N": 2,
+   "d_cert_bits": 0.0458804945,
+   "d_cert_bits_bonferroni": 0.0247344933,
+   "d_ms": 20,
+   "fpr_U": 0.0004642152,
+   "fpr_hat": 8.33333e-05,
+   "meets": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "meets_bonferroni": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "n_pos": 6000,
+   "p95_latency_ms": "inf",
+   "pre_onset_alarm_rate": 0.0,
+   "subset_split_tpr": 0.011,
+   "tpr_L": 0.0132795601,
+   "tpr_hat": 0.0163333333,
+   "tpr_per_seed": [
+    0.0135,
+    0.0155,
+    0.02
+   ]
+  },
+  {
+   "M_N": 5,
+   "d_cert_bits": 2.5188168074,
+   "d_cert_bits_bonferroni": 2.1178207165,
+   "d_ms": 20,
+   "fpr_U": 0.0004642152,
+   "fpr_hat": 8.33333e-05,
+   "meets": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "meets_bonferroni": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "n_pos": 6000,
+   "p95_latency_ms": "inf",
+   "pre_onset_alarm_rate": 0.0,
+   "subset_split_tpr": 0.312,
+   "tpr_L": 0.3078733437,
+   "tpr_hat": 0.3196666667,
+   "tpr_per_seed": [
+    0.3055,
+    0.319,
+    0.3345
+   ]
+  },
+  {
+   "M_N": 10,
+   "d_cert_bits": 7.1456894842,
+   "d_cert_bits_bonferroni": 6.296639893,
+   "d_ms": 20,
+   "fpr_U": 0.0004642152,
+   "fpr_hat": 8.33333e-05,
+   "meets": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "meets_bonferroni": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "n_pos": 6000,
+   "p95_latency_ms": "inf",
+   "pre_onset_alarm_rate": 0.0,
+   "subset_split_tpr": 0.729,
+   "tpr_L": 0.7222865269,
+   "tpr_hat": 0.7336666667,
+   "tpr_per_seed": [
+    0.7305,
+    0.749,
+    0.7215
+   ]
+  },
+  {
+   "M_N": 2,
+   "d_cert_bits": 1.8281483884,
+   "d_cert_bits_bonferroni": 1.5124098018,
+   "d_ms": 50,
+   "fpr_U": 0.0004642152,
+   "fpr_hat": 8.33333e-05,
+   "meets": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "meets_bonferroni": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "n_pos": 6000,
+   "p95_latency_ms": "inf",
+   "pre_onset_alarm_rate": 0.0,
+   "subset_split_tpr": 0.241,
+   "tpr_L": 0.2362935071,
+   "tpr_hat": 0.2471666667,
+   "tpr_per_seed": [
+    0.2415,
+    0.252,
+    0.248
+   ]
+  },
+  {
+   "M_N": 5,
+   "d_cert_bits": 7.3825747356,
+   "d_cert_bits_bonferroni": 6.5151525471,
+   "d_ms": 50,
+   "fpr_U": 0.0004642152,
+   "fpr_hat": 8.33333e-05,
+   "meets": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "meets_bonferroni": {
+    "q0.9": false,
+    "q0.95": false
+   },
+   "n_pos": 6000,
+   "p95_latency_ms": "inf",
+   "pre_onset_alarm_rate": 0.0,
+   "subset_split_tpr": 0.733,
+   "tpr_L": 0.741206688,
+   "tpr_hat": 0.7523333333,
+   "tpr_per_seed": [
+    0.748,
+    0.761,
+    0.748
+   ]
+  },
+  {
+   "M_N": 10,
+   "d_cert_bits": 9.9298215083,
+   "d_cert_bits_bonferroni": 8.9008313289,
+   "d_ms": 50,
+   "fpr_U": 0.0004642152,
+   "fpr_hat": 8.33333e-05,
+   "meets": {
+    "q0.9": true,
+    "q0.95": false
+   },
+   "meets_bonferroni": {
+    "q0.9": true,
+    "q0.95": false
+   },
+   "n_pos": 6000,
+   "p95_latency_ms": "inf",
+   "pre_onset_alarm_rate": 0.0,
+   "subset_split_tpr": 0.934,
+   "tpr_L": 0.9298570444,
+   "tpr_hat": 0.9363333333,
+   "tpr_per_seed": [
+    0.9365,
+    0.9335,
+    0.939
+   ]
+  }
+ ],
+ "coverage": "pointwise",
+ "detector_id": "R1_REAL_DOWN@r0.001",
+ "lemma_status": "C-Eng1-A-01 Candidate; design lemma only; certificate invalid if lemma fails",
+ "log_base": 2,
+ "n_neg": 12000,
+ "n_null": 18000,
+ "neg_alarms": 1,
+ "null_alarm_rate": 5.555555555555556e-05,
+ "null_alarms": 1,
+ "placeholder_qr": true,
+ "plan": "PLAN.md v2",
+ "r_per_s_registered_equiv": 0.01,
+ "r_w": 0.001,
+ "scope_flags": []
+}

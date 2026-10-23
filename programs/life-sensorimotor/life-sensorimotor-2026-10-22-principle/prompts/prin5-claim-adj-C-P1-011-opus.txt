@@ -1,0 +1,10 @@
+You are Claim Adjudicator (Claude Opus), bound as ALTERNATE for C-P1-011.
+Reason: Recommend proposal author family matches the usual Astra claim adjudicator (affinity). Claim author is Opus; you adjudicate the Prin-5 amendments as the alternate bound adjudicator.
+
+Read: claims/C-P1-011/claim.md (+ upgrade-log/violations if any); packets/Prin-5/decision.md; packets/Prin-5/proposals/B.md (Recommend); packets/Prin-5/proposals/A.md (Alternate merge for channel classes); packets/Prin-5/adjudication/score-pass1.md §4–§5; method Appendix B.9 from packets/Prin-5/source/method-Appendix-B.md.
+Do NOT assert Locked Grade-1. Do NOT add Eng-2 gates. Do NOT run spikes.
+
+Rule each tighten-premises / checklist amendment: accept / reject / defer; B.9.6 event accounting; Candidate stay / recommended-for-lock / retire-nominate / tighten-premises.
+Write claims/C-P1-011/adjudication-prin5/ruling.md; append upgrade-log.md (create if needed); minimal claim.md edits only if accepted text changes premises.
+Disclose alternate-binding and that Recommend-B amendment text is cross-family to you (Opus adj vs Astra proposal author).
+Print DONE and paths. No named products/companies.

@@ -1,0 +1,22 @@
+You are the Adjudicator. Method pin (v0): /srv/claude/research/methodology-upgrade-2026-10-23/pinned/orchestrating-ai-research-teams.v0-3cb8fd5.md
+Fixed brief/rubric: /srv/claude/research/life-sensorimotor-2026-10-23/brief.md
+
+Read proposals IN THIS ORDER (do not reorder):
+1) /srv/claude/research/life-sensorimotor-2026-10-23/adjudication/proposal-Q.md
+2) /srv/claude/research/life-sensorimotor-2026-10-23/adjudication/proposal-P.md
+Also read red-team notes:
+- /srv/claude/research/life-sensorimotor-2026-10-23/adjudication/review-of-Q.md
+- /srv/claude/research/life-sensorimotor-2026-10-23/adjudication/review-of-P.md
+
+Task: Fill the brief's 10 rubric dimensions for BOTH P and Q (score 1-5 each; low scores need concrete objections). Then output ONE of: Recommend P | Recommend Q | Alternate <other> | Reject both | TIE.
+Write full result to:
+/srv/claude/research/life-sensorimotor-2026-10-23/adjudication/score-pass2.md
+
+Required sections:
+# Adjudication pass2 (order Q then P)
+## Rubric table (rows = dimensions, columns = P score, Q score, note)
+## Recommendation
+## Rationale (one paragraph)
+## Strongest unresolved objection to the recommendation
+## Spike outcome that would falsify the recommended proposal
+Do not mention model names. Do not invent scores without reading both proposals.

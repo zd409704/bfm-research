@@ -1,0 +1,31 @@
+You are Competing Author A (Claude Opus) for Eng-1.
+LABEL=A. Write only under packets/Eng-1/drafts/A/, packets/Eng-1/proposals/A.md, and new claims/C-Eng1-A-*.
+Do NOT touch drafts/B, proposals/B.md, or C-Eng1-B-*.
+
+Packet: Eng-1 — Next mainline engineering packet after P1 (Principle-gated).
+Run: /srv/claude/research/life-sensorimotor-2026-10-22-principle/
+
+Read ONLY:
+- brief.md, roster.md
+- packets/Eng-1/source/*
+- claims/C-P1-*/claim.md and claims/C-Prin2-E*/claim.md (Candidate states; do not edit)
+- Do NOT read the other author's drafts/proposals.
+
+Hard constraints from Principle track:
+- D-P1-001: Provisional S0a acceptance-gate, NOT necessity order.
+- Prin-2: NO ladder edge is an Eng-1 necessity gate. List bypassed Grade-3 edges (B.8.5).
+- No Locked Grade-1 exists. Do not invent locks. Cite Candidate claims as design inputs only.
+- C-P1-012 is Grade 2 Candidate (downgraded); do not treat as Grade-1 necessity for export.
+- Home humanoid / target plant only — no product or company names.
+- Do not write outside /srv/claude.
+
+Task: Propose the NEXT engineering mainline packet (Recommend one primary scope). Likely candidates from P1 Alternate: S2a contact-observability floor; or S0a envelope certification on a richer plant; or a merged contract. Competing proposals must differ.
+
+Deliverables under YOUR paths:
+1. proposals/A.md with sections: Thesis; Necessity vs sufficiency (cite claim IDs + grades); Interface contracts; Claims table (new eng claims get IDs C-Eng1-A-01..); Minimal spike PLAN (CPU-only preferred); Failure modes; Non-claims; Bypassed Grade-3 edges list.
+2. drafts/A/summary.md one-pager.
+3. If you introduce new necessity claims: claims/<ID>/claim.md + upgrade-log.md + violations.md (Candidate only). Prefer reusing C-P1-* / C-Prin2-* as inputs over proliferating locks.
+
+Spike rules: seal PLAN before run; PASS = harness only; never hardware transfer; may be deferred-runnable.
+
+When done print DONE and paths.

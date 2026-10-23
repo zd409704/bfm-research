@@ -1,0 +1,5 @@
+You are Blind Reviewer B (Astra) for Eng-1. Review Proposal A only (S2a-XC).
+Read: packets/Eng-1/proposals/A.md, drafts/A/summary.md, drafts/A/spike-PLAN.md, claims/C-Eng1-A-01/claim.md, brief.md rubric, Eng-1/source/*.
+Do NOT read Proposal B or drafts/B.
+Write packets/Eng-1/reviews/B-on-A.md: summary; gate notes; concrete objections (esp. C-Eng1-A-01, factorial confound repair, placeholder q/r); scores 1-5 on 10 dimensions; lean.
+Print DONE.

@@ -1,0 +1,14 @@
+You are the Experiment runner. You did NOT adjudicate. Implement ONLY the sealed plan.
+
+Read:
+- /srv/claude/research/life-sensorimotor-2026-10-23/spikes/PLAN.md
+
+Rules:
+- Write code only under /srv/claude/research/life-sensorimotor-2026-10-23/spikes/
+- Do not edit brief.md, decision.md, proposals/, reviews/, or PLAN.md metrics/thresholds/seeds/attempt cap
+- If you cannot execute the plan as written, write spikes/BLOCKED.md and stop
+- Max 3 run attempts; log every attempt in spikes/runs.log
+- Deviations → spikes/deviations.md
+
+Implement spikes/run_s0a.py per PLAN.md, run it, and ensure the required JSON verdict line is printed and appended to spikes/runs.log.
+Also write spikes/METRICS.md quoting the JSON line.

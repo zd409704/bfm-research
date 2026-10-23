@@ -1,0 +1,19 @@
+You are Red Team reviewer for Proposal A. You authored Proposal B earlier; do NOT rewrite A or B. File objections only.
+
+Read:
+- /srv/claude/research/life-sensorimotor-2026-10-23/brief.md (rubric is fixed)
+- /srv/claude/research/life-sensorimotor-2026-10-23/drafts/A/proposal.md  (Proposal A under review)
+- Appendix B in /srv/claude/github/zd409704/bfm-research/notes/orchestrating-ai-research-teams.md
+
+Do NOT open drafts/B or proposals/B.md during this review.
+
+Output FULL review markdown to stdout (read-only sandbox). Start with:
+# Review B-on-A
+
+Then:
+## Summary (3-6 sentences)
+## Rubric objections
+For each of the 10 rubric dimensions from the brief, give: score_suggestion 1-5, objection_or_pass (concrete if score<=3).
+## Fatal risks (if any)
+## What would need to change for Recommend
+Do not propose a full alternate design. No Chinese.

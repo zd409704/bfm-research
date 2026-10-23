@@ -1,0 +1,34 @@
+You are Proposal Author A for research packet P1.
+
+Read ONLY these files (do not open other proposals or reviews):
+- /srv/claude/research/life-sensorimotor-2026-10-23/brief.md
+- /srv/claude/github/zd409704/bfm-research/notes/orchestrating-ai-research-teams.md (Appendix B especially)
+
+Context already fixed by prior adversarial reviews (do not re-litigate):
+- Contact reactivity of BFM-Zero holds; "contact is a necessary latent already estimated" does NOT.
+- Frozen pretrained BFM + contact planner as stated is NOT feasible.
+- Biology is motivation only (Grade 3 unless upgraded).
+- Evolutionary ladder draft stages: S0 reflex/impedance → S1 proprioceptive locomotion → S2 contact observability → S3 prediction → S4 active probing → S5 contact-as-relation → S6 self-motion vision → S7 composition/memory.
+- Ownership tiers: body loop (fast) vs Scene Graph vs Life Core (slow cognition). Do not settle S7 before S0–S2 gates.
+
+Task: Write ONE competing proposal answering the brief's packet questions:
+1. Which stage among S0–S2 (or justified split/merge) is the correct FIRST lock, in necessity terms (Appendix B grades), not only engineering convenience.
+2. Interface contracts upward (signals, rate class, ownership).
+3. Candidate/Locked necessity claims (grade 1/2/3 + scope). Prefer Candidate unless Grade-1 bound is tight.
+4. Minimal spike (sim-only OK) with pre-registered pass/fail metrics.
+
+Write the full proposal to:
+/srv/claude/research/life-sensorimotor-2026-10-23/proposals/A.md
+
+Structure A.md as:
+# Proposal A — <short title>
+## Thesis (first lock)
+## Necessity argument (Appendix B)
+## Interface contracts
+## Claims table (id, grade, state Candidate/Locked, scope, falsifier)
+## Minimal spike (commands/metrics/pass-fail; sim OK)
+## Failure modes & reversibility
+## Stackability to S3–S7
+## Explicit non-claims
+
+Keep it crisp and executable. No Chinese. Do not mention Proposal B. Do not change brief.md.

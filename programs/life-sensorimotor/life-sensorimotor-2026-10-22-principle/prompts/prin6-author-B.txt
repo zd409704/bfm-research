@@ -1,0 +1,6 @@
+You are Competing Author B (Codex Astra) for Prin-6.
+LABEL=B. Write only packets/Prin-6/drafts/B/ and packets/Prin-6/proposals/B.md. Do NOT edit claim grades.
+
+Read: brief.md, roster.md, packets/Prin-6/source/*.
+Deliver a prospective evidence-to-action table for C-P1-012 with a distinct thesis (not a copy of a generic matrix). Grade stays Candidate. No Eng-2 gate changes.
+Deliverables: proposals/B.md; drafts/B/summary.md. Print DONE. No named products/companies.

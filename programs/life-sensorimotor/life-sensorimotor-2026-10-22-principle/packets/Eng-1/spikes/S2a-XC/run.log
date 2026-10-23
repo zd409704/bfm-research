@@ -1,0 +1,24 @@
+16:53:37 plan sha256 3d7b9af6b08d8f1fe36e25c06780bcfca571969656669d9c6fbdd1c902e9ac41 sealed ok
+16:53:37 Bypassed Grade-3 edges: E05/E06 (S0a->S2a), E08/E09 (S1->S2a), E14 (S0b->S2a); E10/E11 (S2a->S1) listed, not bypassed; E17 Reading P not invoked. None used as gate.
+16:53:37 H4 True
+16:53:50 calibrated 13.5 s
+16:53:54 neg/null seed 0 16.7 s
+16:53:57 neg/null seed 1 20.3 s
+16:54:01 neg/null seed 2 23.8 s
+16:54:07 pos seed 0 30.4 s
+16:54:14 pos seed 1 37.1 s
+16:54:21 pos seed 2 43.7 s
+16:54:24 subset 47.4 s
+16:56:37 pipeline done 180.2 s
+16:56:37 running pipeline a second time for H1
+16:56:51 calibrated 13.7 s
+16:56:54 neg/null seed 0 16.9 s
+16:56:57 neg/null seed 1 20.1 s
+16:57:00 neg/null seed 2 23.4 s
+16:57:07 pos seed 0 29.6 s
+16:57:13 pos seed 1 35.8 s
+16:57:19 pos seed 2 42.2 s
+16:57:23 subset 45.6 s
+16:59:35 pipeline done 178.1 s
+16:59:35 H1 determinism True 26da2f3f0a19f59ee561770596e918cd343dae09bce14b3eaa55ae1aff3064d3
+16:59:35 VERDICT FAIL ['A02', 'SUB_DOWN_NOT_MET']

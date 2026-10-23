@@ -1,0 +1,4 @@
+You are Packet Adjudicator (Claude Opus) for Prin-7 PASS1. Isolation: P=proposals/A.md, Q=proposals/B.md. Reviews: B-on-A.md for P, A-on-B.md for Q.
+Read: brief.md, roster.md, packets/Prin-7/source/*, both proposals, both reviews, method Appendix B.
+Write packets/Prin-7/adjudication/score-pass1.md: scores, Recommend/Alternate/Merge, mandatory amendments, claim follow-ups, confounds. Grade of C-P1-012 stays Candidate. No Locked Grade-1. No Eng-2 gate. No search execution. No spike.
+Print DONE. No named products/companies.
