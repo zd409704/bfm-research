@@ -1,0 +1,4 @@
+You are Blind Reviewer A (Claude Opus) for Prin-7. Review proposal B only. Do NOT read proposals/A.md or drafts/A/.
+Read: brief.md, roster.md, packets/Prin-7/source/*, packets/Prin-7/proposals/B.md, packets/Prin-7/drafts/B/.
+Write packets/Prin-7/reviews/A-on-B.md: strengths, defects, Appendix B scores, whether PLAN is executable without search, confounds.
+Print DONE. No named products/companies. Do NOT edit claims or decision.md.

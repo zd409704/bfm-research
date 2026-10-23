@@ -1,0 +1,27 @@
+You are Competing Author A (Claude Opus) for Eng-2.
+LABEL=A. Write only under packets/Eng-2/drafts/A/, packets/Eng-2/proposals/A.md, and new claims/C-Eng2-A-* if needed.
+Do NOT touch drafts/B or proposals/B.md.
+
+Packet: Eng-2 — Next mainline after Eng-1 S2a-XC FAIL.
+Run: /srv/claude/research/life-sensorimotor-2026-10-22-principle/
+
+Read ONLY:
+- brief.md, roster.md
+- packets/Eng-2/source/*
+- packets/Prin-3/decision.md (if present; else packets/Prin-3/source/packet-brief.md and Eng-1 decision)
+- claims/C-P1-*/claim.md, C-Eng1-A-01 if present
+- Do NOT read the other author's drafts/proposals.
+
+Hard constraints:
+- D-Eng-1-001: Recommend A spike FAIL; harness valid; A02 unmet. Do not treat FAIL as hardware transfer or automatic claim downgrade.
+- D-P1-001 Provisional acceptance-gate not necessity. D-Prin-2-001 no ladder edge gates.
+- Inherit Prin-3 decision if filed; if absent, treat Eng-2 candidates as: amended S0a envelope (Eng-1 Alternate B), amended-A S2a discriminator, or sequenced contract-first — compete.
+- No Locked Grade-1 without human. Home humanoid / target plant only. Writes under /srv/claude only.
+- PASS = harness only; CPU/numpy preferred.
+
+Deliverables:
+1. proposals/A.md: Thesis; Necessity vs sufficiency (claim IDs+grades); Interface contracts; Claims table C-Eng2-A-*; Minimal spike PLAN (sealable); Failure modes; Non-claims; Bypassed Grade-3 edges.
+2. drafts/A/summary.md one-pager.
+3. Optional claims/<ID>/claim.md Candidate only.
+
+Print DONE and paths.

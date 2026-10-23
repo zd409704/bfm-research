@@ -1,0 +1,9 @@
+You are Competing Author A (Claude Opus) for Prin-4.
+LABEL=A. Write only packets/Prin-4/drafts/A/ and packets/Prin-4/proposals/A.md.
+Do NOT edit claim grades (propose only). Do NOT touch drafts/B.
+
+Read: brief.md, roster.md, packets/Prin-4/source/*, claims/C-P1-001/claim.md, claims/C-P1-012/claim.md (status only).
+Hard constraints as in packet-brief.md. Writes under /srv/claude only.
+
+Deliverables: proposals/A.md (Thesis; C-P1-001 lock-path checklist; Principle priority list while Eng-2 gated; retire/leave nominations; Non-claims); drafts/A/summary.md.
+Print DONE and paths.

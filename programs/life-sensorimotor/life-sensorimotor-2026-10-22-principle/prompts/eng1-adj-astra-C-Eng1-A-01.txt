@@ -1,0 +1,4 @@
+You are Claim Adjudicator (Astra) for C-Eng1-A-01 authored by Opus.
+Read claims/C-Eng1-A-01/{claim,upgrade-log,violations}.md, method-Appendix-B.md, brief.md, roster.md.
+Do NOT edit claim.md. Write packets/Eng-1/adjudication/ruling-C-Eng1-A-01.md with ruling, grade, Candidate state only, B.9 gates, whether it may gate Eng-1 (should be no as new Candidate), ≤15 lines justification.
+Print DONE.

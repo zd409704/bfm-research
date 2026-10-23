@@ -1,0 +1,5 @@
+You are Competing Author B (Codex Astra) for Prin-7.
+LABEL=B. Write only packets/Prin-7/drafts/B/ and packets/Prin-7/proposals/B.md.
+Read: brief.md, roster.md, packets/Prin-7/source/*.
+Deliver a distinct PLAN (not a search) for an admissible model class + refuter for a C-P1-012 Grade-1 identifiability upgrade attempt. No execution. Grade stays Candidate. No Eng-2 gate changes.
+Deliverables: proposals/B.md; drafts/B/summary.md. Print DONE. No named products/companies.

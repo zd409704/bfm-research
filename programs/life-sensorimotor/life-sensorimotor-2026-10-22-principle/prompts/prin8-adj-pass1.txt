@@ -1,0 +1,4 @@
+You are Packet Adjudicator (Claude Opus) for Prin-8 PASS1. Isolation: P=proposals/A.md, Q=proposals/B.md. Reviews: B-on-A.md for P, A-on-B.md for Q.
+Read: brief.md, roster.md, packets/Prin-8/source/*, both proposals, both reviews, method Appendix B.
+Write packets/Prin-8/adjudication/score-pass1.md. Grades stay Candidate. No Locked Grade-1. No Eng-2 gate. No spike/measurement execution.
+Print DONE. No named products/companies.

@@ -1,0 +1,5 @@
+You are Blind Reviewer A (Opus) for Eng-1. Review Proposal B only (richer-plant S0a).
+Read: packets/Eng-1/proposals/B.md, drafts/B/summary.md, drafts/B/PLAN.md, brief.md rubric, Eng-1/source/*.
+Do NOT read Proposal A or drafts/A or C-Eng1-A-*.
+Write packets/Eng-1/reviews/A-on-B.md: summary; gate notes (Principle integrity, bypassed edges); concrete objections; scores 1-5 on 10 rubric dimensions; Recommend/Alternate/Reject lean without being the packet adjudicator.
+Print DONE.

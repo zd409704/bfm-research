@@ -1,0 +1,5 @@
+You are Blind Reviewer A (Claude Opus) for Prin-6. Review proposal B only. Do NOT read proposals/A.md or drafts/A/.
+
+Read: brief.md, roster.md, packets/Prin-6/source/*, packets/Prin-6/proposals/B.md, packets/Prin-6/drafts/B/.
+Write packets/Prin-6/reviews/A-on-B.md with: strengths, defects, Appendix B criterion scores, whether the evidence-to-action table is actionable without changing claim grade, confounds noted.
+Print DONE. No named products/companies. Do NOT edit claims or decision.md.

@@ -1,0 +1,38 @@
+Packet: Prin-2 — Ladder-edge necessity (Principle track).
+Run root: /srv/claude/research/life-sensorimotor-2026-10-22-principle/
+Method: Appendix B especially B.8 capability ladders and B.9 claim governance (sealed excerpt in packets/Prin-2/source/method-Appendix-B.md).
+
+Read ONLY:
+- brief.md, roster.md
+- packets/Prin-2/source/* (sealed)
+- claims/C-P1-*/claim.md for inherited Candidate claims (read-only; do not edit)
+
+Do NOT read the other author's drafts/proposals. Do NOT write outside /srv/claude. No product/company names — home humanoid / target plant only.
+
+Task: Propose ladder-EDGE claims among planning stages {S0a, S0b, S1, S2} (and S2a if you split contact observability floor).
+Rules (B.8):
+1. Each directed edge is its OWN claim ID (new IDs: C-Prin2-E01, E02, ...).
+2. Edges start at Grade 3 by default.
+3. Upgrade attempts need Grade-1 info/stability/resource argument OR Grade-2 obligatory-role argument with operational test.
+4. Citation-ablation (B.8.7): delete evolution/development/anatomy cites; if argument collapses → remains Grade 3, quarantine.
+5. Evolutionary / developmental / engineering orders are DISTINCT; evidence about one is at most Grade-3 about the others.
+6. D-P1-001 is Provisional S0a acceptance-gate, NOT necessity order — do not promote it to an edge lock.
+7. Do NOT mark Locked Grade-1. Leave Candidate; you may nominate recommended-for-lock only with full premises/falsifier.
+8. Grade-3 edges stay quarantined unless upgraded with citation-ablation survival.
+
+Deliverables (write under YOUR draft dir, then copy finals):
+1. proposals/<YOU>.md — thesis on which edges matter; table of proposed edge claims; which stay Grade 3 quarantine; which attempt upgrade and why; gates-before-ranking note.
+2. For EACH proposed edge claim: claims/<ID>/claim.md + upgrade-log.md + violations.md
+3. drafts/<YOU>/edge-index.md — ID list with grade and recommended action.
+
+Minimum edges to address (you may add):
+- S0a → S0b
+- S0a → S1
+- S0a → S2 (or S2a)
+- S1 → S2 (or S2a)
+- S2 (or S2a) → S1
+Optional: S0b → S1, S0b → S2.
+
+Also state explicitly: which edges, if any, could GATE Eng-1 (next engineering packet). Prefer honesty over forcing upgrades.
+
+When done print DONE and paths.

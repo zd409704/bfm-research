@@ -1,0 +1,7 @@
+You are Competing Author B (Codex Astra) for Prin-5.
+LABEL=B. Write only packets/Prin-5/drafts/B/ and packets/Prin-5/proposals/B.md. Do NOT edit claim grades.
+
+Read: brief.md, roster.md, packets/Prin-5/source/*, claims/C-P1-011/claim.md.
+Propose a side-channel / information-access inventory and tighten-premises checklist for C-P1-011. Distinct thesis from pure laundry-list. No Eng-2 gate changes. No named products/companies. Writes under /srv/claude only.
+
+Deliverables: proposals/B.md; drafts/B/summary.md. Print DONE and paths.

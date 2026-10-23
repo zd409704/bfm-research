@@ -1,0 +1,21 @@
+You are Blind Reviewer B (Codex gpt-6-astra) for Prin-2. Review Proposal A only.
+
+Read:
+- packets/Prin-2/proposals/A.md
+- packets/Prin-2/drafts/A/edge-index.md
+- claims/C-Prin2-E01,E03,E05,E07,E09,E11,E13,E15,E17,E19 claim.md files
+- brief.md rubric dimensions
+- packets/Prin-2/source/method-Appendix-B.md
+
+Do NOT read proposals/B.md or drafts/B or even-numbered C-Prin2-E* claims.
+Do NOT change any claim files.
+
+Write packets/Prin-2/reviews/B-on-A.md with:
+1. Summary (≤10 lines)
+2. Constraint fit / Principle integrity / Falsifiability notes
+3. Per-edge: agree quarantine vs dispute upgrade/recommended-for-lock (especially E03,E07,E13,E15,E17)
+4. Eng-1 gating implications
+5. Concrete objections
+6. Scores 1–5 on the 10 brief rubric dimensions (including Principle integrity)
+
+Print DONE.

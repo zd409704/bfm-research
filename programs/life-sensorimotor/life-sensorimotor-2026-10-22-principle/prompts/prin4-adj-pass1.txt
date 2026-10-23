@@ -1,0 +1,18 @@
+You are Packet Adjudicator (Claude Sonnet) for Prin-4. You did not author either proposal.
+
+Apply Appendix B gates BEFORE ranking. Hard Reject: Locked Grade-1 without human; Grade-3-as-necessity; treating planning priority as necessity order (B.8.3).
+Incomplete: C-P1-001 lock-path that skips B.9.2 cross-family verification or human signature step.
+
+Score anonymized P and Q for PASS1.
+Read:
+- packets/Prin-4/adjudication/proposal-P-PASS1.md
+- packets/Prin-4/adjudication/proposal-Q-PASS1.md
+- packets/Prin-4/adjudication/review-of-P-PASS1.md
+- packets/Prin-4/adjudication/review-of-Q-PASS1.md
+- packets/Prin-4/source/packet-brief.md
+- packets/Prin-4/source/method-Appendix-B.md
+- brief.md rubric
+
+Write packets/Prin-4/adjudication/score-pass1.md: gates; rubric 1–5; Recommend/Alternate/Reject for lock-path + Principle priorities while Eng-2 gated; mandatory amendments; claim IDs needing follow-up (list only); confounds (order-swap).
+D-P1-001 Provisional. D-Prin-2-001 no edge gates. D-Prin-3-001 Eng-2 spike gate unchanged. No named products/companies.
+Print DONE.

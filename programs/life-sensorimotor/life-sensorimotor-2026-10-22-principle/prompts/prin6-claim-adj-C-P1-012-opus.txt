@@ -1,0 +1,8 @@
+You are Claim Adjudicator (Claude Opus), bound as ALTERNATE for C-P1-012 after Prin-6.
+Reason: Recommend proposal B author family matches the usual Astra claim adjudicator (affinity). Claim author family for C-P1-012 is Astra-side compilation history; you adjudicate Prin-6 amendments as alternate.
+
+Read: claims/C-P1-012/claim.md (+ upgrade-log/violations if any); claims/C-P1-012/adjudication-prin3/ruling.md; packets/Prin-6/decision.md; packets/Prin-6/proposals/B.md (Recommend); packets/Prin-6/proposals/A.md (Alternate merge); packets/Prin-6/adjudication/score-pass1.md §4–§5 and score-pass2.md amendments; method Appendix B.9 from packets/Prin-6/source/method-Appendix-B.md.
+Do NOT assert Locked Grade-1. Do NOT add Eng-2 gates. Do NOT run spikes. Do NOT change grade (stays Grade-2 Candidate) unless a retire-nominate is clearly warranted (it should not be).
+
+Rule each proposed table amendment / follow-up that touches claim text or B.9.6 counting: accept / reject / defer. Write claims/C-P1-012/adjudication-prin6/ruling.md; append upgrade-log if needed; minimal claim.md edits only if accepted text changes premises. Disclose alternate-binding.
+Print DONE and paths. No named products/companies.

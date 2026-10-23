@@ -1,0 +1,21 @@
+You are Claim Adjudicator (Codex Astra) for C-P1-012. Cross-family: claim author is Opus. You must not author this claim.
+
+Run root: /srv/claude/research/life-sensorimotor-2026-10-22-principle/
+
+Read:
+- claims/C-P1-012/claim.md, upgrade-log.md, violations.md (if any)
+- packets/Prin-3/decision.md
+- packets/Prin-3/proposals/A.md section on amendments A-1..A-5
+- packets/Prin-3/proposals/B.md section on B.9.6 amendments
+- packets/Prin-3/source/Eng-1-S2a-XC-VERDICT.json
+- packets/Prin-3/source/method-Appendix-B.md (B.9)
+- Do NOT change other claims. Do NOT assert Locked Grade-1.
+
+Task: For each proposed amendment, rule: accept / reject / defer; whether it is a B.9.6 narrowing event; update upgrade-log.md and claim.md state fields only as allowed (Candidate stay / recommended-for-lock / retire-nominate). Reconcile upgrade-log accepted-narrowing count vs Prin-1 event #1 if needed. Spike FAIL does not itself change grade (B.9.8).
+
+Write:
+- claims/C-P1-012/adjudication-prin3/ruling.md
+- Update claims/C-P1-012/upgrade-log.md (append)
+- Minimal claim.md edits only if a ruled amendment changes recorded premises/falsifier/scope text; keep Grade-2 Candidate unless retire-nominate.
+
+Print DONE and paths. No named products/companies.

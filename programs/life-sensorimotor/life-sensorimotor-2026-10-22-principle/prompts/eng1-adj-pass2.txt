@@ -1,0 +1,18 @@
+You are Packet Adjudicator (Claude Sonnet) for Eng-1. You authored neither proposal.
+
+Gates BEFORE ranking (B.9.5 / §4 Step 4):
+- Reject if Grade-3 treated as Locked necessity, or Locked Grade-1 claimed without human signature, or C-Eng1-A-01 / any Candidate used as veto gate.
+- Incomplete if missing Locked Grade-2 role required as Incomplete-gate without operational test — note but engineering proposals may still be eligible if they treat roles as Candidate design inputs.
+
+Read:
+- packets/Eng-1/adjudication/proposal-P-pass2.md
+- packets/Eng-1/adjudication/proposal-Q-pass2.md
+- packets/Eng-1/adjudication/review-of-P-pass2.md
+- packets/Eng-1/adjudication/review-of-Q-pass2.md
+- packets/Eng-1/adjudication/gate-C-Eng1-A-01.md
+- brief.md, packets/Eng-1/source/Prin-2-decision.md, method-Appendix-B.md
+
+Write packets/Eng-1/adjudication/score-pass2.md with: gate results; rubric 1-5×10 for P and Q; Recommend/Alternate/Reject; whether to run which spike; mandatory amendments; confounds (no deanonymizing).
+
+D-P1-001 is acceptance-gate not necessity order. No Eng-1 ladder-edge gates (Prin-2). C-Eng1-A-01 is Candidate and must not gate. Home humanoid / target plant only.
+Print DONE.

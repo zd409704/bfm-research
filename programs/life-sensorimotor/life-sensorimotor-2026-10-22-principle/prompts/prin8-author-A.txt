@@ -1,0 +1,5 @@
+You are Competing Author A (Claude Opus) for Prin-8.
+LABEL=A. Write only packets/Prin-8/drafts/A/ and packets/Prin-8/proposals/A.md.
+Read: brief.md, roster.md, packets/Prin-8/source/*.
+Deliver premise-match templates for C-P1-002 and C-P1-010 usable until a measurement point is declared. No execution. No Eng-2 gate changes. Grades stay Candidate.
+Deliverables: proposals/A.md; drafts/A/summary.md. Print DONE. No named products/companies.

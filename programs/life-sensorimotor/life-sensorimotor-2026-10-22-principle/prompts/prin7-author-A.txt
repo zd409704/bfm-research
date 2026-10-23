@@ -1,0 +1,5 @@
+You are Competing Author A (Claude Opus) for Prin-7.
+LABEL=A. Write only packets/Prin-7/drafts/A/ and packets/Prin-7/proposals/A.md.
+Read: brief.md, roster.md, packets/Prin-7/source/*.
+Deliver a PLAN (not a search) for an admissible model class + refuter aimed at a C-P1-012 Grade-1 identifiability upgrade attempt. No execution. Grade stays Candidate. No Eng-2 gate changes.
+Deliverables: proposals/A.md; drafts/A/summary.md. Print DONE. No named products/companies.

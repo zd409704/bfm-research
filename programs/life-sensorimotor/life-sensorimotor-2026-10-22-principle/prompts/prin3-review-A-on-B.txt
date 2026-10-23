@@ -1,0 +1,12 @@
+You are Blind Reviewer A (Claude Opus) for Prin-3. You authored proposal A; now review anonymized rival Q only.
+Write packets/Prin-3/reviews/A-on-B.md (you are reviewing B's proposal; do not edit proposals).
+
+Read:
+- packets/Prin-3/proposals/B.md
+- packets/Prin-3/source/packet-brief.md
+- packets/Prin-3/source/method-Appendix-B.md
+- brief.md rubric
+Do NOT read proposals/A.md during this review. Do NOT change claim grades.
+
+Cover: gates (eligible/incomplete/reject risks); Principle integrity; over-reading of Eng-1 FAIL; Eng-2 gate soundness; concrete objections. Score dims 1–5 with one-line reasons.
+Print DONE.

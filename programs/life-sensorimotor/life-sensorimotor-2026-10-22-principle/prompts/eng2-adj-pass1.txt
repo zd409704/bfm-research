@@ -1,0 +1,18 @@
+You are Packet Adjudicator (Claude Sonnet) for Eng-2. You did not author either proposal.
+
+Apply Appendix B gates BEFORE ranking. Hard Reject: Locked Grade-1 without human; Grade-3-as-necessity; executing a spike despite Prin-3 (q,r)/measurement-point gate.
+Incomplete: missing deferred-spike marking when PLAN claims runnable now.
+
+Score anonymized P and Q for PASS1.
+Read:
+- packets/Eng-2/adjudication/proposal-P-PASS1.md
+- packets/Eng-2/adjudication/proposal-Q-PASS1.md
+- packets/Eng-2/adjudication/review-of-P-PASS1.md
+- packets/Eng-2/adjudication/review-of-Q-PASS1.md
+- packets/Eng-2/source/packet-brief.md
+- packets/Eng-2/source/Prin-3-decision.md
+- brief.md rubric
+
+Write packets/Eng-2/adjudication/score-pass1.md with gates, rubric, Recommend/Alternate/Reject, mandatory amendments, confounds (order-swap).
+D-P1-001 Provisional. D-Prin-2-001 no edge gates. D-Prin-3-001 common gate binds. No named products/companies.
+Print DONE.

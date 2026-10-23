@@ -1,0 +1,86 @@
+{
+ "A02": false,
+ "H1": true,
+ "H2": true,
+ "H3": true,
+ "H4": true,
+ "bypassed_edges": {
+  "bypassed": [
+   "E05",
+   "E06",
+   "E08",
+   "E09",
+   "E14"
+  ],
+  "listed_not_bypassed": [
+   "E10",
+   "E11"
+  ],
+  "not_invoked": [
+   "E17-ReadingP"
+  ]
+ },
+ "claim_grade_changes": "none (runner files data only)",
+ "criteria_fired": [
+  "A02",
+  "SUB_DOWN_NOT_MET"
+ ],
+ "criteria_fired_note": "H*/A02 decide the verdict; FE_*/FR_*/SUB_* are informational C-P1-012 data flags",
+ "factorE_counterexample_DOWN": false,
+ "factorE_counterexample_UP": false,
+ "factorR_counterexample_DOWN": false,
+ "factorR_counterexample_UP": false,
+ "harness_pass": true,
+ "placeholder_qr": true,
+ "plan_sha256": "3d7b9af6b08d8f1fe36e25c06780bcfca571969656669d9c6fbdd1c902e9ac41",
+ "results_sha256": "26da2f3f0a19f59ee561770596e918cd343dae09bce14b3eaa55ae1aff3064d3",
+ "scope": "harness validity only; no hardware transfer",
+ "smoke": false,
+ "substitution_drop_DOWN": {
+  "drops": {
+   "d20_M10": 0.1466666667,
+   "d50_M10": 0.0625,
+   "d50_M5": 0.1253333333
+  },
+  "identifiable_classes": [
+   "d20_M10",
+   "d50_M5",
+   "d50_M10"
+  ],
+  "mean_drop": 0.1115,
+  "message_if_not_met": "role not realized by that channel on this fixture, detector and calibration; NOT proof that effort information is absent",
+  "min_drop": 0.0625,
+  "policy": "recalibrate threshold on substituted channel, same r_w",
+  "substitution_drop_met": false
+ },
+ "substitution_drop_UP": {
+  "drops": {
+   "d10_M10": 0.8125,
+   "d10_M5": 0.668,
+   "d20_M10": 0.413,
+   "d20_M2": 0.605,
+   "d20_M5": 0.787,
+   "d50_M10": 0.1261666667,
+   "d50_M2": 0.7928333333,
+   "d50_M5": 0.373,
+   "d5_M10": 0.506
+  },
+  "identifiable_classes": [
+   "d5_M10",
+   "d10_M5",
+   "d10_M10",
+   "d20_M2",
+   "d20_M5",
+   "d20_M10",
+   "d50_M2",
+   "d50_M5",
+   "d50_M10"
+  ],
+  "mean_drop": 0.5648333333,
+  "message_if_not_met": "role not realized by that channel on this fixture, detector and calibration; NOT proof that effort information is absent",
+  "min_drop": 0.1261666667,
+  "policy": "recalibrate threshold on substituted channel, same r_w",
+  "substitution_drop_met": true
+ },
+ "verdict": "FAIL"
+}

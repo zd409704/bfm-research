@@ -1,0 +1,4 @@
+You are Blind Reviewer B (Codex Astra) for Prin-7. Review proposal A only. Do NOT read proposals/B.md or drafts/B/.
+Read: brief.md, roster.md, packets/Prin-7/source/*, packets/Prin-7/proposals/A.md, packets/Prin-7/drafts/A/.
+Write packets/Prin-7/reviews/B-on-A.md: strengths, defects, Appendix B scores, whether PLAN is executable without search, confounds.
+Print DONE. No named products/companies. Do NOT edit claims or decision.md.
