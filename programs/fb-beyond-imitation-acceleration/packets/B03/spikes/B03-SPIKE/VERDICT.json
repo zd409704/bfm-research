@@ -1,0 +1,9 @@
+{
+  "experiment_id": "B03_CONTACT_ALIASING_AND_PERCEPTIVE_COMPENSATION",
+  "device": "cpu",
+  "elapsed_sec": 1.238,
+  "verdict": "PASS",
+  "b_space_kinematic_aliasing_max_diff": 0.0,
+  "perceptive_context_disambiguation_action_mse": 0.0003300176467746496,
+  "irreducible_isokinematic_multi_force_mse": 0.8953267335891724
+}

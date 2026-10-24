@@ -1,0 +1,25 @@
+I've written the blind review to `packets/B01/reviews/review-A-on-B.md`. Proposal B breaks no hard constraint, and its maths holds up when I re-derived and spot-checked it numerically. The serious problems are in how its safety gates are calibrated and in what its spike can actually test.
+
+I read only the three files you named, not the baselines or the method document. So a few mechanics Proposal B attributes to the baselines are marked "unverified". The main one is target networks copying the online batch-norm statistics every update; the adjudicator should confirm that rule comes from the baselines.
+
+**1. Hard constraints.** All checks pass. One minor deviation: on NaN/Inf input the proposal skips one update and continues, while the charter requires halting the affected run for inspection.
+
+**2. Technical objections (major ones).**
+- **Wrong norm in the calibration gate.** It compares two covariance estimates by relative operator norm, which is dominated by the largest eigenvalue. The halves can disagree by about 25% on the smallest eigenvalue, which is what drives the inverse, while showing only about 1% difference.
+- **Residual gate ignores amplification.** The 0.10 threshold on the factorization residual doesn't account for the inverse magnifying it up to 20×.
+- **No per-command safeguard.** The prompts the program cares about, such as the single 0.704 m demonstration, sit where the inverse amplifies most and the estimate has fewest samples. Only global gates are specified.
+- **Objective jumps when the gate flips.** As noise toggles the gate, the actor switches between two non-equivalent objectives, with nothing to smooth the transition.
+
+**3. Rejected alternative and the necessity claim.**
+- **Alternative still open.** The rejected batch-whitening idea is a serious option, but the proposal argues against an exact-batch version. A running-statistics whitening layer is dismissed in one sentence. The third counterexample proves too much: it would rule out any update to the backward network.
+- **Neither alternative is tested.** Neither rejected alternative appears among the spike's arms, although the proposal promises one as an empirical comparator.
+- **C-B01-B-01 is correct but definitional.** Once you require the reward encoding to equal the command, the result follows by linear algebra; it restates the brief's own premise. Grade 1 is fair for its truth but not for any veto weight. It can only be refuted by a proof error, not by an experiment.
+
+**4. Spike protocol.**
+- **Can't test the premise.** The backward network is built by hand rather than learned, so the spike can't show the eigenvalue imbalance the proposal corrects for actually arises in training. The 229/277 motion dimensions are effectively irrelevant.
+- **Easy regime by construction.** There are at most as many states as feature dimensions, so the corrected reward is perfect by construction.
+- **Easy drift.** The only drift is a rotation, which leaves the eigenvalue spectrum unchanged; real drift from batch-norm and encoder updates changes it.
+- **Residual gate never exercised.** The factorization is exact in every fixture.
+- **Missing gates and settings.** There is no value-error gate even though the brief requires one, and the candidate-action distribution is left unspecified.
+
+I ran a rough re-implementation of the reachability fixture to see if it can separate the arms. The uncorrected baseline matched the correct action 75–86% of the time, so it can, but the result depends on that unspecified action distribution.

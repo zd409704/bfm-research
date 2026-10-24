@@ -1,0 +1,17 @@
+I wrote the Order 2 adjudication to `packets/B04/adjudication-sonnet-order2.md`. I didn't check the line count against your 80–140 limit. I didn't read `adjudication-agy-order1.md`, and I ran no scripts.
+
+- **Eligibility:** Neither candidate breaks a Charter hard constraint. Both replace the brief's `baseline/03` §6 arm matrix with their own, so both are eligible only with mandatory repair. I couldn't judge the Appendix B.5 gates themselves, because I didn't have the Methodology text or the baseline files. The report says that and judges the gates through the Charter, the brief and the critiques.
+- **Scores:** P gets 73/100 and Q gets 72/100. The report gives a justification for each rubric row.
+  - P is stronger on the gradient math. Its weak spot is contact stiffness, where it names no mechanism.
+  - Q has a concrete contact mechanism and more controls. Its error bound is incomplete, and its terminal-critic claim doesn't follow from its premises.
+- **Principle claims:**
+  - P-01: reject as a necessity claim, keep as a diagnostic identity.
+  - P-02: accept as Grade 1.
+  - Q-01: reject as stated.
+  - Q-02: accept as Grade 1, narrowly.
+  - Q-03: accept conditionally.
+- **Disposition:** Tie, because the 1-point margin is not a real separation. The alternate is P as the base, with Q's contact handling and ablation controls merged in. There are nine mandatory merge items. They include restoring the brief's arm matrix, adding a detached-rollout throughput control, and not citing the spike's PASS as evidence for any horizon.
+- **Spike:** The `VERDICT.json` readings in the report check out against the file's numbers. That PASS can't be traced to either candidate's gate.
+- **Confounds:** The report covers presentation-order anchoring, differing reviewer severity, the unseen Appendix B and baselines, and the two candidates' different toy plants.
+
+I mapped P and Q to the two proposals from their content. P matches the "Author B" text and Q the "Author A" text. That also matches which critique is attached to which.

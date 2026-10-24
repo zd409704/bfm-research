@@ -1,0 +1,1294 @@
+Reading prompt from stdin...
+OpenAI Codex v0.163.0
+--------
+workdir: /srv/claude
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: high
+reasoning summaries: none
+session id: 01a169ed-ff2b-70a1-9e08-bb7c57babd04
+--------
+user
+You are Blind Reviewer B on Packet B02 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
+
+Read the following frozen context and candidate files:
+1. `/srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/brief.md`
+3. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/proposals/A.md`
+
+Isolation Rules:
+- Do NOT read any other file in `reviews/` or `drafts/`.
+- Write your complete blind review to `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-B-on-A.md`.
+- Keep your review concise, rigorous, and directly keyed to the rubric rows and hard constraints in `brief.md`.
+
+Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-B-on-A.md`:
+1. `# Blind Review B on Proposal A (Packet B02)`
+2. `## 1. Gate & Hard-Constraint Audit`: Check whether Proposal A violates any Hard Constraint in `PROGRAM_CHARTER.md` or `brief.md`.
+3. `## 2. Rubric-Keyed Technical Objections`: Concrete mathematical, physical, or algorithmic defects keyed to each rubric dimension in `brief.md` (labeled `[CRITICAL]`, `[MAJOR]`, or `[MINOR]`).
+4. `## 3. Audit of Rejected Alternative & Necessity Claim`: Evaluate whether the rejected alternative in Proposal A is non-trivial and whether its Principle Claim (`C-B02-A-01`) satisfies Appendix B premises and falsifiability.
+5. `## 4. Spike Protocol Critique`: Identify any missing controls, unmeasured confounds, or threshold flaws in the proposed empirical spike.
+
+codex
+I’ll read the charter, brief, and Proposal A, then write the review keyed to the rubric and hard constraints. I won’t read other review or draft files.
+
+exec
+/bin/bash -lc 'for p in /AGENTS.md /srv/AGENTS.md /srv/claude/AGENTS.md /srv/claude/research/AGENTS.md /srv/claude/research/fb-beyond-imitation-acceleration/AGENTS.md; do if [ -f "$p" ]; then printf '"'\\n%s\\n' \""'$p"; cat "$p"; fi; done' in /srv/claude
+ succeeded in 0ms:
+exec
+/bin/bash -lc 'cat PROGRAM_CHARTER.md packets/B02/brief.md packets/B02/proposals/A.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ exited 1 in 0ms:
+cat: packets/B02/brief.md: No such file or directory
+# Program Charter: Forward-Backward Reinforcement Learning Beyond Imitation Data and Model-Based Training Acceleration
+
+## 1. Mission Statement
+
+Establish rigorous theoretical, algorithmic, and empirical foundations for joint **Forward-Backward (FB) + Low-Level Actor + Task Critic $Q$ + High-Level Planner** reinforcement learning from scratch, enabling legged and humanoid robots to:
+1. Utilize unindexed single-frame demonstrations purely as latent behavioral prompts ($z = B(m)$) rather than rigid trajectory-tracking constraints.
+2. Discover contact-rich recovery, multi-height obstacle traversal, and dynamic ball-striking behaviors that lie outside the state-action support of the demonstration library.
+3. Combine short-horizon differentiable world-model pathwise gradients with long-horizon FB successor representations without violating Bellman consistency or causal observability boundaries.
+
+---
+
+## 2. Hard Technical Constraints & Non-Goals
+
+1. **No Behavioral Cloning or Tracking Penalty Fallbacks**:
+   - The low-level actor $\pi_\theta(o_{\mathrm{low}}, z)$ is updated exclusively by maximizing the conservative FB value $F(o, a, z)^\top z$ (plus optional task-critic gradient in single-step action-$Q$ variants). Adding a supervised action MSE loss $\|a - a_{\mathrm{demo}}\|^2$ or a per-frame pose-tracking task reward to force convergence is strictly forbidden.
+2. **Strict Separation of Rollout Behavior $z$ and FB Update Relabel $z$**:
+   - During rollout collection, behavior $z$ is chosen at macro-step boundaries from the scheduled three-way mixture (`expert`, `near`, `planner`).
+   - During off-policy FB updates, $z_{\mathrm{update}}$ is sampled fresh via the 50/50 mixture (`50%` uniform hypersphere $\mathcal{S}^{d_z-1}(\sqrt{d_z})$, `50%` current online $B$ encoding of permuted replay next-frame motion $m_{t+1}$) under frozen batch-normalization statistics after updating BN once on current $(o_t, m_t)$ and once on next $(o_{t+1}, m_{t+1})$.
+   - `z_update` must never overwrite `behavior_z` in the replay buffer, and the task critic $Q$ must always train on the actual executed macro behavior $z_{\mathrm{actual}}$ (or executed action $a_{\mathrm{applied}}$).
+3. **Single-Frame Motion-Only Backward Input**:
+   - The backward representation network $B(m)$ receives only single-frame root-relative kinematics (`229` dims in obstacle traversal; `277` dims in ball striking). It must not receive obstacle height, terrain scan, ball position, task phase, or demonstration frame indices.
+4. **Strict Separation of Physical Failure vs Numerical Corruption**:
+   - Runtime contact penetration exceeding `0.03` m with finite state/contact tensors, valid schema/timing, and no solver divergence must be recorded as a credible task termination (`severe_penetration`, `terminated=True`, absorption potential $\Phi_{\mathrm{next}}=0$) and committed to replay.
+   - NaN/Inf values, contact buffer overflow with lost contacts, corrupted state/schema/timing, or verified solver divergence must be classified as `invalid`, rejected from replay and normalizer updates, and halt the affected run or evaluation panel for inspection.
+5. **Strict Separation of Verified Evidence vs Unproven Claims**:
+   - Short CPU integration smoke tests prove only contract, gradient flow, and checkpoint/resume mechanics. No document or proposal may claim that obstacle traversal or ball striking has been learned, or that FB beats PPO/AMP/world-model baselines, until full multi-seed GPU training and held-out evaluation panels pass their pre-registered gates.
+
+---
+
+## 3. Falsifiable Hypotheses
+
+- **H1 (Gram Matrix Conditioning & Reward Readout)**: Standard FB orthonormalization loss $\mathcal{L}_{\mathrm{orth}} = \frac{1}{2N(N-1)}\sum_{i\ne j}(B(x_i)^\top B(x_j))^2 - \frac{1}{N}\sum_i \|B(x_i)\|_2^2$ on a changing replay distribution $\rho$ leaves significant off-diagonal covariance in $\Sigma_B$ during early joint training; explicitly whitening via damped $\widehat{\Sigma}_B^{-1}$ in intrinsic state-matching rewards $r_z(y) = B(y)^\top (\widehat{\Sigma}_B + \lambda I)^{-1} z$ reduces value-target variance and improves single-frame goal-reaching accuracy compared to raw dot products $B(y)^\top z$.
+- **H2 (Off-Policy Decoupling Under Non-Stationary $B$)**: In joint training from scratch, storing raw physical motion frames $m_{\mathrm{current}}, m_{\mathrm{next}}$ in FB replay and re-encoding goal latents on the fly with current $B_{\omega}$, while storing executed $(H_{\mathrm{start}}, z_{\mathrm{actual}}, R_{\mathrm{macro}}, H_{\mathrm{final}})$ in a shorter-window task replay with target-planner bootstrap $\min_{i=1,2} Q_{\bar{\phi}_i}(H_{\mathrm{final}}, P_{\bar{\psi}}(H_{\mathrm{final}}))$, bounds value staleness without requiring importance sampling over the low-level trajectory.
+- **H3 (World-Model Horizon vs FB Terminal Bootstrap)**: A hybrid objective combining $H \in \{8, 16\}$ differentiable world-model steps of dense intrinsic/task rewards with an FB terminal value bootstrap $\gamma^H F(s_H, a_H, z)^\top z$ achieves lower policy gradient bias-variance tradeoff than either $H=1$ first-action FB differentiation or $H=32$ pure world-model unrolling without terminal value representation.
+- **H4 (Three-Way Source Schedule & Out-of-Support Exploration)**: Annealing macro-step latent selection from `(0.60 expert, 0.30 near, 0.10 planner)` to `(0.10 expert, 0.20 near, 0.70 planner)` over $S_{\mathrm{ramp}} = 100,000$ control steps enables the task critic $Q$ to experience both structured high-return regions and off-support recovery transitions, unlocking obstacle heights (`0.10..0.70` m) under `100%` planner evaluation where only a single `0.704` m demonstration exists.
+
+---
+
+## 4. Rubric & Verification Gates
+
+Every research brief (`B01`–`B05`) is evaluated under the following pre-agreed rubric before any empirical spike is locked:
+
+| Criterion | Weight | Pass Requirement |
+|---|---:|---|
+| **Mathematical & Causal Rigor** | 25% | Zero circular definitions, exact tensor dimensions, explicit stop-gradient boundaries, and zero future/privileged leakage into deployable modules. |
+| **Contract & Baseline Alignment** | 25% | Full compliance with the frozen baseline specifications (`baseline/01` through `baseline/05`) and zero violation of Hard Constraints (§2). |
+| **Falsifiability & Ablation Design** | 25% | Concrete, compute-matched experimental comparisons that isolate the proposed mechanism against explicit null baselines. |
+| **Failure-Mode & Edge-Case Coverage** | 25% | Explicit handling of degenerate regimes (e.g., singular $\Sigma_B$, `severe_penetration` vs `invalid` physics, short macro truncation $k < K$, RNN prefix burn-in). |
+# Proposal A (Packet B02): Breaking Imitation Ceilings via Unindexed Single-Frame Prompts, Relabeling, and Joint Training Non-Stationarity
+
+- **Packet**: `B02` — Non-Stationarity, Batch-Norm Ordering, and Off-Policy Credit Assignment in Joint FB + Task-Q + Planner Training
+- **Author slot**: Primary Author A (solo draft, §4 Step 2; isolation per §11.1)
+- **Method version**: v1.0 (`1ce8d1b3…3d11f7`)
+- **Frozen context read**: `PROGRAM_CHARTER.md`, `synthesis/B01-synthesis.md`, `briefs/B02-nonstationarity-and-off-policy-credit-assignment-in-joint-fb-task-training.md` (the brief; the path `packets/B02/brief.md` named in my task prompt does not exist), `baseline/02-fb-paradigm-beyond-imitation-and-exploration.md`, `baseline/04-joint-fb-ball-striking-v2-architecture.md`, `baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md`, `packets/B02/spikes/B02-SPIKE/PLAN.md`, pinned method §11.5 and Appendix B. No other draft directory was read or listed.
+- **Companion artifacts (this directory only)**: `spike_sketch.py` (an author reference implementation of §5) and `spike_sketch_output.json` (CPU dry-run output, `verdict: PASS`). **Status of these numbers:** they come from author-side synthetic CPU checks of closed forms and test mechanics. They are **not** the registered `B02-SPIKE` run (§12.2) and are not evidence that anything has been learned (Charter §2.5).
+
+### 0. Summary of position
+
+1. **Separate the two regimes.** In the step action-$Q$ regime (ball striking, $K_{\mathrm{hold}}=1$), replay age adds **zero** Bellman-target bias, because the label is the executed physical action. In the macro-$z$ regime (obstacle traversal, $K=10$), the label is a *command*, and its meaning is set by the current low-level conditional $p_\theta(\tau\mid H,z)$. That is the only place staleness bias enters (§1.1–1.2).
+2. **$B$ drift is not the cause of macro-critic staleness. $\pi$ drift is.** For a fixed executed vector $z_{\mathrm{actual}}$, the target's conditional distribution does not depend on $\omega$ at all (Prop. 1.2). $\Delta_B$ is a *diagnostic of why* $\pi$ moves. Because of an exact $O(d_z)$ gauge symmetry of the joint objective (Prop. 1.4), it cannot certify staleness. The certificate is the per-row KL / $\chi^2$ between the stored behaviour Gaussian and the current actor. Both are computable **without parameter snapshots** from two new immutable replay columns (`behavior_mu`, `a_raw`).
+3. **Mitigation.** Use a **generation-level drift-gated replay horizon** (not a row-level gate, which would introduce selection bias). Add the exact short-macro discount $\gamma^k$, full-prefix zero-hidden burn-in with shared-prefix deduplication, and an optional truncated-IS arm inside the gate. `behavior_z` / `z_actual` stay write-once.
+4. **Normalizer contract.** I give closed forms for the stationary bias of every contract violation (double `m_next`, relabel-time update, expert-query update, train-mode batch statistics), plus a telescoping identity that sizes $\mu_{\mathrm{next}}-\mu_{\mathrm{cur}}$ exactly. Expert encoding under train-mode batch statistics is the severe case: relative input error $\approx 3/(2n_e)$, i.e. 19% at $n_e=8$.
+
+---
+
+## 1. Exact Mathematical Analysis of Joint Training Non-Stationarity and Prompt Drift
+
+### 1.0 Notation and standing assumptions
+
+- Latent sphere $\mathcal{S}^{d_z-1}(\sqrt{d_z})$ with $d_z=256$ (obstacle) or $100$ (ball). $\operatorname{proj}(x)=\sqrt{d_z}\,x/\|x\|_2$.
+- Low-level actor: a diagonal Gaussian in **pre-clip** action space, $\pi_\theta(\cdot\mid o,z)=\mathcal{N}(\mu_\theta(o,z),\operatorname{diag}\sigma_\theta^2(o,z))$, then $a_{\mathrm{applied}}=\operatorname{clip}(a_{\mathrm{raw}},-1,1)$. (If R2.1 uses a deterministic actor with additive exploration noise $\sigma$, set $\sigma_\theta\equiv\sigma$; every formula below still holds.) **$\theta$ includes the actor's observation-normalizer state**, because the deployed map $(o,z)\mapsto\mu$ depends on it.
+- Macro row (obstacle, R2.1 `TaskReplay`): $(H_t, c_t^{\mathrm{geom}}, z_{\mathrm{actual}}, R^{(k)}, H_{t+k}, c_{t+k}^{\mathrm{geom}}, d, k, \texttt{generation})$, where $k\in\{1,\dots,K\}$, $R^{(k)}=\sum_{j=0}^{k-1}\gamma_{\mathrm{task}}^j r_{t+j}$, and $d=$`terminated`. $z$ is held for the macro.
+- Macro target (baseline 05 §2; the prompt's $P_\psi$ is the **target** planner $P_{\bar\psi}$ in the baseline, and I use the baseline form):
+$$
+y \;=\; g(\tau) \;:=\; R^{(k)} + \gamma_{\mathrm{task}}^{k}(1-d)\,\bar V(H_{t+k}),\qquad \bar V(H)=\min_{j=1,2}Q_{\bar\phi_j}\big(H,c^{\mathrm{geom}},P_{\bar\psi}(H)\big).
+$$
+- "then" = the parameters $(\omega_{t-\Delta},\theta_{t-\Delta})$ at collection; "now" = $(\omega_t,\theta_t)$. The environment (including the per-episode fixed height $h$, which is exposed to $Q$ via $c^{\mathrm{geom}}$ and to $\pi$ via `scan`) is stationary. The curriculum changes the *distribution* of $h$, not the transition kernel given $h$.
+
+**Observability note.** Both critics' histories contain the previous actions: `last_action[29]` (obstacle $o$) and `actions[29]` (ball $o^{\mathrm{low}}\subset o^Q$). The macro critic's history also contains $z_{t-1}$. The filtering belief $p(s_t\mid H_t)$ over hidden simulator state is therefore a function of the action-observation history alone and **does not depend on the behaviour policy**. Without action inputs this would fail: $p(s_t\mid o_{0:t})$ depends on the policy that generated the observations. This is a premise of everything below.
+
+### 1.1 Regime split: why the step action-$Q$ critic has no age bias
+
+For ball striking, the row is $(H^Q_t,a_t,r_t,H^Q_{t+1},d_t)$ with $a_t$ the **executed** action. Write $\mathcal{T}Q(H,a)=\mathbb{E}[r+\gamma(1-d)Q(H',\pi_{\bar\theta}(o',P_{\bar\psi}(H'^{\mathrm{plan}}))+\epsilon)\mid H,a]$. The conditional law of $(r,H',d)$ given $(H,a)$ is environment-only (observability note). Hence for every generation lag $\Delta$:
+$$
+\mathbb{E}_{\text{row from }\theta_{t-\Delta}}[y\mid H,a]-\mathcal{T}Q(H,a)=0 .
+$$
+Non-stationarity in this regime is limited to (i) the target action map $\pi_{\bar\theta}\circ P_{\bar\psi}$, which is re-evaluated with current target weights and slowed by the task-only EMA $\bar\theta$ (baseline 04 §4.2), and (ii) coverage: old rows are on the wrong *state-action distribution*, not the wrong *operator*. **Consequence: the drift gate of §2.2 must not be applied in the $K_{\mathrm{hold}}=1$ regime.** It would discard unbiased data. Only the diagnostics (§2.1) and burn-in (§2.3) apply there.
+
+### 1.2 Macro-$z$ regime: the exact staleness bias
+
+Define the macro operator under low-level parameters $\theta$:
+$$
+(\mathcal{T}_\theta Q)(H,z)=\mathbb{E}_{\tau\sim p_\theta(\cdot\mid H,z)}[g(\tau)],\qquad
+p_\theta(\tau\mid H,z)=\prod_{j=0}^{k-1}\pi_\theta(a_{t+j}\mid o_{t+j},z)\,P(o_{t+j+1}\mid H_{t+j},a_{t+j}).
+$$
+A row of lag $\Delta$ is an unbiased sample of $\mathcal{T}_{\theta_{t-\Delta}}Q$, not of $\mathcal{T}_{\theta_t}Q$. The **per-row conditional target bias** is
+$$
+b_\Delta(H,z)\;=\;\mathbb{E}_{p_{\theta_{t-\Delta}}}[g]-\mathbb{E}_{p_{\theta_t}}[g].
+$$
+
+**Proposition 1.2 (B-drift invariance of macro labels).** For fixed $\theta$ (actor and its normalizer), $b_\Delta(H,z)$ is independent of $(\omega_{t-\Delta},\omega_t)$, including the motion-normalizer state.
+
+*Proof.* $p_\theta(\tau\mid H,z)$ contains $\pi_\theta$ and $P$ only. $B_\omega$ is used in rollout only to *choose* $z$ at the boundary (`expert`/`near`), i.e. it enters the distribution of the conditioning variable, not the conditional. $g$ uses $Q_{\bar\phi},P_{\bar\psi}$, neither of which reads $B$. ∎
+
+So "historical `behavior_z` executed under older $(\omega,\theta)$" is stale **only through $\theta$**. The $\omega$-dependence of a stored expert row (its vector was $B_{\omega_{t-\Delta}}(m_{\mathrm{demo}})$) is harmless *as long as the label is kept as the executed vector*. Rejected alternative §3.1 shows that re-encoding destroys this property.
+
+**Exact KL of the macro trajectory law.** Dynamics cancel in the likelihood ratio (same $P$), so the chain rule gives, exactly,
+$$
+\mathrm{KL}_\Delta(H,z):=\mathrm{KL}\big(p_{\theta_{t-\Delta}}\|p_{\theta_t}\big)=\mathbb{E}_{p_{\theta_{t-\Delta}}}\Big[\sum_{j=0}^{k-1}\kappa_j\Big],\quad
+\kappa_j=\sum_{i=1}^{29}\Big[\log\tfrac{\sigma^{\mathrm{now}}_{i}}{\sigma^{\mathrm{then}}_{i}}+\tfrac{(\sigma^{\mathrm{then}}_i)^2+(\Delta\mu_{i})^2}{2(\sigma^{\mathrm{now}}_i)^2}-\tfrac12\Big],
+$$
+with $\Delta\mu=\mu_{\theta_t}(o_{t+j},z)-\mu_{\theta_{t-\Delta}}(o_{t+j},z)$. For a shared fixed $\sigma$: $\kappa_j=\|\Delta\mu_j\|^2/(2\sigma^2)=\Delta_\pi(o_{t+j},z)^2/(2\sigma^2)$, where $\Delta_\pi$ is the brief's behavioural drift. Clipping is a deterministic post-map applied identically to both laws, so by data processing the KL of the *applied*-action trajectory law is $\le$ this pre-clip value.
+
+**Two bias bounds (both exact inequalities).**
+1. Pinsker / total variation: $|b_\Delta|\le \operatorname{span}(g)\,\mathrm{TV}\le\operatorname{span}(g)\sqrt{\mathrm{KL}_\Delta/2}$.
+2. Cauchy–Schwarz / $\chi^2$. With $\rho=dp_{\theta_t}/dp_{\theta_{t-\Delta}}=\prod_j \pi_{\theta_t}(a_{\mathrm{raw},j}\mid\cdot)/\pi_{\theta_{t-\Delta}}(a_{\mathrm{raw},j}\mid\cdot)$ and $\mathbb{E}_{\mathrm{then}}[\rho]=1$:
+$$
+|b_\Delta|=\big|\operatorname{Cov}_{\mathrm{then}}(1-\rho,g)\big|\le\sqrt{\operatorname{Var}_{\mathrm{then}}(g)\;\chi^2(p_{\theta_t}\|p_{\theta_{t-\Delta}})},\qquad \chi^2=\mathbb{E}_{\mathrm{then}}[\rho^2]-1 .
+$$
+   For one Gaussian step with shared $\sigma$, $\mathbb{E}[\rho_j^2\mid o]=\exp(\|\Delta\mu_j\|^2/\sigma^2)=e^{2\kappa_j}$. Over a macro, $\chi^2\le\exp\big(\sum_j\sup_o\|\Delta\mu_j\|^2/\sigma^2\big)-1$. Equality ($\chi^2=e^{2\mathrm{KL}}-1$) holds when $\Delta\mu$ is state-independent.
+
+The $\chi^2$ form is the useful one because it scales with $\mathrm{sd}(g)$ rather than the worst-case span. In the author dry run (synthetic 10-step plant, $\sigma=0.2$, 20 000 MC rollouts per row, `spike_sketch_output.json`):
+
+| Injected actor drift | $\overline{\mathrm{KL}}$ (nats/macro) | observed $\lvert b\rvert$ | $\chi^2$ bound | Pinsker bound | $\hat\chi^2$ |
+|---|---:|---:|---:|---:|---:|
+| 0.001 | 0.015–0.019 | ≤ 0.021 | 0.07–0.09 | 1.7–1.8 | 0.03–0.04 |
+| 0.003 | 0.10–0.11 | ≤ 0.045 | 0.20–0.23 | 4.3–4.5 | 0.20–0.26 |
+| 0.01 | 1.1–2.2 | ≤ 0.077 | 1.6–2.8 | 14–20 | 12–49 |
+
+Both bounds held on all 9 rows. The $\chi^2$ bound is 15–25× tighter than Pinsker, but it is still a worst-case certificate and runs 3–10× above the observed bias. $\hat\chi^2$ explodes once KL exceeds about 1. This matters for the IS arm (§2.2, §3.4).
+
+**Fixed-point error under an age mixture.** Let replay ages have data-weights $w_\Delta(H,z)$ and let $\mathcal{T}_{\mathrm{mix}}=\sum_\Delta w_\Delta\mathcal{T}_{\theta_{t-\Delta}}$. Both $\mathcal{T}_{\mathrm{mix}}$ and $\mathcal{T}_{\theta_t}$ are sup-norm contractions with modulus $\gamma_{\mathrm{eff}}=\sup_{H,z}\mathbb{E}[\gamma_{\mathrm{task}}^k(1-d)\mid H,z]$. Interior macros give $\gamma^K_{\mathrm{task}}$; timeout-truncated short macros can raise this toward $\gamma_{\mathrm{task}}$. Therefore
+$$
+\|Q_{\mathrm{mix}}^\star-Q_{\theta_t}^\star\|_\infty\le\frac{\sup_{H,z}\sum_\Delta w_\Delta(H,z)\,|b_\Delta(H,z)|}{1-\gamma_{\mathrm{eff}}}\le\frac{\sup\sum_\Delta w_\Delta\sqrt{\operatorname{Var}_\Delta(g)\,\chi^2_\Delta}}{1-\gamma_{\mathrm{eff}}}.
+$$
+This uses the "frozen target" idealisation, with $\mathcal{T}$ evaluated on a fixed $\bar V$. With $\gamma_{\mathrm{task}}=0.99$ and $K=10$, $1/(1-\gamma^{10})\approx 10.5$: staleness bias is amplified about 10× at the fixed point.
+
+**Exact staleness variance (law of total variance).** For the regression target at $(H,z)$:
+$$
+\operatorname{Var}_{\mathrm{mix}}(y\mid H,z)=\underbrace{\textstyle\sum_\Delta w_\Delta\operatorname{Var}_\Delta(g)}_{\text{within-generation}}+\underbrace{\textstyle\sum_\Delta w_\Delta\big(m_\Delta-\bar m\big)^2}_{\text{between-generation ("staleness variance")}},\quad m_\Delta=\mathbb{E}_{\theta_{t-\Delta}}[g],\ \bar m=\textstyle\sum w_\Delta m_\Delta .
+$$
+The second term is irreducible noise for the critic regression. Its minimiser is $\bar m$, which is biased by $\bar m-m_0=\sum_\Delta w_\Delta b_\Delta$.
+
+### 1.3 Prompt drift: exact identities for $\Delta_B$
+
+With $\|B\|_2=\sqrt{d_z}$ for both encoders, the brief's encoder drift satisfies, exactly,
+$$
+\Delta_B(m)=1-\tfrac{1}{d_z}\langle B_{\omega_t}(m),B_{\omega_{t-\Delta}}(m)\rangle=1-\cos\alpha_m,\qquad \|B_{\omega_t}(m)-B_{\omega_{t-\Delta}}(m)\|_2^2=2d_z\,\Delta_B(m).
+$$
+**Calibration against the deliberate `near` perturbation.** `near-z` rotates by $\alpha\in[10^\circ,20^\circ]$, i.e. $\Delta\in[1-\cos10^\circ,1-\cos20^\circ]=[0.0152,0.0603]$. An expert prompt whose encoder drift exceeds $0.0152$ has moved further than the smallest exploration perturbation the program deliberately injects. I use this as the *alarm* level for expert-prompt drift. It is not a gate (Prop. 1.2).
+
+### 1.4 The gauge symmetry: why $\Delta_B$ cannot certify staleness
+
+**Proposition 1.4 (exact $O(d_z)$ symmetry of the joint objective).** Take $R\in O(d_z)$ and the transformation
+$B\mapsto RB$, $F(o,a,z)\mapsto RF(o,a,R^\top z)$, $\pi(o,z)\mapsto\pi(o,R^\top z)$, $P\mapsto RP$, $Q(H,c,z)\mapsto Q(H^R,c,R^\top z)$, where $H^R$ feeds $R^\top z_{t-1}$. It leaves invariant, in distribution, the FB loss (baseline 04 §4.1), $\mathcal L_{\mathrm{orth}}$, the actor loss $\min_k F_k^\top z$, the `z_update` law (uniform sphere part: isotropic; goal part: $RB(m)$ rotates with $B$), the `near` law (isotropic tangent noise), the B01 whitening (covariant: $W\mapsto RWR^\top$), and the macro critic and planner losses. It is realised in parameter space by absorbing $R$ into the last linear layer of $B$ and $P$ and the first $z$-input linear layer of $F,\pi,Q$. This works because $\operatorname{proj}$ is rotation-equivariant and every pre-linear operation acts on non-$z$ inputs. ∎
+
+*Premise to verify in code:* no per-coordinate operation acts on $z$ before its first linear layer. Example: an input normalizer over a concatenated $(o,z)$ vector breaks the symmetry. If one exists, Prop. 1.4 fails and the B-drift decomposition below is reported but not interpreted.
+
+*Consequence.* Minibatch gradients are not invariant (the sampled $z_{\mathrm{random}}$ vectors do not rotate), but their expectation is orthogonal to the orbit. Gradient noise therefore drives a zero-curvature **random walk along the gauge orbit**. This is a conjecture about the dynamics, to be measured, not a theorem. Along that walk, $\Delta_B$ can be large with zero physical change, while every stored $z_{\mathrm{actual}}$ becomes stale *because* $\pi$ co-rotates: $\pi_{\mathrm{now}}(o,z)=\pi_{\mathrm{then}}(o,R^\top z)\neq\pi_{\mathrm{then}}(o,z)$. Hence:
+
+- **Gauge/deformation split (exact).** On a probe set, let $\hat R=\arg\max_{R\in O(d_z)}\sum_i\langle B_{\mathrm{now}}(m_i),RB_{\mathrm{then}}(m_i)\rangle=UV^\top$, where $U\Sigma V^\top=\mathrm{SVD}(\sum_iB_{\mathrm{now}}B_{\mathrm{then}}^\top)$. Define $\Delta_B^{\mathrm{def}}=1-\tfrac1{Nd_z}\sum_i\langle B_{\mathrm{now}},\hat RB_{\mathrm{then}}\rangle$ and $\Delta_B^{\mathrm{gauge}}=\Delta_B^{\mathrm{tot}}-\Delta_B^{\mathrm{def}}\ge0$ ($R=I$ is admissible). Dry run: under a synthetic pure rotation, $\Delta_B^{\mathrm{tot}}=1.027$ and $\Delta_B^{\mathrm{def}}=-7\times10^{-11}$.
+- **Gauge-aligned behavioural drift.** $\Delta_\pi^{\hat R}(o,z)=\|\mu_{\mathrm{now}}(o,\hat Rz)-\mu_{\mathrm{then}}(o,z)\|$. If $\Delta_\pi^{\hat R}\ll\Delta_\pi$, staleness is mostly gauge. That fact is useful (§3.3), but it does not license relabeling under the current charter.
+
+### 1.5 Normalizer ("BN") contract: exact distribution shift and variance error
+
+The baseline normalizers (`obs_normalizer`, `motion_normalizer`) are running mean/variance input normalizers; $B$ uses LayerNorm internally. I treat two implementations, since the R2.1 class is not specified in the frozen set: **(C)** count-weighted cumulative merge (Welford/Chan), and **(E)** EMA with momentum $\beta$ (`torch.nn.BatchNorm1d` running statistics, PyTorch default $\beta=0.1$). The contract per `FBAgent.update` is: motion normalizer gets $m_{\mathrm{cur}}$ once and $m_{\mathrm{next}}$ once (likewise `obs`/`next_obs`), then freeze (`eval`/`no_grad`) for `z_update`, expert/`near` encoding, the target $\bar B$ pass, and all evaluation.
+
+**(C) stationary statistics.** If update calls feed sources $s$ with row counts $c_s$ per update, the cumulative estimator converges to the mixture moments
+$$
+\hat\mu_\infty=\sum_s\tfrac{c_s}{C}\mu_s,\qquad \hat\sigma^2_\infty=\sum_s\tfrac{c_s}{C}\big(\sigma_s^2+(\mu_s-\hat\mu_\infty)^2\big),\qquad C=\textstyle\sum_s c_s .
+$$
+
+| Violation | Per-update sources | Stationary mean | Bias vs contract $\mu^\star=\tfrac12(\mu_c+\mu_n)$ |
+|---|---|---|---|
+| Contract | $m_c\!:\!n,\ m_n\!:\!n$ | $\tfrac12(\mu_c+\mu_n)$ | 0 |
+| Double `m_next` | $m_c\!:\!n,\ m_n\!:\!2n$ | $\tfrac13\mu_c+\tfrac23\mu_n$ | $\tfrac16(\mu_n-\mu_c)$ |
+| Update during `z_update` relabel (`m_next[perm]` is the same multiset) | same as double `m_next` | same | $\tfrac16(\mu_n-\mu_c)$ |
+| Update during expert/near queries, $n_e$ rows/update | $+\ \rho_{\mathrm{demo}}\!:\!n_e$ | $\frac{n(\mu_c+\mu_n)+n_e\mu_{\mathrm{demo}}}{2n+n_e}$ | $\frac{n_e}{2n+n_e}(\mu_{\mathrm{demo}}-\mu^\star)$ |
+
+Variance error: substitute the row's source weights into $\hat\sigma^2_\infty$. Each violation adds the cross term $\tfrac{c_s}{C}(\mu_s-\hat\mu)^2$ and reweights the within-source variances. Dry run for the combined bug (relabel + 8 expert rows per update, $\mu_c=0$, $\mu_n=0.3$, $\mu_{\mathrm{demo}}=1$, $n=256$): predicted $0.20825$, measured $0.20844$.
+
+**Telescoping identity (sizes $\mu_n-\mu_c$ exactly).** For any replay content that is a union of contiguous segments $\mathcal{G}$ (whole episodes, or FIFO-truncated episodes), the multisets $\{m_{\mathrm{next}}\}$ and $\{m_{\mathrm{cur}}\}$ differ only at segment ends:
+$$
+\mu_n-\mu_c=\frac{1}{N}\sum_{G\in\mathcal G}\big(m_{\mathrm{last}}(G)-m_{\mathrm{first}}(G)\big)=\frac{1}{\bar L}\Big(\overline{m}_{\mathrm{last}}-\overline{m}_{\mathrm{first}}\Big),
+$$
+where $\bar L$ is the mean segment length (dry-run error $7.8\times10^{-8}$). The "last" frames are disproportionately committed failure frames (`severe_penetration`, falls) and success frames; the "first" frames are standing resets. **Quantitatively, the double-`m_next` bias in (C) is small**, $\approx\|\bar m_{\mathrm{last}}-\bar m_{\mathrm{first}}\|/(6\bar L)$ (sub-1% of $\sigma$ for $\bar L\gtrsim100$ on most coordinates), but it is **deterministic and sign-coherent**: it shifts the normalizer toward failure kinematics. Expert-query contamination is not small: $\mu_{\mathrm{demo}}$ is a single 0.704 m traversal clip, far from replay early in training, so its bias is $O(n_e/2n)\cdot\|\mu_{\mathrm{demo}}-\mu^\star\|$. It also makes the backward map depend on the demonstration distribution through the normalizer, which violates the spirit of Charter §2.1–2.2: demonstrations as prompts only.
+
+**(E) EMA fixed point at read time.** With a periodic call pattern, the running mean read after the last call of each update converges to
+- contract $[c,n]$: weight on $\mu_n$ $=\dfrac{1}{2-\beta}$ ($0.5263$ at $\beta=0.1$; dry run $0.5262$);
+- double-next $[c,n,n]$: weight on $\mu_n$ $=\dfrac{2-\beta}{3-3\beta+\beta^2}$ ($0.7011$; dry run $0.7011$).
+
+The bias is therefore $0.175(\mu_n-\mu_c)$ at $\beta=0.1$: about 1.05× the (C) value ($1/6\approx0.167$). Note that even the *correct* EMA weights `m_next` slightly more than $\tfrac12$. That is a read-time-phase property of EMA and not a violation.
+
+**Train-mode batch statistics (the severe case).** If `encode_motion` or `sample_ufo_mixed_z` runs a true `BatchNorm` in train mode, the output normalizes with **the query batch's own** mean and variance. Per coordinate, $\tilde x_{\mathrm{wrong}}=a\tilde x+b$ with $a=\sigma/\hat\sigma_b$ and $b=(\mu-\hat\mu_b)/\hat\sigma_b$, and $\mathbb{E}\|\tilde x_{\mathrm{wrong}}-\tilde x\|^2=\sum_i\mathbb{E}[(a_i-1)^2\tilde x_i^2+b_i^2]\approx D\cdot\frac{3}{2n_e}$ for in-distribution Gaussian batches: $1/(2n_e)$ from the scale and $1/n_e$ from the shift. Dry run: $0.194$ vs $0.1875$ at $n_e=8$, and $0.0235$ vs $0.0234$ at $n_e=64$. On top of this, the systematic term $a_i=\sigma_{\rho,i}/\sigma_{\mathrm{demo},i}$, $b_i=(\mu_{\rho,i}-\mu_{\mathrm{demo},i})/\sigma_{\mathrm{demo},i}$ re-centres demo frames on *the demo distribution*. The encoding also becomes non-idempotent and batch-composition-dependent: $z_{\mathrm{exp}}$ for frame $m$ depends on which other envs hit a boundary in the same step. $n_e=1$ is undefined (zero variance).
+
+**Propagation to $z$.** For input perturbation $\delta\tilde x$, to first order $\mathbb{E}\|\delta B\|^2\approx\operatorname{tr}(J_B\operatorname{Cov}(\delta\tilde x)J_B^\top)+\|J_B\mathbb{E}\delta\tilde x\|^2$, and $\Delta_B=\mathbb{E}\|\delta B\|^2/(2d_z)$ by §1.3. The spike measures $\Delta_B$ directly rather than relying on the linearisation.
+
+### 1.6 Short macros, terminal boundary, and RNN state
+
+- **Short-macro discount.** For $k<K$: (i) termination (incl. `severe_penetration`, $\Phi_{\mathrm{next}}=0$) gives $y=R^{(k)}$; (ii) timeout truncation gives $y=R^{(k)}+\gamma^k\bar V(H_{t+k})$. Using $\gamma^K$ on a truncated row has exact bias $(\gamma^k-\gamma^K)\bar V$. Treating truncation as termination has bias $-\gamma^k\bar V$. Rows containing an `invalid` transition never exist (Charter §2.4); the uncommitted episode is discarded whole, so burn-in never sees a fabricated prefix.
+- **Stale cached hidden states.** A hidden state cached at collection is $h_{t_0}^{\mathrm{then}}=f_{\phi_{t-\Delta}}(x_{0:t_0})$. Using it with current weights computes neither $Q_{\phi_t}$ nor $Q_{\phi_{t-\Delta}}$ on $H_{t_0}$. Its error has no general bound below the network's sensitivity to $\phi$; dry run (2-layer LSTM-128, 200 Adam steps at $3\cdot10^{-4}$): max error $1.10$. Full-prefix recomputation from $(h_0,c_0)=0$ with current weights is exact by construction (dry run: $0.0$).
+
+---
+
+## 2. Algorithmic Design for Non-Stationarity Mitigation and Controllability Diagnostics
+
+### 2.0 New immutable replay columns (write-once, collection-time only)
+
+In `TaskEpisodeReplay` (per control step) and `FBReplay`, alongside the existing `behavior_z`/`z_actual`, `generation`, `source`:
+
+| Column | Shape | Content | Consumers |
+|---|---|---|---|
+| `behavior_mu` | `[29]` fp16 | pre-noise actor mean $\mu_{\theta_{\mathrm{then}}}(o_t,z_{\mathrm{actual}})$ in pre-clip space | diagnostics D2, gate M1, IS arm M3 |
+| `behavior_log_std` | `[29]` fp16, or scalar per generation if $\sigma$ fixed | $\log\sigma_{\theta_{\mathrm{then}}}$ | same |
+| `a_raw` | `[29]` fp16 | pre-clip sampled action (`a_applied` already stored) | IS arm M3 |
+| `prompt_anchor_z` | `[d_z]` fp16, `expert`/`near` rows only | $z_{\mathrm{exp}}=\operatorname{proj}B_{\omega_{\mathrm{then}}}(m_{\mathrm{demo}})$ before the `near` rotation | D3 |
+| `prompt_frame_id` | `int16`, `expert`/`near` rows only | NPZ row index | D3 **logging only** |
+
+**Firewall on `prompt_frame_id`.** Charter §2.3 forbids frame indices as *network inputs*. The column is excluded from every input schema, and a schema test asserts that no module's `forward` signature or input-spec registry references it. Storage: about 59 floats per step ≈ 120 B fp16. At 50k macros × 10 steps that is about 60 MB, which fits the existing replay budget.
+
+**Immutability enforcement.** Buffers are allocated once. `sample()` returns `.clone()`d views, never storage aliases. `FBAgent.update` asserts `z_update.data_ptr()` is disjoint from replay storage. In debug/CI mode, a per-row CRC32 over (`behavior_z`, `behavior_mu`, `a_raw`) is checked on each sample. The macro target and the critic/planner burn-in read `z_actual`/`z_{t-1}` from these columns only.
+
+### 2.1 Online diagnostic suite
+
+All diagnostics run under `torch.no_grad()` (except D4, which uses `torch.func.jvp`), with all normalizers frozen. Their outputs never enter any loss, normalizer, or replay. Cadence is in FB updates.
+
+**D1 — Normalizer contract guard (every update, O(1)).** Per normalizer, `update_calls` delta must equal exactly 2 inside `FBAgent.update` and 0 elsewhere. A 64-bit hash of `(mean,var,count)` must be identical before and after every `encode_motion`, `sample_ufo_mixed_z`, target pass, and evaluation panel. A violation raises the contract error and halts the run. It is logged as a contract breach, distinct from `invalid` physics.
+
+**D2 — Behavioural drift $\Delta_\pi$ and trajectory KL, snapshot-free (every $U_d=250$ updates).** For each live generation bucket $g$ (R2.1 `generation` tag; buckets of 1 000 macros if the tag is finer), sample $n_g=32$ macro rows. Compute $\mu_{\theta_t}(o_{t+j},z_{\mathrm{actual}})$ for $j<k$ and report:
+- $\Delta_\pi^{\mathrm{rms}}(g)=\big(\operatorname{mean}_{\mathrm{rows},j}\|\mu_{\theta_t}-\texttt{behavior\_mu}\|^2\big)^{1/2}$;
+- $\overline{\mathrm{KL}}_g=\operatorname{mean}_{\mathrm{rows}}\sum_{j<k}\kappa_j$ (exact Gaussian formula, §1.2);
+- $\hat\chi^2_g=\operatorname{mean}_{\mathrm{rows}}\rho^2-1$ with $\log\rho=\sum_j[\log\pi_{\theta_t}(a_{\mathrm{raw},j})-\log\pi_{\mathrm{then}}(a_{\mathrm{raw},j})]$, both from stored columns;
+- the age profile $\overline{\mathrm{KL}}$ vs $\Delta=t-g$, split by `source`.
+
+Dry run: the stored-column $\Delta_\pi$ equals snapshot recomputation to $0.0$.
+
+**D3 — Encoder drift $\Delta_B$ with gauge split (every $U_d$ updates).**
+- *Prompt drift, snapshot-free:* for sampled `expert`/`near` rows, $\Delta_B^{\mathrm{prompt}}=1-\langle B_{\omega_t}(m_{\mathrm{demo}}[\texttt{prompt\_frame\_id}]),\texttt{prompt\_anchor\_z}\rangle/d_z$. Alarm at $>1-\cos10^\circ=0.0152$ (§1.3).
+- *Replay-frame drift:* keep a geometric ring of $B$ snapshots (weights + motion-normalizer stats) at ages $\{1,2,4,8,16,32\}$ buckets. $B$ is small: about 0.13 M params (obstacle) or 0.54 M (ball), so 6 snapshots ≤ 13 MB. Each snapshot carries a fixed probe set of 4 096 valid committed `m_next` frames taken at snapshot time. Report $\Delta_B^{\mathrm{tot}},\Delta_B^{\mathrm{def}},\Delta_B^{\mathrm{gauge}}$ via the $d_z\times d_z$ Procrustes SVD (§1.4).
+- *Gauge-aligned behavioural drift* $\Delta_\pi^{\hat R}$ on the D2 rows, using the Procrustes $\hat R$ from the snapshot nearest in age.
+
+**D4 — Action sensitivity (every $U_d$ updates).** On 512 $(o,z)$ pairs (recent replay $o$; $z$ drawn equally from executed planner $z$, expert $z$, and the uniform sphere), estimate the tangent-projected Jacobian norm with $r=4$ Hutchinson probes:
+$$
+S_\pi=\mathbb{E}\big[\|J_z\mu_\theta(o,z)\,P_\perp(z)\|_F\big],\quad \|JP_\perp\|_F^2=\mathbb{E}_{v\sim\mathcal N(0,I)}\|J\,P_\perp v\|^2,\quad P_\perp=I-zz^\top/d_z .
+$$
+Each probe is one `torch.func.jvp`. Also report the per-radian gain $\sqrt{d_z}\,\|JP_\perp u\|$ for unit tangent $u$, which is directly comparable to the 10–20° `near` rotation, and the tanh/clip saturation fraction $\Pr(|\mu_i|>0.99)$, which suppresses $S_\pi$ independently of $z$-semantics.
+
+**D5 — Multi-step trajectory divergence / controllability (every 50 000 control steps).** Use a dedicated pool of 64 diagnostic envs that never write replay or normalizers and run with frozen weights. From cloned simulator states sampled from recent episodes (MuJoCo `mjData` copy), roll out $K$ and $5K$ steps with command pairs at angles $\alpha\in\{0^\circ,10^\circ,20^\circ,45^\circ,90^\circ\}$, in two modes: (i) stochastic with independent noise; (ii) deterministic means. Report
+$$
+\mathcal D_k(\alpha)=\tfrac1k\textstyle\sum_{j\le k}\|\tilde m^{(1)}_j-\tilde m^{(2)}_j\|_2/\sqrt{D_m}\ \ (\text{frozen-normalized motion}),\qquad \mathcal C(\alpha)=\mathcal D_k(\alpha)/\mathcal D_k(0^\circ)\ \text{(stochastic mode)} .
+$$
+**Alarms:** $\mathcal C(20^\circ)<1.2$ ("$z$ ignored": the `near` exploration is behaviourally void); non-monotone $\mathcal D^{\det}(\alpha)$; or $\|\nabla_zQ_{\phi_1}\|$ large while $\mathcal C\approx1$, which by C-B02-A-03 means the planner gradient is pure critic error.
+
+**Overhead budget (target < 5 % wall-clock per update; to be measured in the GPU stage of §5, not asserted).** Rough estimate, assuming the R2.1 residual 2048×6 actor (≈ 25 M params) and FB batch 1 024 with two residual F heads. A full FB update is ≳ 1 TFLOP. Per diagnostic tick, D2 runs $\le50\cdot32\cdot10=16\,000$ actor forwards ≈ 0.8 TFLOP; amortised over $U_d=250$ that is ≈ 0.3 %. D3 and D4 together add ≈ 0.2 %. D5 runs on separate envs every 50k steps, and its wall-clock share is reported separately. M1 adds no per-update cost beyond D2. M3 adds $B_Q\cdot K$ actor forwards per critic update (≈ 1–2 %).
+
+### 2.2 Mitigation: drift-gated replay horizon (macro-$z$ regime only)
+
+**M1 — Generation-level gate (primary).** Every $U_d$ updates, after D2:
+```
+g_cut ← oldest bucket g such that KL̄_{g'} ≤ ε_KL for every bucket g' ≥ g        # contiguous from newest
+g_cut ← min(g_cut, newest − G_min + 1)  and enforce |admitted| ≥ N_min               # floors
+g_cut ← max(g_cut, g_cut_prev)                                                        # monotone: no re-admission
+admitted ← { rows : generation ≥ g_cut }  ∩  FIFO window (50k macros, baseline)
+critic TD batches sample uniformly from `admitted`; planner (delay=2) samples H_t from the same set
+```
+Defaults: $\varepsilon_{\mathrm{KL}}=0.02$ nats/macro, $G_{\min}=2$, $N_{\min}=8\,192$ macros. At $\varepsilon=0.02$ and state-independent $\Delta\mu$, $\chi^2=e^{0.04}-1\approx0.04$, so the certificate is $|b_g|\le0.2\,\mathrm{sd}(y)$. The dry run observed about 10× below the certificate. The value is pre-registered with a sweep $\{0.01,0.02,0.05,0.2,\infty\}$ ($\infty$ = baseline FIFO).
+
+*Why generation-level, not row-level.* $\mathrm{KL}_{\mathrm{row}}$ is computed on the row's own realised states $o_{t+j}(\tau)$, so gating on $\mathbf 1[\mathrm{KL}_{\mathrm{row}}\le\varepsilon]$ conditions on $\tau$. The admitted target is then $\mathbb{E}_{\mathrm{then}}[g\mid H,z,\mathrm{KL}_{\mathrm{row}}(\tau)\le\varepsilon]\ne\mathbb{E}_{\mathrm{then}}[g\mid H,z]$: a new selection bias. For example, low-KL trajectories may be precisely the ones that fell early, with $k$ small and few steps to diverge. The generation gate depends only on the bucket index and on other rows' statistics: with $n_g=32$ out of ~1 000 rows per bucket, the influence is ≤ 3 %, and it is removed entirely by drawing the D2 sample from a held-aside 3 % of each bucket that is never used for TD. So it introduces no within-row selection.
+
+**M2 — Exact short-macro discount and burn-in (mandatory, both regimes).** Per §1.6, always use $\gamma^k_{\mathrm{task}}$ with the stored $k$ and $(1-\texttt{terminated})$. Unit-test both bug forms. Burn-in is in §2.3.
+
+**M3 — Truncated importance weights inside the gate (ablation arm, not default).** Weight each admitted row's TD loss by $\bar\rho=\min(\rho,\bar c)$ with $\bar c=2$, using stored `a_raw`/`behavior_mu`/`behavior_log_std`. Inside the gate $\chi^2\lesssim0.04$, so truncation is rarely active and the arm is close to unbiased. It is not default because: (i) its variance grows as $e^{2\mathrm{KL}}$, which in the dry run gave $\hat\chi^2=12$–$49$ at KL 1.1–2.2 and IS error up to about 8× the plain-MC SE; (ii) the gate already holds the residual bias within the certificate. M3 exists to test whether that residual is practically material.
+
+**M4 — Soft lag weighting (ablation arm, brief option b).** Sample admitted rows with probability $\propto\exp(-\overline{\mathrm{KL}}_g/\varepsilon_{\mathrm{KL}})$ instead of a hard cut. This is still generation-level, so there is no selection bias.
+
+**What is deliberately *not* done.** `z_actual`/`behavior_z` are never rewritten, rotated, re-encoded, or shadowed. The critic input is always the executed vector (Charter §2.2). No pre-training or freezing of $B_\omega,\pi_\theta$ (brief §2). The gate touches only *which* rows train $Q$/$P$. `FBReplay` and the FB/actor losses are untouched, because FB updates relabel with fresh `z_update` and are off-policy-correct by construction.
+
+### 2.3 Full-prefix zero-hidden burn-in with exact shared-prefix deduplication
+
+For each sampled slice $[t_0,t_0+L)$ of an episode:
+1. Group the sampled slices by episode id. For each episode, unroll **once** from $(h_0,c_0)=0$ at step 0 to $\max t_0$ under `no_grad`, recording the hidden state at every requested $t_0$. This is exact, because it is the same computation as per-slice burn-in, and it costs $O(\sum_{\mathrm{episodes}}\max t_0)$ rather than $O(\sum_{\mathrm{slices}}t_0)$.
+2. Inputs are the stored executed stream $(o_t,\ z_{t-1}=\text{executed }z_{\mathrm{actual}},\ \texttt{first\_flag})$, never `z_update` or a re-encoded prompt.
+3. Run separate unrolls for the online $Q_{\phi_{1,2}}$, target $Q_{\bar\phi_{1,2}}$, online $P_\psi$ (planner loss), and target $P_{\bar\psi}$ (target $z$), each with its current weights. The target $H_{t+k}$ uses the target unroll continued past $t_0+L$ where needed.
+4. BPTT over $[t_0,t_0+L)$ only.
+
+No hidden state is ever persisted in replay. A versioned hidden-state cache is not exact under per-step weight updates, so it is rejected.
+
+---
+
+## 3. Serious Alternative Considered and Rejected
+
+Per method §11.5. §3.1 is the primary rejected alternative; §3.2–3.4 are further rejections, with reasons.
+
+### 3.1 Rejected (primary): retrofitting historical `behavior_z` by re-encoding through the current $B_\omega$
+
+*Proposal under consideration.* At TD time, replace a row's label $z_{\mathrm{actual}}$ with $z'=\operatorname{proj}B_{\omega_t}(m^\dagger)$. Here $m^\dagger$ is either (a) the demo frame the prompt came from (`expert`/`near` rows), or (b) a realised frame of the macro (e.g. $m_{t+k}$) for rows with no demo source. The motivation is to "refresh" stale commands into current coordinates (brief option (c)).
+
+*Why rejected.*
+1. **It adds bias where there was none.** Take the regime where only $B$ has drifted ($\Delta_\pi\equiv0$). By Prop. 1.2, keeping $z_{\mathrm{actual}}$ gives $b=0$ exactly. Case (a) gives the target $\mathcal T_\theta Q(H,z_{\mathrm{actual}})$ attached to input $z'$, with bias $\mathcal T_\theta Q(H,z_{\mathrm{actual}})-\mathcal T_\theta Q(H,z')$. That is nonzero whenever $\mathcal T_\theta Q(H,\cdot)$ is non-constant on the arc of length $\alpha=\arccos(1-\Delta_B)$. To first order it equals $\langle\nabla_z\mathcal T Q,\ z_{\mathrm{actual}}-z'\rangle$, with $\|z_{\mathrm{actual}}-z'\|=\sqrt{2d_z\Delta_B}$. Dry run: keeping gives a bias of exactly $0$ under common random numbers; re-encoding at $\Delta_B=0.018$ (≈ 10.9°) gives $0.0154\pm0.0042$ (3.7 SE). Re-encoding is strictly dominated whenever $\Delta_\pi=0$. When $\Delta_\pi\ne0$, it has no reason to help either: the stale component is $\theta$-driven, and the re-encoded vector is a different command that neither $\pi_{\mathrm{then}}$ nor $\pi_{\mathrm{now}}$ executed.
+2. **Case (b) is hindsight relabeling of a task critic.** $z'(\tau)$ is a function of the outcome, so the admitted conditional is $\mathbb{E}_{\mathrm{then}}[g\mid H,z,\,B(m_{t+k}(\tau))=\zeta]$, not $\mathcal T Q(H,\zeta)$. HER-style relabeling is valid only when the reward is defined by the relabeled goal. Here $r^{\mathrm{task}}$ is fixed and $z$ is a command, so the relabel is biased by construction. It also cannot reproduce a planner row at all, and planner rows are 70 % of rows after $S_{\mathrm{ramp}}$.
+3. **It violates the frozen contract.** Charter §2.2 requires that $Q$ train on the executed $z_{\mathrm{actual}}$ and that labels are never overwritten. A shadow column read by $Q$ is the same violation in a different place.
+4. **It cannot address the dominant mechanism.** Under gauge drift (Prop. 1.4), a refreshed $z'=B_{\omega_t}(m)$ is rotated *with* $B$. Yet the row's return came from $\pi_{\mathrm{then}}(\cdot,z_{\mathrm{actual}})$, and $\pi_{\mathrm{now}}$ applied to $z'$ reproduces $\pi_{\mathrm{then}}(\cdot,z_{\mathrm{actual}})$ only if $\pi$ is exactly gauge-equivariant *and* $B$ is a pure rotation. That is the $\Delta_\pi^{\hat R}\approx0$ case, which is measured (D3), not assumed.
+
+### 3.2 Rejected: freeze a pre-trained imitation $B_\omega/\pi_\theta$ before task training
+
+Freezing gives $\Delta_\pi\equiv\Delta_B\equiv0$, and all staleness bias vanishes. It is rejected because: (i) it violates brief §2 ("must not introduce pre-training stages or freeze $B_\omega/\pi_\theta$"); (ii) it removes the mechanism the program studies (baseline 02 §3.3): $B$ must keep grounding *newly discovered* postures such as hand support and stumble recovery, and a frozen $B$ fitted on an 859-frame, single-height (0.704 m) support has only its support projection identifiable (C-B01-B-02), so planner commands off that support have arbitrary meaning; (iii) a pre-training stage on the demo distribution makes the demo the *training* distribution of $B$ rather than a prompt source, which edges toward the imitation-anchored regime of the AMP/pretrained-skill column in baseline 02 §2. Point (iii) is a design-philosophy argument, not a theorem, and I record it as such.
+
+### 3.3 Not adopted (requires a charter amendment): gauge-aligned critic input $\hat R\,z_{\mathrm{actual}}$
+
+If D3 shows $\Delta_\pi^{\hat R}\ll\Delta_\pi$, feeding $Q$ the gauge-aligned vector $\hat Rz_{\mathrm{actual}}$, while storing $z_{\mathrm{actual}}$ immutably, would remove most staleness at no data cost. It is not adopted because Charter §2.2 requires $Q$ to train on $z_{\mathrm{actual}}$ itself. If the GPU stage measures $\Delta_\pi^{\hat R}/\Delta_\pi<0.3$ on ≥ 2 of 3 seeds, I recommend opening a method issue (§10.2). This is a measurement-gated follow-up, not a proposal to violate the contract.
+
+### 3.4 Rejected as primary: row-level KL gate and untruncated per-row IS
+
+Row-level gating introduces trajectory-selection bias (§2.2). Untruncated IS is unbiased but has variance factor $e^{2\mathrm{KL}}$, which becomes uninformative at the KL values that FIFO replay reaches. Both are retained only as an ablation arm (M3) or as a negative control.
+
+---
+
+## 4. Candidate Necessity Claims (Appendix B)
+
+All are proposed at **Candidate** state. Locking requires independent verification and the human lead's signature (B.9.2).
+
+### C-B02-A-01 — Macro-label invariance and executed-label obligation
+
+- **Grade**: 1 (theorem-like). **Conclusion shape**: invariant + obligation.
+- **Premises.**
+  - P1: The macro critic's target is $g(\tau)=R^{(k)}+\gamma^k(1-d)\bar V(H_{t+k})$, evaluated with current networks.
+  - P2: The environment transition and reward kernel, given the action-observation history, is stationary and independent of $(\omega,\theta)$.
+  - P3: Within a macro, actions are drawn from $\pi_\theta(\cdot\mid o,z)$ with $z$ held fixed. $B_\omega$ does not enter $\pi_\theta$'s inputs or the rollout except through the choice of $z$ at boundaries.
+  - P4: Histories include past actions and past executed $z$.
+  - P5: $\pi_{\theta_t}\ll\pi_{\theta_{t-\Delta}}$ (e.g. both Gaussian).
+- **Conclusion.**
+  - (a) The conditional staleness bias $b_\Delta(H,z)$ of a stored row with executed label $z$ depends on $(\omega_{t-\Delta},\omega_t)$ not at all, and on $\theta$ only through $p_\theta(\tau\mid H,z)$.
+  - (b) $|b_\Delta|\le\min\{\operatorname{span}(g)\sqrt{\mathrm{KL}_\Delta/2},\ \sqrt{\operatorname{Var}_{\mathrm{then}}(g)\chi^2_\Delta}\}$, with $\mathrm{KL}_\Delta$ given by the exact chain-rule sum of per-step actor KLs.
+  - (c) Obligation: when $\theta_{t-\Delta}=\theta_t$, the only label $\zeta$ for which the row is an unbiased sample of $\mathcal T_{\theta_t}Q(H,\zeta)$ for all $Q$ is $\zeta=z$ up to $\mathcal T Q$-level sets. Any relabeling map $\zeta=f(\omega_t,\text{stored data})$ is biased unless $\mathcal T_{\theta_t}Q(H,\cdot)$ is constant on $\{z,\zeta\}$.
+- **Implementation independence.** It holds for any parametrisation of $F,B,\pi,Q,P$ and for classical option-critic / SMDP methods. It is a statement about SMDP labels.
+- **Operational test.** `B02-SPIKE` (c): keep-label bias $=0.0$ exactly under common random numbers with $B$ drifted and $\pi$ fixed; re-encode bias $>3$ SE; both bounds hold on all drift rows.
+- **Falsifier.** A system satisfying P1–P5 where re-encoded labels are unbiased with $\mathcal TQ(H,z)\ne\mathcal TQ(H,\zeta)$. Any such case must violate a premise, most plausibly P3 if $B_\omega$ or its normalizer feeds the actor, or P4 if histories omit actions. A premise violation narrows scope (B.9.6 counter).
+
+### C-B02-A-02 — Single-pass normalizer invariant
+
+- **Grade**: 1. **Conclusion shape**: invariant.
+- **Premises.**
+  - P1: A running normalizer of type (C) count-weighted or (E) EMA($\beta$).
+  - P2: The contract issues exactly one update on $m_{\mathrm{cur}}$ and one on $m_{\mathrm{next}}$ per FB update, then freezes.
+  - P3: Replay is a union of contiguous segments.
+- **Conclusion.**
+  - (a) The frozen state is invariant (bitwise) under any number of `z_update`, expert, `near`, target, or evaluation queries.
+  - (b) Any additional call pattern shifts the stationary statistics by exactly the mixture formulas of §1.5. The double-`m_next` (C) bias is $\tfrac16(\mu_n-\mu_c)$, where $\mu_n-\mu_c=\tfrac1N\sum_G(m_{\mathrm{last}}-m_{\mathrm{first}})$. The (E) read-time weights are $1/(2-\beta)$ vs $(2-\beta)/(3-3\beta+\beta^2)$.
+  - (c) Train-mode batch statistics on a query batch of size $n_e$ give per-coordinate relative input error $\to 3/(2n_e)$ for in-distribution Gaussian batches, plus a systematic demo-recentring term.
+- **Operational test.** `B02-SPIKE` (a1)–(a5).
+- **Falsifier.** A normalizer of type (C)/(E) where an extra call with $\mu_s\ne\hat\mu$ leaves the stationary mean unchanged; or replay content where the telescoping identity fails, which can only happen with non-contiguous storage (scope note).
+
+### C-B02-A-03 — Zero controllability makes the planner gradient pure critic error
+
+- **Grade**: 1. **Conclusion shape**: impossibility.
+- **Premises.** P1–P4 of C-B02-A-01, and a set $\mathcal Z\subset\mathcal S^{d_z-1}(\sqrt{d_z})$ on which $p_\theta(\tau\mid H,z)$ does not depend on $z$.
+- **Conclusion.** $\mathcal T_\theta Q(H,\cdot)$ is constant on $\mathcal Z$ for every $Q$. Hence at any fixed point the true $\nabla_z Q^\star(H,z)\cdot u=0$ for tangent directions $u$ within $\mathcal Z$, and any nonzero planner gradient component along $\mathcal Z$ is critic approximation error carrying no task information. No critic architecture or planner optimiser can extract task signal from $z$-directions that $\pi$ ignores.
+- **Operational test.** D5 controllability ratio $\mathcal C(\alpha)$ together with $\|P_\perp\nabla_zQ_{\phi_1}\|$. A regime with $\mathcal C\approx1$ and large $\|\nabla_zQ\|$ is the predicted pathology. Intervening on $z$ along such a direction must leave measured MC return unchanged within CI.
+- **Falsifier.** An intervention study where a $z$-direction with $\mathcal C(\alpha)\approx1$ (within CI) produces a statistically significant change in MC task return. That would indicate that D5's metric misses a behaviourally relevant channel (e.g. contact force not visible in $m$, cf. B03), and it narrows the operational test rather than the theorem.
+
+### C-B02-A-04 (supporting) — $O(d_z)$ gauge symmetry; $\Delta_B$ is not a staleness certificate
+
+- **Grade**: 1 for the symmetry (Prop. 1.4); the diffusion conjecture is *not* claimed. **Conclusion shape**: invariant.
+- **Premises.** The baseline 04/05 losses, the B01 four-site whitening, and isotropic `z_random`/`near` laws. No per-coordinate operation on $z$ before its first linear layer.
+- **Conclusion.** The joint objective is invariant under the $O(d_z)$ action of Prop. 1.4. Consequently, for every $\epsilon>0$ there exist parameter pairs with $\Delta_B^{\mathrm{tot}}\ge1-\epsilon$ and identical task-relevant behaviour as a function of $B$-coordinates, and pairs with $\Delta_B=0$ on a probe set but $\Delta_\pi>0$. So no function of $\Delta_B$ alone bounds $b_\Delta$.
+- **Operational test.** The spike's Procrustes check, plus a parameter-space rotation test: apply $R$ to the absorbing layers and verify the loss is unchanged to fp32 tolerance on a fixed batch with correspondingly rotated `z_random`.
+- **Falsifier.** A loss term in the frozen baselines that is not rotation-invariant, which narrows scope to the invariant subgroup.
+
+---
+
+## 5. Pre-Registered Empirical Spike Protocol
+
+Aligned with `packets/B02/spikes/B02-SPIKE/PLAN.md`: seed `20261023`, max 2 attempts, command `/srv/claude/.venv/bin/python …/gpu_experiments/run_b02_nonstationarity_spike.py`. The runner implements this protocol at the registered path (§12.2). My `spike_sketch.py` is a reference implementation of the CPU stage and may be adopted verbatim or rewritten. Its dry-run output is shown for calibration only. The PLAN's three metrics are the minimal pass set. Items marked **[A+]** are additions this proposal asks the adjudicator to register; they do not alter the PLAN thresholds.
+
+### 5.1 Stage S (CPU, deterministic, < 2 min)
+
+Dimensions are the real ones: $D_m=229$, $d_z=256$, $|a|=29$, $K=10$, LSTM-128 ×2 over 135-dim inputs, $T=600$.
+
+**(a) Single-pass normalizer freeze vs double-update drift.**
+- a1 *(PLAN-1)*: over 400 FB updates, each followed by `sample_ufo_mixed_z` and 8 expert encodings, max |Δ(mean, var, count)| after freeze $=0.0$, and `update_calls` per update $=2$. Dry run: `0.0`, `[2]`.
+- a2 [A+]: the bug arm (auto-updating normalizer left in train mode) is detected (drift $>0$), and its stationary mean is within $5\cdot10^{-3}$ of the closed form $\frac{2n\mu_n+n_e\mu_{\mathrm{demo}}}{3n+n_e}$. Dry run: $0.20844$ vs $0.20825$.
+- a3 [A+]: the EMA read-time weights are within $5\cdot10^{-3}$ of $1/(2-\beta)$ and $(2-\beta)/(3-3\beta+\beta^2)$. Dry run: $0.52625/0.52632$, $0.70108/0.70111$.
+- a4 [A+]: telescoping identity error $<10^{-4}$. Dry run: $7.8\cdot10^{-8}$.
+- a5 [A+]: train-mode batch-statistics relative error within 25 % of $3/(2n_e)$ for $n_e\in\{8,64\}$. Dry run: $0.194/0.1875$, $0.0235/0.0234$.
+
+**(b) `behavior_z` immutability vs overwrite corruption.**
+- b1 *(PLAN-2)*: after 20 FB updates with `z_update` sampling, `max_abs_diff(behavior_z_after, behavior_z_before) == 0.0`, and the storage of `z_update` is disjoint (`data_ptr`). Dry run: `0.0`.
+- b2 [A+]: the overwrite-bug arm is detected. Dry run: $7.06$ max diff, 70.6 % of rows corrupted, mean cosine of corrupted rows to the original $5\cdot10^{-4}$, i.e. the label is replaced by an essentially orthogonal command.
+- b3 [A+]: the critic-target code path reads the replay `z_actual` tensor (asserted by identity), not the update batch's `z_update`.
+
+**(c) Online $(\Delta_B,\Delta_\pi)$ drift tracking.** [A+, all]
+- c1: stored-column $\Delta_\pi$ equals snapshot recomputation, max error $<10^{-6}$. Dry run: $0.0$.
+- c2: across injected actor drifts $\{10^{-3},3\cdot10^{-3},10^{-2}\}$ × 3 rows, both bounds hold: $|b|\le\text{bound}+3\,\mathrm{SE}$. The protocol records bound slack, which is informative and not a pass criterion.
+- c3: $B$ drifted with $\pi$ fixed: keep-label bias $=0.0$ under common random numbers, and re-encode bias $>3$ SE at $\Delta_B\in[0.01,0.03]$. Dry run: $0.0$; $0.0154\pm0.0042$ at $\Delta_B=0.018$.
+- c4: the identity $\|B_{\mathrm{now}}-B_{\mathrm{then}}\|^2=2d_z\Delta_B$ holds within $10^{-3}$ (fp32). Dry run: $1.2\cdot10^{-4}$.
+- c5: under a synthetic pure rotation, Procrustes gives $|\Delta_B^{\mathrm{def}}|<10^{-6}$. Dry run: $7\cdot10^{-11}$.
+- c6: the parameter-space rotation test of C-B02-A-04 shows FB+actor loss invariance $<10^{-4}$ relative. This is not in the sketch; the runner must implement it against `fb_core.py`.
+
+**(d) Full-prefix zero-hidden burn-in vs stale cached hidden state.**
+- d1 *(PLAN-3)*: `max_abs_diff(q_burnin_tail, q_exact_full_tail) < 1e-5` over 16 episodes with $t_0\in[100,568)$ and $L=32$. Dry run: $0.0$.
+- d2 *(PLAN-3)*: the stale cached hidden state after the pre-registered drift (200 Adam steps, lr $3\cdot10^{-4}$, on a fixed regression) has error $>10^{-2}$. Dry run: $1.10$.
+- d3 [A+]: shared-prefix deduplicated burn-in equals per-slice burn-in, max error $<10^{-6}$. This is not in the sketch; the runner implements it.
+
+**Verdict rule.** PASS iff every PLAN item passes. [A+] items are reported individually. A failing [A+] item does not fail the PLAN verdict, but it marks the corresponding §1 formula as *unverified* in synthesis.
+
+### 5.2 Stage G (GPU, integration; beyond the spike and gated by the adjudicator)
+
+Obstacle traversal R2.1, heights `{0.10, 0.20}`, 3 seeds per arm, compute-matched at $2\cdot10^6$ committed control steps. Arms:
+- (A0) baseline FIFO 50k;
+- (A1) M1 gate at $\varepsilon=0.02$;
+- (A2) M1 at $\varepsilon=0.05$;
+- (A3) M1 + M3 IS;
+- (A4) M4 soft weighting;
+- (N) negative control: re-encode expert labels (§3.1(a)), implemented as a *shadow critic* trained alongside A0 that never drives the planner, so the contract stays intact in the acting system.
+
+- **Primary endpoint (value calibration, not task success).** Every 100k steps, from 256 frozen-weight diagnostic-env states, run 32 MC rollouts per $(H,z)$ under $\pi_{\theta_t}$, using planner $z$ for the first macro and then $P_\psi$. Measure the calibration error $\epsilon_Q=\mathbb{E}|Q_{\phi_1}(H,c,z)-\hat G^{\theta_t}_{\mathrm{MC}}(H,z)|$ normalised by $\mathrm{sd}(\hat G)$.
+- **Pre-registered prediction.** A1 reduces mean $\epsilon_Q$ vs A0 by $\ge15\%$ (paired over seeds × checkpoints; one-sided Wilcoxon, $p<0.05$), with admitted-set size $\ge N_{\min}$ for $\ge90\%$ of the run.
+- **Falsifier.** $\epsilon_Q(\mathrm{A1})\ge\epsilon_Q(\mathrm{A0})$, or D2 shows $\overline{\mathrm{KL}}\le0.02$ for all ages of the FIFO window. In that case staleness is immaterial at this training speed, and M1 should be dropped as unnecessary.
+- **Secondary endpoints.** The KL-vs-age profile; $\Delta_B^{\mathrm{gauge}}/\Delta_B^{\mathrm{tot}}$ (tests the gauge-diffusion conjecture); $\Delta_\pi^{\hat R}/\Delta_\pi$ (trigger for §3.3); D4 $S_\pi$ and saturation; D5 $\mathcal C(\alpha)$; the measured diagnostic overhead against the < 5 % budget; and the shadow critic N's $\epsilon_Q$ vs A0, where C-B02-A-01(c) predicts N is worse.
+- **No claim of traversal learning or of superiority over PPO/AMP is made or implied by Stage G** (Charter §2.5). Its endpoints are value-calibration and diagnostic quantities only.
+
+### 5.3 Failure modes and edge cases covered
+
+- Short macros: termination vs timeout (§1.6, M2).
+- `severe_penetration` rows: committed, $\Phi=0$, included in D2/M1 like any row.
+- `invalid` rows: never present; the episode is discarded, so burn-in never sees a partial fabricated prefix.
+- Gate starvation: floors $G_{\min}$, $N_{\min}$; starvation is logged.
+- Ball-striking regime: no gate (§1.1); diagnostics and burn-in only.
+- Singular-sensitivity regime (tanh saturation): reported separately in D4.
+- $n_e=1$ train-mode BN: undefined; caught by D1.
+- Symmetry-breaking per-coordinate $z$ preprocessing: C-B02-A-04 premise check.
+- FIFO-truncated episodes: the telescoping identity is stated over segments.
+
+exec
+/bin/bash -lc "pwd; rg --files -g AGENTS.md -g '*B02*' -g '*method*' -g '*METHOD*' -g '*Appendix*' -g '"'!reviews/**'"' -g '"'!drafts/**'"' -g '"'!**/reviews/**'"' -g '"'!**/drafts/**'"'" in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+/home/box/.srv-claude/research/fb-beyond-imitation-acceleration
+prompts/B02-draft-A.txt
+prompts/B02-review-B-on-A.txt
+prompts/B02-draft-diff.txt
+prompts/B02-review-A-on-B.txt
+prompts/B02-review-diff.txt
+prompts/B02-draft-B.txt
+briefs/B02-nonstationarity-and-off-policy-credit-assignment-in-joint-fb-task-training.md
+logs/B02-step2-draftA-attempt1.log
+logs/B02-step3-reviewBA-attempt1.log
+logs/B02-step2-draftB-attempt1.log
+logs/B02-step3-reviewAB-attempt1.log
+
+exec
+/bin/bash -lc "wc -l PROGRAM_CHARTER.md packets/B02/proposals/A.md; sed -n '115,285p' packets/B02/proposals/A.md" in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+   48 PROGRAM_CHARTER.md
+  384 packets/B02/proposals/A.md
+  432 total
+
+### 1.5 Normalizer ("BN") contract: exact distribution shift and variance error
+
+The baseline normalizers (`obs_normalizer`, `motion_normalizer`) are running mean/variance input normalizers; $B$ uses LayerNorm internally. I treat two implementations, since the R2.1 class is not specified in the frozen set: **(C)** count-weighted cumulative merge (Welford/Chan), and **(E)** EMA with momentum $\beta$ (`torch.nn.BatchNorm1d` running statistics, PyTorch default $\beta=0.1$). The contract per `FBAgent.update` is: motion normalizer gets $m_{\mathrm{cur}}$ once and $m_{\mathrm{next}}$ once (likewise `obs`/`next_obs`), then freeze (`eval`/`no_grad`) for `z_update`, expert/`near` encoding, the target $\bar B$ pass, and all evaluation.
+
+**(C) stationary statistics.** If update calls feed sources $s$ with row counts $c_s$ per update, the cumulative estimator converges to the mixture moments
+$$
+\hat\mu_\infty=\sum_s\tfrac{c_s}{C}\mu_s,\qquad \hat\sigma^2_\infty=\sum_s\tfrac{c_s}{C}\big(\sigma_s^2+(\mu_s-\hat\mu_\infty)^2\big),\qquad C=\textstyle\sum_s c_s .
+$$
+
+| Violation | Per-update sources | Stationary mean | Bias vs contract $\mu^\star=\tfrac12(\mu_c+\mu_n)$ |
+|---|---|---|---|
+| Contract | $m_c\!:\!n,\ m_n\!:\!n$ | $\tfrac12(\mu_c+\mu_n)$ | 0 |
+| Double `m_next` | $m_c\!:\!n,\ m_n\!:\!2n$ | $\tfrac13\mu_c+\tfrac23\mu_n$ | $\tfrac16(\mu_n-\mu_c)$ |
+| Update during `z_update` relabel (`m_next[perm]` is the same multiset) | same as double `m_next` | same | $\tfrac16(\mu_n-\mu_c)$ |
+| Update during expert/near queries, $n_e$ rows/update | $+\ \rho_{\mathrm{demo}}\!:\!n_e$ | $\frac{n(\mu_c+\mu_n)+n_e\mu_{\mathrm{demo}}}{2n+n_e}$ | $\frac{n_e}{2n+n_e}(\mu_{\mathrm{demo}}-\mu^\star)$ |
+
+Variance error: substitute the row's source weights into $\hat\sigma^2_\infty$. Each violation adds the cross term $\tfrac{c_s}{C}(\mu_s-\hat\mu)^2$ and reweights the within-source variances. Dry run for the combined bug (relabel + 8 expert rows per update, $\mu_c=0$, $\mu_n=0.3$, $\mu_{\mathrm{demo}}=1$, $n=256$): predicted $0.20825$, measured $0.20844$.
+
+**Telescoping identity (sizes $\mu_n-\mu_c$ exactly).** For any replay content that is a union of contiguous segments $\mathcal{G}$ (whole episodes, or FIFO-truncated episodes), the multisets $\{m_{\mathrm{next}}\}$ and $\{m_{\mathrm{cur}}\}$ differ only at segment ends:
+$$
+\mu_n-\mu_c=\frac{1}{N}\sum_{G\in\mathcal G}\big(m_{\mathrm{last}}(G)-m_{\mathrm{first}}(G)\big)=\frac{1}{\bar L}\Big(\overline{m}_{\mathrm{last}}-\overline{m}_{\mathrm{first}}\Big),
+$$
+where $\bar L$ is the mean segment length (dry-run error $7.8\times10^{-8}$). The "last" frames are disproportionately committed failure frames (`severe_penetration`, falls) and success frames; the "first" frames are standing resets. **Quantitatively, the double-`m_next` bias in (C) is small**, $\approx\|\bar m_{\mathrm{last}}-\bar m_{\mathrm{first}}\|/(6\bar L)$ (sub-1% of $\sigma$ for $\bar L\gtrsim100$ on most coordinates), but it is **deterministic and sign-coherent**: it shifts the normalizer toward failure kinematics. Expert-query contamination is not small: $\mu_{\mathrm{demo}}$ is a single 0.704 m traversal clip, far from replay early in training, so its bias is $O(n_e/2n)\cdot\|\mu_{\mathrm{demo}}-\mu^\star\|$. It also makes the backward map depend on the demonstration distribution through the normalizer, which violates the spirit of Charter §2.1–2.2: demonstrations as prompts only.
+
+**(E) EMA fixed point at read time.** With a periodic call pattern, the running mean read after the last call of each update converges to
+- contract $[c,n]$: weight on $\mu_n$ $=\dfrac{1}{2-\beta}$ ($0.5263$ at $\beta=0.1$; dry run $0.5262$);
+- double-next $[c,n,n]$: weight on $\mu_n$ $=\dfrac{2-\beta}{3-3\beta+\beta^2}$ ($0.7011$; dry run $0.7011$).
+
+The bias is therefore $0.175(\mu_n-\mu_c)$ at $\beta=0.1$: about 1.05× the (C) value ($1/6\approx0.167$). Note that even the *correct* EMA weights `m_next` slightly more than $\tfrac12$. That is a read-time-phase property of EMA and not a violation.
+
+**Train-mode batch statistics (the severe case).** If `encode_motion` or `sample_ufo_mixed_z` runs a true `BatchNorm` in train mode, the output normalizes with **the query batch's own** mean and variance. Per coordinate, $\tilde x_{\mathrm{wrong}}=a\tilde x+b$ with $a=\sigma/\hat\sigma_b$ and $b=(\mu-\hat\mu_b)/\hat\sigma_b$, and $\mathbb{E}\|\tilde x_{\mathrm{wrong}}-\tilde x\|^2=\sum_i\mathbb{E}[(a_i-1)^2\tilde x_i^2+b_i^2]\approx D\cdot\frac{3}{2n_e}$ for in-distribution Gaussian batches: $1/(2n_e)$ from the scale and $1/n_e$ from the shift. Dry run: $0.194$ vs $0.1875$ at $n_e=8$, and $0.0235$ vs $0.0234$ at $n_e=64$. On top of this, the systematic term $a_i=\sigma_{\rho,i}/\sigma_{\mathrm{demo},i}$, $b_i=(\mu_{\rho,i}-\mu_{\mathrm{demo},i})/\sigma_{\mathrm{demo},i}$ re-centres demo frames on *the demo distribution*. The encoding also becomes non-idempotent and batch-composition-dependent: $z_{\mathrm{exp}}$ for frame $m$ depends on which other envs hit a boundary in the same step. $n_e=1$ is undefined (zero variance).
+
+**Propagation to $z$.** For input perturbation $\delta\tilde x$, to first order $\mathbb{E}\|\delta B\|^2\approx\operatorname{tr}(J_B\operatorname{Cov}(\delta\tilde x)J_B^\top)+\|J_B\mathbb{E}\delta\tilde x\|^2$, and $\Delta_B=\mathbb{E}\|\delta B\|^2/(2d_z)$ by §1.3. The spike measures $\Delta_B$ directly rather than relying on the linearisation.
+
+### 1.6 Short macros, terminal boundary, and RNN state
+
+- **Short-macro discount.** For $k<K$: (i) termination (incl. `severe_penetration`, $\Phi_{\mathrm{next}}=0$) gives $y=R^{(k)}$; (ii) timeout truncation gives $y=R^{(k)}+\gamma^k\bar V(H_{t+k})$. Using $\gamma^K$ on a truncated row has exact bias $(\gamma^k-\gamma^K)\bar V$. Treating truncation as termination has bias $-\gamma^k\bar V$. Rows containing an `invalid` transition never exist (Charter §2.4); the uncommitted episode is discarded whole, so burn-in never sees a fabricated prefix.
+- **Stale cached hidden states.** A hidden state cached at collection is $h_{t_0}^{\mathrm{then}}=f_{\phi_{t-\Delta}}(x_{0:t_0})$. Using it with current weights computes neither $Q_{\phi_t}$ nor $Q_{\phi_{t-\Delta}}$ on $H_{t_0}$. Its error has no general bound below the network's sensitivity to $\phi$; dry run (2-layer LSTM-128, 200 Adam steps at $3\cdot10^{-4}$): max error $1.10$. Full-prefix recomputation from $(h_0,c_0)=0$ with current weights is exact by construction (dry run: $0.0$).
+
+---
+
+## 2. Algorithmic Design for Non-Stationarity Mitigation and Controllability Diagnostics
+
+### 2.0 New immutable replay columns (write-once, collection-time only)
+
+In `TaskEpisodeReplay` (per control step) and `FBReplay`, alongside the existing `behavior_z`/`z_actual`, `generation`, `source`:
+
+| Column | Shape | Content | Consumers |
+|---|---|---|---|
+| `behavior_mu` | `[29]` fp16 | pre-noise actor mean $\mu_{\theta_{\mathrm{then}}}(o_t,z_{\mathrm{actual}})$ in pre-clip space | diagnostics D2, gate M1, IS arm M3 |
+| `behavior_log_std` | `[29]` fp16, or scalar per generation if $\sigma$ fixed | $\log\sigma_{\theta_{\mathrm{then}}}$ | same |
+| `a_raw` | `[29]` fp16 | pre-clip sampled action (`a_applied` already stored) | IS arm M3 |
+| `prompt_anchor_z` | `[d_z]` fp16, `expert`/`near` rows only | $z_{\mathrm{exp}}=\operatorname{proj}B_{\omega_{\mathrm{then}}}(m_{\mathrm{demo}})$ before the `near` rotation | D3 |
+| `prompt_frame_id` | `int16`, `expert`/`near` rows only | NPZ row index | D3 **logging only** |
+
+**Firewall on `prompt_frame_id`.** Charter §2.3 forbids frame indices as *network inputs*. The column is excluded from every input schema, and a schema test asserts that no module's `forward` signature or input-spec registry references it. Storage: about 59 floats per step ≈ 120 B fp16. At 50k macros × 10 steps that is about 60 MB, which fits the existing replay budget.
+
+**Immutability enforcement.** Buffers are allocated once. `sample()` returns `.clone()`d views, never storage aliases. `FBAgent.update` asserts `z_update.data_ptr()` is disjoint from replay storage. In debug/CI mode, a per-row CRC32 over (`behavior_z`, `behavior_mu`, `a_raw`) is checked on each sample. The macro target and the critic/planner burn-in read `z_actual`/`z_{t-1}` from these columns only.
+
+### 2.1 Online diagnostic suite
+
+All diagnostics run under `torch.no_grad()` (except D4, which uses `torch.func.jvp`), with all normalizers frozen. Their outputs never enter any loss, normalizer, or replay. Cadence is in FB updates.
+
+**D1 — Normalizer contract guard (every update, O(1)).** Per normalizer, `update_calls` delta must equal exactly 2 inside `FBAgent.update` and 0 elsewhere. A 64-bit hash of `(mean,var,count)` must be identical before and after every `encode_motion`, `sample_ufo_mixed_z`, target pass, and evaluation panel. A violation raises the contract error and halts the run. It is logged as a contract breach, distinct from `invalid` physics.
+
+**D2 — Behavioural drift $\Delta_\pi$ and trajectory KL, snapshot-free (every $U_d=250$ updates).** For each live generation bucket $g$ (R2.1 `generation` tag; buckets of 1 000 macros if the tag is finer), sample $n_g=32$ macro rows. Compute $\mu_{\theta_t}(o_{t+j},z_{\mathrm{actual}})$ for $j<k$ and report:
+- $\Delta_\pi^{\mathrm{rms}}(g)=\big(\operatorname{mean}_{\mathrm{rows},j}\|\mu_{\theta_t}-\texttt{behavior\_mu}\|^2\big)^{1/2}$;
+- $\overline{\mathrm{KL}}_g=\operatorname{mean}_{\mathrm{rows}}\sum_{j<k}\kappa_j$ (exact Gaussian formula, §1.2);
+- $\hat\chi^2_g=\operatorname{mean}_{\mathrm{rows}}\rho^2-1$ with $\log\rho=\sum_j[\log\pi_{\theta_t}(a_{\mathrm{raw},j})-\log\pi_{\mathrm{then}}(a_{\mathrm{raw},j})]$, both from stored columns;
+- the age profile $\overline{\mathrm{KL}}$ vs $\Delta=t-g$, split by `source`.
+
+Dry run: the stored-column $\Delta_\pi$ equals snapshot recomputation to $0.0$.
+
+**D3 — Encoder drift $\Delta_B$ with gauge split (every $U_d$ updates).**
+- *Prompt drift, snapshot-free:* for sampled `expert`/`near` rows, $\Delta_B^{\mathrm{prompt}}=1-\langle B_{\omega_t}(m_{\mathrm{demo}}[\texttt{prompt\_frame\_id}]),\texttt{prompt\_anchor\_z}\rangle/d_z$. Alarm at $>1-\cos10^\circ=0.0152$ (§1.3).
+- *Replay-frame drift:* keep a geometric ring of $B$ snapshots (weights + motion-normalizer stats) at ages $\{1,2,4,8,16,32\}$ buckets. $B$ is small: about 0.13 M params (obstacle) or 0.54 M (ball), so 6 snapshots ≤ 13 MB. Each snapshot carries a fixed probe set of 4 096 valid committed `m_next` frames taken at snapshot time. Report $\Delta_B^{\mathrm{tot}},\Delta_B^{\mathrm{def}},\Delta_B^{\mathrm{gauge}}$ via the $d_z\times d_z$ Procrustes SVD (§1.4).
+- *Gauge-aligned behavioural drift* $\Delta_\pi^{\hat R}$ on the D2 rows, using the Procrustes $\hat R$ from the snapshot nearest in age.
+
+**D4 — Action sensitivity (every $U_d$ updates).** On 512 $(o,z)$ pairs (recent replay $o$; $z$ drawn equally from executed planner $z$, expert $z$, and the uniform sphere), estimate the tangent-projected Jacobian norm with $r=4$ Hutchinson probes:
+$$
+S_\pi=\mathbb{E}\big[\|J_z\mu_\theta(o,z)\,P_\perp(z)\|_F\big],\quad \|JP_\perp\|_F^2=\mathbb{E}_{v\sim\mathcal N(0,I)}\|J\,P_\perp v\|^2,\quad P_\perp=I-zz^\top/d_z .
+$$
+Each probe is one `torch.func.jvp`. Also report the per-radian gain $\sqrt{d_z}\,\|JP_\perp u\|$ for unit tangent $u$, which is directly comparable to the 10–20° `near` rotation, and the tanh/clip saturation fraction $\Pr(|\mu_i|>0.99)$, which suppresses $S_\pi$ independently of $z$-semantics.
+
+**D5 — Multi-step trajectory divergence / controllability (every 50 000 control steps).** Use a dedicated pool of 64 diagnostic envs that never write replay or normalizers and run with frozen weights. From cloned simulator states sampled from recent episodes (MuJoCo `mjData` copy), roll out $K$ and $5K$ steps with command pairs at angles $\alpha\in\{0^\circ,10^\circ,20^\circ,45^\circ,90^\circ\}$, in two modes: (i) stochastic with independent noise; (ii) deterministic means. Report
+$$
+\mathcal D_k(\alpha)=\tfrac1k\textstyle\sum_{j\le k}\|\tilde m^{(1)}_j-\tilde m^{(2)}_j\|_2/\sqrt{D_m}\ \ (\text{frozen-normalized motion}),\qquad \mathcal C(\alpha)=\mathcal D_k(\alpha)/\mathcal D_k(0^\circ)\ \text{(stochastic mode)} .
+$$
+**Alarms:** $\mathcal C(20^\circ)<1.2$ ("$z$ ignored": the `near` exploration is behaviourally void); non-monotone $\mathcal D^{\det}(\alpha)$; or $\|\nabla_zQ_{\phi_1}\|$ large while $\mathcal C\approx1$, which by C-B02-A-03 means the planner gradient is pure critic error.
+
+**Overhead budget (target < 5 % wall-clock per update; to be measured in the GPU stage of §5, not asserted).** Rough estimate, assuming the R2.1 residual 2048×6 actor (≈ 25 M params) and FB batch 1 024 with two residual F heads. A full FB update is ≳ 1 TFLOP. Per diagnostic tick, D2 runs $\le50\cdot32\cdot10=16\,000$ actor forwards ≈ 0.8 TFLOP; amortised over $U_d=250$ that is ≈ 0.3 %. D3 and D4 together add ≈ 0.2 %. D5 runs on separate envs every 50k steps, and its wall-clock share is reported separately. M1 adds no per-update cost beyond D2. M3 adds $B_Q\cdot K$ actor forwards per critic update (≈ 1–2 %).
+
+### 2.2 Mitigation: drift-gated replay horizon (macro-$z$ regime only)
+
+**M1 — Generation-level gate (primary).** Every $U_d$ updates, after D2:
+```
+g_cut ← oldest bucket g such that KL̄_{g'} ≤ ε_KL for every bucket g' ≥ g        # contiguous from newest
+g_cut ← min(g_cut, newest − G_min + 1)  and enforce |admitted| ≥ N_min               # floors
+g_cut ← max(g_cut, g_cut_prev)                                                        # monotone: no re-admission
+admitted ← { rows : generation ≥ g_cut }  ∩  FIFO window (50k macros, baseline)
+critic TD batches sample uniformly from `admitted`; planner (delay=2) samples H_t from the same set
+```
+Defaults: $\varepsilon_{\mathrm{KL}}=0.02$ nats/macro, $G_{\min}=2$, $N_{\min}=8\,192$ macros. At $\varepsilon=0.02$ and state-independent $\Delta\mu$, $\chi^2=e^{0.04}-1\approx0.04$, so the certificate is $|b_g|\le0.2\,\mathrm{sd}(y)$. The dry run observed about 10× below the certificate. The value is pre-registered with a sweep $\{0.01,0.02,0.05,0.2,\infty\}$ ($\infty$ = baseline FIFO).
+
+*Why generation-level, not row-level.* $\mathrm{KL}_{\mathrm{row}}$ is computed on the row's own realised states $o_{t+j}(\tau)$, so gating on $\mathbf 1[\mathrm{KL}_{\mathrm{row}}\le\varepsilon]$ conditions on $\tau$. The admitted target is then $\mathbb{E}_{\mathrm{then}}[g\mid H,z,\mathrm{KL}_{\mathrm{row}}(\tau)\le\varepsilon]\ne\mathbb{E}_{\mathrm{then}}[g\mid H,z]$: a new selection bias. For example, low-KL trajectories may be precisely the ones that fell early, with $k$ small and few steps to diverge. The generation gate depends only on the bucket index and on other rows' statistics: with $n_g=32$ out of ~1 000 rows per bucket, the influence is ≤ 3 %, and it is removed entirely by drawing the D2 sample from a held-aside 3 % of each bucket that is never used for TD. So it introduces no within-row selection.
+
+**M2 — Exact short-macro discount and burn-in (mandatory, both regimes).** Per §1.6, always use $\gamma^k_{\mathrm{task}}$ with the stored $k$ and $(1-\texttt{terminated})$. Unit-test both bug forms. Burn-in is in §2.3.
+
+**M3 — Truncated importance weights inside the gate (ablation arm, not default).** Weight each admitted row's TD loss by $\bar\rho=\min(\rho,\bar c)$ with $\bar c=2$, using stored `a_raw`/`behavior_mu`/`behavior_log_std`. Inside the gate $\chi^2\lesssim0.04$, so truncation is rarely active and the arm is close to unbiased. It is not default because: (i) its variance grows as $e^{2\mathrm{KL}}$, which in the dry run gave $\hat\chi^2=12$–$49$ at KL 1.1–2.2 and IS error up to about 8× the plain-MC SE; (ii) the gate already holds the residual bias within the certificate. M3 exists to test whether that residual is practically material.
+
+**M4 — Soft lag weighting (ablation arm, brief option b).** Sample admitted rows with probability $\propto\exp(-\overline{\mathrm{KL}}_g/\varepsilon_{\mathrm{KL}})$ instead of a hard cut. This is still generation-level, so there is no selection bias.
+
+**What is deliberately *not* done.** `z_actual`/`behavior_z` are never rewritten, rotated, re-encoded, or shadowed. The critic input is always the executed vector (Charter §2.2). No pre-training or freezing of $B_\omega,\pi_\theta$ (brief §2). The gate touches only *which* rows train $Q$/$P$. `FBReplay` and the FB/actor losses are untouched, because FB updates relabel with fresh `z_update` and are off-policy-correct by construction.
+
+### 2.3 Full-prefix zero-hidden burn-in with exact shared-prefix deduplication
+
+For each sampled slice $[t_0,t_0+L)$ of an episode:
+1. Group the sampled slices by episode id. For each episode, unroll **once** from $(h_0,c_0)=0$ at step 0 to $\max t_0$ under `no_grad`, recording the hidden state at every requested $t_0$. This is exact, because it is the same computation as per-slice burn-in, and it costs $O(\sum_{\mathrm{episodes}}\max t_0)$ rather than $O(\sum_{\mathrm{slices}}t_0)$.
+2. Inputs are the stored executed stream $(o_t,\ z_{t-1}=\text{executed }z_{\mathrm{actual}},\ \texttt{first\_flag})$, never `z_update` or a re-encoded prompt.
+3. Run separate unrolls for the online $Q_{\phi_{1,2}}$, target $Q_{\bar\phi_{1,2}}$, online $P_\psi$ (planner loss), and target $P_{\bar\psi}$ (target $z$), each with its current weights. The target $H_{t+k}$ uses the target unroll continued past $t_0+L$ where needed.
+4. BPTT over $[t_0,t_0+L)$ only.
+
+No hidden state is ever persisted in replay. A versioned hidden-state cache is not exact under per-step weight updates, so it is rejected.
+
+---
+
+## 3. Serious Alternative Considered and Rejected
+
+Per method §11.5. §3.1 is the primary rejected alternative; §3.2–3.4 are further rejections, with reasons.
+
+### 3.1 Rejected (primary): retrofitting historical `behavior_z` by re-encoding through the current $B_\omega$
+
+*Proposal under consideration.* At TD time, replace a row's label $z_{\mathrm{actual}}$ with $z'=\operatorname{proj}B_{\omega_t}(m^\dagger)$. Here $m^\dagger$ is either (a) the demo frame the prompt came from (`expert`/`near` rows), or (b) a realised frame of the macro (e.g. $m_{t+k}$) for rows with no demo source. The motivation is to "refresh" stale commands into current coordinates (brief option (c)).
+
+*Why rejected.*
+1. **It adds bias where there was none.** Take the regime where only $B$ has drifted ($\Delta_\pi\equiv0$). By Prop. 1.2, keeping $z_{\mathrm{actual}}$ gives $b=0$ exactly. Case (a) gives the target $\mathcal T_\theta Q(H,z_{\mathrm{actual}})$ attached to input $z'$, with bias $\mathcal T_\theta Q(H,z_{\mathrm{actual}})-\mathcal T_\theta Q(H,z')$. That is nonzero whenever $\mathcal T_\theta Q(H,\cdot)$ is non-constant on the arc of length $\alpha=\arccos(1-\Delta_B)$. To first order it equals $\langle\nabla_z\mathcal T Q,\ z_{\mathrm{actual}}-z'\rangle$, with $\|z_{\mathrm{actual}}-z'\|=\sqrt{2d_z\Delta_B}$. Dry run: keeping gives a bias of exactly $0$ under common random numbers; re-encoding at $\Delta_B=0.018$ (≈ 10.9°) gives $0.0154\pm0.0042$ (3.7 SE). Re-encoding is strictly dominated whenever $\Delta_\pi=0$. When $\Delta_\pi\ne0$, it has no reason to help either: the stale component is $\theta$-driven, and the re-encoded vector is a different command that neither $\pi_{\mathrm{then}}$ nor $\pi_{\mathrm{now}}$ executed.
+2. **Case (b) is hindsight relabeling of a task critic.** $z'(\tau)$ is a function of the outcome, so the admitted conditional is $\mathbb{E}_{\mathrm{then}}[g\mid H,z,\,B(m_{t+k}(\tau))=\zeta]$, not $\mathcal T Q(H,\zeta)$. HER-style relabeling is valid only when the reward is defined by the relabeled goal. Here $r^{\mathrm{task}}$ is fixed and $z$ is a command, so the relabel is biased by construction. It also cannot reproduce a planner row at all, and planner rows are 70 % of rows after $S_{\mathrm{ramp}}$.
+3. **It violates the frozen contract.** Charter §2.2 requires that $Q$ train on the executed $z_{\mathrm{actual}}$ and that labels are never overwritten. A shadow column read by $Q$ is the same violation in a different place.
+4. **It cannot address the dominant mechanism.** Under gauge drift (Prop. 1.4), a refreshed $z'=B_{\omega_t}(m)$ is rotated *with* $B$. Yet the row's return came from $\pi_{\mathrm{then}}(\cdot,z_{\mathrm{actual}})$, and $\pi_{\mathrm{now}}$ applied to $z'$ reproduces $\pi_{\mathrm{then}}(\cdot,z_{\mathrm{actual}})$ only if $\pi$ is exactly gauge-equivariant *and* $B$ is a pure rotation. That is the $\Delta_\pi^{\hat R}\approx0$ case, which is measured (D3), not assumed.
+
+### 3.2 Rejected: freeze a pre-trained imitation $B_\omega/\pi_\theta$ before task training
+
+Freezing gives $\Delta_\pi\equiv\Delta_B\equiv0$, and all staleness bias vanishes. It is rejected because: (i) it violates brief §2 ("must not introduce pre-training stages or freeze $B_\omega/\pi_\theta$"); (ii) it removes the mechanism the program studies (baseline 02 §3.3): $B$ must keep grounding *newly discovered* postures such as hand support and stumble recovery, and a frozen $B$ fitted on an 859-frame, single-height (0.704 m) support has only its support projection identifiable (C-B01-B-02), so planner commands off that support have arbitrary meaning; (iii) a pre-training stage on the demo distribution makes the demo the *training* distribution of $B$ rather than a prompt source, which edges toward the imitation-anchored regime of the AMP/pretrained-skill column in baseline 02 §2. Point (iii) is a design-philosophy argument, not a theorem, and I record it as such.
+
+### 3.3 Not adopted (requires a charter amendment): gauge-aligned critic input $\hat R\,z_{\mathrm{actual}}$
+
+If D3 shows $\Delta_\pi^{\hat R}\ll\Delta_\pi$, feeding $Q$ the gauge-aligned vector $\hat Rz_{\mathrm{actual}}$, while storing $z_{\mathrm{actual}}$ immutably, would remove most staleness at no data cost. It is not adopted because Charter §2.2 requires $Q$ to train on $z_{\mathrm{actual}}$ itself. If the GPU stage measures $\Delta_\pi^{\hat R}/\Delta_\pi<0.3$ on ≥ 2 of 3 seeds, I recommend opening a method issue (§10.2). This is a measurement-gated follow-up, not a proposal to violate the contract.
+
+### 3.4 Rejected as primary: row-level KL gate and untruncated per-row IS
+
+Row-level gating introduces trajectory-selection bias (§2.2). Untruncated IS is unbiased but has variance factor $e^{2\mathrm{KL}}$, which becomes uninformative at the KL values that FIFO replay reaches. Both are retained only as an ablation arm (M3) or as a negative control.
+
+---
+
+## 4. Candidate Necessity Claims (Appendix B)
+
+All are proposed at **Candidate** state. Locking requires independent verification and the human lead's signature (B.9.2).
+
+### C-B02-A-01 — Macro-label invariance and executed-label obligation
+
+- **Grade**: 1 (theorem-like). **Conclusion shape**: invariant + obligation.
+- **Premises.**
+  - P1: The macro critic's target is $g(\tau)=R^{(k)}+\gamma^k(1-d)\bar V(H_{t+k})$, evaluated with current networks.
+  - P2: The environment transition and reward kernel, given the action-observation history, is stationary and independent of $(\omega,\theta)$.
+  - P3: Within a macro, actions are drawn from $\pi_\theta(\cdot\mid o,z)$ with $z$ held fixed. $B_\omega$ does not enter $\pi_\theta$'s inputs or the rollout except through the choice of $z$ at boundaries.
+  - P4: Histories include past actions and past executed $z$.
+  - P5: $\pi_{\theta_t}\ll\pi_{\theta_{t-\Delta}}$ (e.g. both Gaussian).
+- **Conclusion.**
+  - (a) The conditional staleness bias $b_\Delta(H,z)$ of a stored row with executed label $z$ depends on $(\omega_{t-\Delta},\omega_t)$ not at all, and on $\theta$ only through $p_\theta(\tau\mid H,z)$.
+  - (b) $|b_\Delta|\le\min\{\operatorname{span}(g)\sqrt{\mathrm{KL}_\Delta/2},\ \sqrt{\operatorname{Var}_{\mathrm{then}}(g)\chi^2_\Delta}\}$, with $\mathrm{KL}_\Delta$ given by the exact chain-rule sum of per-step actor KLs.
+
+exec
+/bin/bash -lc "cat briefs/B02-nonstationarity-and-off-policy-credit-assignment-in-joint-fb-task-training.md; sed -n '85,115p' packets/B02/proposals/A.md; rg --files -g '"'!**/reviews/**'"' -g '"'!**/drafts/**'"' -g '"'!logs/**'"' -g '"'!packets/**'"' -g '"'!gpu_experiments/**'"' -g '"'!baseline/**'"' -g '"'!synthesis/**'"' -g '"'!prompts/**'"' -g '"'!briefs/**'"'" in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Brief B02: Non-Stationarity, Batch-Norm Ordering, and Off-Policy Credit Assignment in Joint FB + Task-Q + Planner Training
+
+**Packet ID**: `B02`
+**Status**: `READY_NOT_STARTED`
+**Baseline References**: `baseline/02-fb-paradigm-beyond-imitation-and-exploration.md`, `baseline/04-joint-fb-ball-striking-v2-architecture.md`, `baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md`
+
+---
+
+## 1. Problem Statement
+
+When training FB ($F, B$), the low-level actor $\pi_\theta(o, z)$, the task critic $Q_{\phi_1, \phi_2}$, and the high-level recurrent planner $P_\psi$ **jointly from random initialization**, two distinct off-policy credit-assignment regimes arise across our baselines:
+1. **Macro-$z$ Critic Regime (Obstacle Traversal, $K=10$)**: $Q_{\phi_1, \phi_2}(H_t, c_t^{\mathrm{geom}}, z_{\mathrm{actual}})$ evaluates a 10-step macro latent $z_{\mathrm{actual}} \in \mathcal{S}^{255}(16)$. As $B_\omega$ and $\pi_\theta(o, z)$ evolve during training, a historical $z_{\mathrm{actual}}$ stored in `TaskReplay` no longer induces the same 10-step physical trajectory distribution that generated $R_{\mathrm{macro}}$.
+2. **Step Action-$Q$ Regime (Ball Striking v2, $K_{\mathrm{hold}}=1$)**: $Q_{\phi_1, \phi_2}(H_t^Q, a_t)$ evaluates the 1-step physical action $a_t \in [-1, 1]^{29}$, and $P_\psi$ updates via $\nabla_\psi Q_{\phi_1}(H_t^Q, \pi_\theta(o_t^{\mathrm{low}}, P_\psi(H_t^{\mathrm{plan}})))$. Here, rapid updates to $\pi_\theta$ from the FB loss shift the mapping $z \mapsto a$, requiring a dedicated task-only actor EMA $\bar{\theta}$ for target action bootstrapping.
+
+**Core Question**: How can off-policy representation drift between `FBReplay` and `TaskReplay` (including batch normalizer statistics, historical `z_actual` staleness, and full-prefix RNN hidden-state reconstruction) be bounded and diagnosed during joint training from scratch?
+
+---
+
+## 2. Hard Constraints & Non-Goals
+
+- Must strictly enforce the R2.1 UFO update order: update BN once on `(obs, m_current)` and once on `(next_obs, m_next)`, freeze BN (`eval/no_grad`), sample `z_update` (`50%` online-$B$ permuted `m_next`, `50%` random sphere), and never overwrite `behavior_z`.
+- Must not introduce pre-training stages or freeze $B_\omega$ / $\pi_\theta$.
+- Must preserve full-prefix zero-hidden burn-in for recurrent $P_\psi$ and $Q_{\phi_1, \phi_2}$.
+
+---
+
+## 3. Deliverables Required from Primary Authors
+
+1. **Drift Quantification Metric**: Define an exact, online-computable metric measuring **behavioral drift** $\Delta_\pi(z) = \|\pi_{\theta_{\mathrm{now}}}(o, z) - \pi_{\theta_{\mathrm{then}}}(o, z)\|_2$ and **encoder drift** $\Delta_B(m) = 1 - \frac{1}{d_z}\langle B_{\omega_{\mathrm{now}}}(m), B_{\omega_{\mathrm{then}}}(m) \rangle$ across the age distribution of `TaskReplay` (`generation` tags are already stored in R2.1 macro rows).
+2. **Mitigation & Replay Horizon Design**: Compare (a) fixed FIFO `TaskReplay` capacity, (b) generation-lag-weighted TD updates or trust-region filtering on stale macro rows, and (c) re-encoding raw expert frames vs keeping executed planner $z_{\mathrm{actual}}$ in macro-$z$ critic updates.
+3. **Minimal Empirical Spike Protocol**: Specify a bounded test verifying BN invariance to expert queries, invariance of `z_update` to `behavior_z` mutations, and bounded TD error under synthetic representation drift.
+
+---
+
+## 4. Adjudication Rubric
+
+| Dimension | Weight | Scoring Standard |
+|---|---:|---|
+| Exactness of Off-Policy Semantics | 30% | Clearly distinguishes transition-level $a$-critic from macro-level $z$-critic requirements. |
+| Compliance with R2.1 & v2 Contracts | 25% | Zero violation of BN ordering, `z_update` sampling, or RNN prefix reconstruction. |
+| Computational Overhead | 20% | Diagnostic and mitigation add $< 5\%$ wall-clock cost per update. |
+| Spike Falsifiability | 25% | Pre-registers unit and integration checks on generation lag and value stability. |
+$$
+\|Q_{\mathrm{mix}}^\star-Q_{\theta_t}^\star\|_\infty\le\frac{\sup_{H,z}\sum_\Delta w_\Delta(H,z)\,|b_\Delta(H,z)|}{1-\gamma_{\mathrm{eff}}}\le\frac{\sup\sum_\Delta w_\Delta\sqrt{\operatorname{Var}_\Delta(g)\,\chi^2_\Delta}}{1-\gamma_{\mathrm{eff}}}.
+$$
+This uses the "frozen target" idealisation, with $\mathcal{T}$ evaluated on a fixed $\bar V$. With $\gamma_{\mathrm{task}}=0.99$ and $K=10$, $1/(1-\gamma^{10})\approx 10.5$: staleness bias is amplified about 10× at the fixed point.
+
+**Exact staleness variance (law of total variance).** For the regression target at $(H,z)$:
+$$
+\operatorname{Var}_{\mathrm{mix}}(y\mid H,z)=\underbrace{\textstyle\sum_\Delta w_\Delta\operatorname{Var}_\Delta(g)}_{\text{within-generation}}+\underbrace{\textstyle\sum_\Delta w_\Delta\big(m_\Delta-\bar m\big)^2}_{\text{between-generation ("staleness variance")}},\quad m_\Delta=\mathbb{E}_{\theta_{t-\Delta}}[g],\ \bar m=\textstyle\sum w_\Delta m_\Delta .
+$$
+The second term is irreducible noise for the critic regression. Its minimiser is $\bar m$, which is biased by $\bar m-m_0=\sum_\Delta w_\Delta b_\Delta$.
+
+### 1.3 Prompt drift: exact identities for $\Delta_B$
+
+With $\|B\|_2=\sqrt{d_z}$ for both encoders, the brief's encoder drift satisfies, exactly,
+$$
+\Delta_B(m)=1-\tfrac{1}{d_z}\langle B_{\omega_t}(m),B_{\omega_{t-\Delta}}(m)\rangle=1-\cos\alpha_m,\qquad \|B_{\omega_t}(m)-B_{\omega_{t-\Delta}}(m)\|_2^2=2d_z\,\Delta_B(m).
+$$
+**Calibration against the deliberate `near` perturbation.** `near-z` rotates by $\alpha\in[10^\circ,20^\circ]$, i.e. $\Delta\in[1-\cos10^\circ,1-\cos20^\circ]=[0.0152,0.0603]$. An expert prompt whose encoder drift exceeds $0.0152$ has moved further than the smallest exploration perturbation the program deliberately injects. I use this as the *alarm* level for expert-prompt drift. It is not a gate (Prop. 1.2).
+
+### 1.4 The gauge symmetry: why $\Delta_B$ cannot certify staleness
+
+**Proposition 1.4 (exact $O(d_z)$ symmetry of the joint objective).** Take $R\in O(d_z)$ and the transformation
+$B\mapsto RB$, $F(o,a,z)\mapsto RF(o,a,R^\top z)$, $\pi(o,z)\mapsto\pi(o,R^\top z)$, $P\mapsto RP$, $Q(H,c,z)\mapsto Q(H^R,c,R^\top z)$, where $H^R$ feeds $R^\top z_{t-1}$. It leaves invariant, in distribution, the FB loss (baseline 04 §4.1), $\mathcal L_{\mathrm{orth}}$, the actor loss $\min_k F_k^\top z$, the `z_update` law (uniform sphere part: isotropic; goal part: $RB(m)$ rotates with $B$), the `near` law (isotropic tangent noise), the B01 whitening (covariant: $W\mapsto RWR^\top$), and the macro critic and planner losses. It is realised in parameter space by absorbing $R$ into the last linear layer of $B$ and $P$ and the first $z$-input linear layer of $F,\pi,Q$. This works because $\operatorname{proj}$ is rotation-equivariant and every pre-linear operation acts on non-$z$ inputs. ∎
+
+*Premise to verify in code:* no per-coordinate operation acts on $z$ before its first linear layer. Example: an input normalizer over a concatenated $(o,z)$ vector breaks the symmetry. If one exists, Prop. 1.4 fails and the B-drift decomposition below is reported but not interpreted.
+
+*Consequence.* Minibatch gradients are not invariant (the sampled $z_{\mathrm{random}}$ vectors do not rotate), but their expectation is orthogonal to the orbit. Gradient noise therefore drives a zero-curvature **random walk along the gauge orbit**. This is a conjecture about the dynamics, to be measured, not a theorem. Along that walk, $\Delta_B$ can be large with zero physical change, while every stored $z_{\mathrm{actual}}$ becomes stale *because* $\pi$ co-rotates: $\pi_{\mathrm{now}}(o,z)=\pi_{\mathrm{then}}(o,R^\top z)\neq\pi_{\mathrm{then}}(o,z)$. Hence:
+
+- **Gauge/deformation split (exact).** On a probe set, let $\hat R=\arg\max_{R\in O(d_z)}\sum_i\langle B_{\mathrm{now}}(m_i),RB_{\mathrm{then}}(m_i)\rangle=UV^\top$, where $U\Sigma V^\top=\mathrm{SVD}(\sum_iB_{\mathrm{now}}B_{\mathrm{then}}^\top)$. Define $\Delta_B^{\mathrm{def}}=1-\tfrac1{Nd_z}\sum_i\langle B_{\mathrm{now}},\hat RB_{\mathrm{then}}\rangle$ and $\Delta_B^{\mathrm{gauge}}=\Delta_B^{\mathrm{tot}}-\Delta_B^{\mathrm{def}}\ge0$ ($R=I$ is admissible). Dry run: under a synthetic pure rotation, $\Delta_B^{\mathrm{tot}}=1.027$ and $\Delta_B^{\mathrm{def}}=-7\times10^{-11}$.
+- **Gauge-aligned behavioural drift.** $\Delta_\pi^{\hat R}(o,z)=\|\mu_{\mathrm{now}}(o,\hat Rz)-\mu_{\mathrm{then}}(o,z)\|$. If $\Delta_\pi^{\hat R}\ll\Delta_\pi$, staleness is mostly gauge. That fact is useful (§3.3), but it does not license relabeling under the current charter.
+
+PROGRAM_CHARTER.md
+progress.md
+method-issues/README.md
+program-ledger.md
+pinned/orchestrating-ai-research-teams.v1.0-1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7.md
+roster.md
+QUEUE.md
+README.md
+claims/C-B01-A-02/claim.md
+claims/C-B01-A-02/violations.md
+claims/C-B01-A-02/upgrade-log.md
+claims/C-B01-A-03/claim.md
+claims/C-B01-A-03/violations.md
+claims/C-B01-A-03/upgrade-log.md
+claims/C-B01-B-02/claim.md
+claims/C-B01-B-02/violations.md
+claims/C-B01-B-02/upgrade-log.md
+claims/README.md
+claims/C-B01-A-01/claim.md
+claims/C-B01-A-01/violations.md
+claims/C-B01-A-01/upgrade-log.md
+claims/C-B01-B-01/claim.md
+claims/C-B01-B-01/violations.md
+claims/C-B01-B-01/upgrade-log.md
+
+exec
+/bin/bash -lc 'for p in packets/AGENTS.md packets/B02/AGENTS.md packets/B02/proposals/AGENTS.md packets/B02/reviews/AGENTS.md briefs/AGENTS.md; do if [ -f "$p" ]; then printf '"'\\n%s\\n' \""'$p"; cat "$p"; fi; done' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+codex
+`packets/B02/brief.md` is missing. I found the B02 brief under `briefs/` and am using its rubric, as Proposal A also does. The main concern so far is that the replay gate treats a sampled average KL as a bias certificate without establishing the assumptions needed for that guarantee.
+
+exec
+/bin/bash -lc "rg -n '"'^#|B'"\\.9|11\\.5' pinned/orchestrating-ai-research-teams.v1.0-1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7.md" in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+1:# Orchestrating AI Research Teams for Large Scientific Problems
+11:## 1. Core idea
+28:## 2. Three layers of work
+42:## 3. Roles (separation of concerns)
+56:## 4. The research cycle
+60:### Step 1 — Brief (human lead)
+72:### Step 2 — Solo draft (primary authors)
+78:### Step 3 — Blind review (cross review)
+85:### Step 4 — Adjudication
+95:### Step 5 — Spike (minimal experiment)
+102:### Step 6 — Lock
+113:## 5. Rubric before solutions
+136:## 6. Hard rules that prevent multi-agent failure
+150:## 7. What “optimal” is not
+161:## 8. Minimal starter kit
+176:## 9. Summary
+182:## 10. Method versioning and mid-run amendments
+186:### 10.1 Version and pinning
+193:### 10.2 Method issues
+200:### 10.3 Freeze set
+220:### 10.4 Amendment classes
+235:### 10.5 Contest-neutrality test
+245:### 10.6 Run retrospective
+258:## 11. Isolation in shared workspaces (preventing consensus theater)
+262:### 11.1 Enforced drafting isolation
+268:### 11.2 Seal and publish
+274:### 11.3 Orchestrator–author firewall
+282:### 11.4 Prompt parity
+287:### 11.5 When agreement counts
+296:### 11.6 Auditability
+304:## 12. Artifact write permissions
+306:### 12.1 Who writes what
+317:| Claim records | Claim author proposes. State changes only per B.9 | |
+324:### 12.2 Experiment runner: when it may touch code
+354:- It may file data that supports a challenge (B.9), but it does not change claim state.  
+358:### 12.3 Deposits and transcripts: when the Orchestrator may write on another agent's behalf
+372:### 12.4 Logs and evidence
+379:## 13. Long-horizon programs
+383:### 13.1 Unit hierarchy
+391:### 13.2 Program ledger
+396:- **Claims** (`C-…`): grade; state (Candidate / Locked / Challenged / Retired); premises; scope; falsifier; scope-narrowing count (B.9); history.  
+401:### 13.3 Inheritance across packets
+416:### 13.4 Dependency propagation
+418:When an entry becomes Challenged (admitted, B.9), Superseded, or Retired:
+423:### 13.5 Pause, resume, and wall-clock limits
+453:## Appendix A — Heterogeneous model roster (optional)
+457:### A.1 Three slots (do not merge)
+469:### A.2 Default binding pattern
+480:### A.3 Extra hard rules for multi-model teams
+490:### A.4 What not to change
+492:The brief-first rubric, blind review, minimal spike, single source of truth, and human final authority remain exactly as in the main methodology. Heterogeneity only binds *who* fills each role, and with what settings (A.5). Appendix B adds a Principle track with its own roles, bound in B.9. That track is an addition to the cycle, not a replacement for any step.
+494:### A.5 Roster contract (models, effort, tools)
+520:## Appendix B — Principle necessity protocol
+526:### B.1 Two different kinds of judgment
+537:### B.2 Three grades of necessity (do not conflate)
+539:#### Grade 1 — Hard necessity (theorem-like)
+550:#### Grade 2 — Structural necessity (obligatory functional roles)
+561:**Use:** a proposal must state how each locked role is realized, and name an operational test that would show the role is absent (B.9). Missing roles mark the design **incomplete** in principle—not “maybe it will emerge, so lock it as the mainline.” A role claimed to be realized “implicitly”, with no such test, counts as missing.
+563:#### Grade 3 — Path contingency (historical fact, not law)
+571:### B.3 What a valid necessity claim looks like
+586:### B.4 Lifecycle: Candidate / Locked / Challenged
+594:| **Challenged** | Stay on record. Once the challenge is *admitted* (B.9), pause the old lock’s veto until adjudication or until the challenge’s deadline | Apply that lock as a veto while an admitted challenge is open |
+603:- A narrow Grade-1 formal bound may lock early, subject to the verification and signature requirements in B.9.
+607:### B.5 Principle track versus phenomenology track
+622:### B.6 Honest scope
+628:### B.7 Minimal artifacts
+638:### B.8 Capability ladders and the Principle track
+650:   - *Grade 2:* an argument that *k* realizes a functional role obligatory for the competence class of *k+1*, with an operational test (B.9).  
+656:8. **Convergence can nominate, not lock.** Convergence across independent lineages under a shared constraint may nominate a Grade-2 candidate more strongly than a single lineage can. It still needs the operational test, and it still locks only under B.9.
+658:### B.9 Claim governance
+673:## Changelog
+679:- 2026-10-23: **v1.0.** Version header and pinning (entries above are v0). New §10: method issues, freeze set, amendment classes 0–3, contest-neutrality test, run retrospective. New §11: enforced isolation, seal and publish-after-all, Orchestrator–author firewall, prompt parity, conditions under which agreement counts. New §12: write-permission matrix, Experiment-runner code bounds, mechanical deposits and transcripts, append-only logs. New §13: program ledger, inheritance by ID, provisional cap, dependency propagation, pause/resume, step budgets. §4 Step 4: gates before ranking, independent and order-swapped adjudication, tie definition, Confounds paragraph. §6 rules 7–9. Appendix A: Orchestrator–adjudicator contradiction resolved, A.3 rules 6–7, new A.5 roster contract (model, effort, tools, parity). Appendix B: operational Grade-2 realization, challenge admissibility, new B.8 (capability ladders) and B.9 (claim governance). Motivated by process defects found in a live run: isolation enforced only by prompt, failure evidence overwritten on retry, an unversioned brief amendment, adjudicator role conflicts, and unequal author resources.
+
+exec
+/bin/bash -lc "sed -n '1,90p' packets/B02/proposals/A.md; sed -n '280,384p' packets/B02/proposals/A.md" in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Proposal A (Packet B02): Breaking Imitation Ceilings via Unindexed Single-Frame Prompts, Relabeling, and Joint Training Non-Stationarity
+
+- **Packet**: `B02` — Non-Stationarity, Batch-Norm Ordering, and Off-Policy Credit Assignment in Joint FB + Task-Q + Planner Training
+- **Author slot**: Primary Author A (solo draft, §4 Step 2; isolation per §11.1)
+- **Method version**: v1.0 (`1ce8d1b3…3d11f7`)
+- **Frozen context read**: `PROGRAM_CHARTER.md`, `synthesis/B01-synthesis.md`, `briefs/B02-nonstationarity-and-off-policy-credit-assignment-in-joint-fb-task-training.md` (the brief; the path `packets/B02/brief.md` named in my task prompt does not exist), `baseline/02-fb-paradigm-beyond-imitation-and-exploration.md`, `baseline/04-joint-fb-ball-striking-v2-architecture.md`, `baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md`, `packets/B02/spikes/B02-SPIKE/PLAN.md`, pinned method §11.5 and Appendix B. No other draft directory was read or listed.
+- **Companion artifacts (this directory only)**: `spike_sketch.py` (an author reference implementation of §5) and `spike_sketch_output.json` (CPU dry-run output, `verdict: PASS`). **Status of these numbers:** they come from author-side synthetic CPU checks of closed forms and test mechanics. They are **not** the registered `B02-SPIKE` run (§12.2) and are not evidence that anything has been learned (Charter §2.5).
+
+### 0. Summary of position
+
+1. **Separate the two regimes.** In the step action-$Q$ regime (ball striking, $K_{\mathrm{hold}}=1$), replay age adds **zero** Bellman-target bias, because the label is the executed physical action. In the macro-$z$ regime (obstacle traversal, $K=10$), the label is a *command*, and its meaning is set by the current low-level conditional $p_\theta(\tau\mid H,z)$. That is the only place staleness bias enters (§1.1–1.2).
+2. **$B$ drift is not the cause of macro-critic staleness. $\pi$ drift is.** For a fixed executed vector $z_{\mathrm{actual}}$, the target's conditional distribution does not depend on $\omega$ at all (Prop. 1.2). $\Delta_B$ is a *diagnostic of why* $\pi$ moves. Because of an exact $O(d_z)$ gauge symmetry of the joint objective (Prop. 1.4), it cannot certify staleness. The certificate is the per-row KL / $\chi^2$ between the stored behaviour Gaussian and the current actor. Both are computable **without parameter snapshots** from two new immutable replay columns (`behavior_mu`, `a_raw`).
+3. **Mitigation.** Use a **generation-level drift-gated replay horizon** (not a row-level gate, which would introduce selection bias). Add the exact short-macro discount $\gamma^k$, full-prefix zero-hidden burn-in with shared-prefix deduplication, and an optional truncated-IS arm inside the gate. `behavior_z` / `z_actual` stay write-once.
+4. **Normalizer contract.** I give closed forms for the stationary bias of every contract violation (double `m_next`, relabel-time update, expert-query update, train-mode batch statistics), plus a telescoping identity that sizes $\mu_{\mathrm{next}}-\mu_{\mathrm{cur}}$ exactly. Expert encoding under train-mode batch statistics is the severe case: relative input error $\approx 3/(2n_e)$, i.e. 19% at $n_e=8$.
+
+---
+
+## 1. Exact Mathematical Analysis of Joint Training Non-Stationarity and Prompt Drift
+
+### 1.0 Notation and standing assumptions
+
+- Latent sphere $\mathcal{S}^{d_z-1}(\sqrt{d_z})$ with $d_z=256$ (obstacle) or $100$ (ball). $\operatorname{proj}(x)=\sqrt{d_z}\,x/\|x\|_2$.
+- Low-level actor: a diagonal Gaussian in **pre-clip** action space, $\pi_\theta(\cdot\mid o,z)=\mathcal{N}(\mu_\theta(o,z),\operatorname{diag}\sigma_\theta^2(o,z))$, then $a_{\mathrm{applied}}=\operatorname{clip}(a_{\mathrm{raw}},-1,1)$. (If R2.1 uses a deterministic actor with additive exploration noise $\sigma$, set $\sigma_\theta\equiv\sigma$; every formula below still holds.) **$\theta$ includes the actor's observation-normalizer state**, because the deployed map $(o,z)\mapsto\mu$ depends on it.
+- Macro row (obstacle, R2.1 `TaskReplay`): $(H_t, c_t^{\mathrm{geom}}, z_{\mathrm{actual}}, R^{(k)}, H_{t+k}, c_{t+k}^{\mathrm{geom}}, d, k, \texttt{generation})$, where $k\in\{1,\dots,K\}$, $R^{(k)}=\sum_{j=0}^{k-1}\gamma_{\mathrm{task}}^j r_{t+j}$, and $d=$`terminated`. $z$ is held for the macro.
+- Macro target (baseline 05 §2; the prompt's $P_\psi$ is the **target** planner $P_{\bar\psi}$ in the baseline, and I use the baseline form):
+$$
+y \;=\; g(\tau) \;:=\; R^{(k)} + \gamma_{\mathrm{task}}^{k}(1-d)\,\bar V(H_{t+k}),\qquad \bar V(H)=\min_{j=1,2}Q_{\bar\phi_j}\big(H,c^{\mathrm{geom}},P_{\bar\psi}(H)\big).
+$$
+- "then" = the parameters $(\omega_{t-\Delta},\theta_{t-\Delta})$ at collection; "now" = $(\omega_t,\theta_t)$. The environment (including the per-episode fixed height $h$, which is exposed to $Q$ via $c^{\mathrm{geom}}$ and to $\pi$ via `scan`) is stationary. The curriculum changes the *distribution* of $h$, not the transition kernel given $h$.
+
+**Observability note.** Both critics' histories contain the previous actions: `last_action[29]` (obstacle $o$) and `actions[29]` (ball $o^{\mathrm{low}}\subset o^Q$). The macro critic's history also contains $z_{t-1}$. The filtering belief $p(s_t\mid H_t)$ over hidden simulator state is therefore a function of the action-observation history alone and **does not depend on the behaviour policy**. Without action inputs this would fail: $p(s_t\mid o_{0:t})$ depends on the policy that generated the observations. This is a premise of everything below.
+
+### 1.1 Regime split: why the step action-$Q$ critic has no age bias
+
+For ball striking, the row is $(H^Q_t,a_t,r_t,H^Q_{t+1},d_t)$ with $a_t$ the **executed** action. Write $\mathcal{T}Q(H,a)=\mathbb{E}[r+\gamma(1-d)Q(H',\pi_{\bar\theta}(o',P_{\bar\psi}(H'^{\mathrm{plan}}))+\epsilon)\mid H,a]$. The conditional law of $(r,H',d)$ given $(H,a)$ is environment-only (observability note). Hence for every generation lag $\Delta$:
+$$
+\mathbb{E}_{\text{row from }\theta_{t-\Delta}}[y\mid H,a]-\mathcal{T}Q(H,a)=0 .
+$$
+Non-stationarity in this regime is limited to (i) the target action map $\pi_{\bar\theta}\circ P_{\bar\psi}$, which is re-evaluated with current target weights and slowed by the task-only EMA $\bar\theta$ (baseline 04 §4.2), and (ii) coverage: old rows are on the wrong *state-action distribution*, not the wrong *operator*. **Consequence: the drift gate of §2.2 must not be applied in the $K_{\mathrm{hold}}=1$ regime.** It would discard unbiased data. Only the diagnostics (§2.1) and burn-in (§2.3) apply there.
+
+### 1.2 Macro-$z$ regime: the exact staleness bias
+
+Define the macro operator under low-level parameters $\theta$:
+$$
+(\mathcal{T}_\theta Q)(H,z)=\mathbb{E}_{\tau\sim p_\theta(\cdot\mid H,z)}[g(\tau)],\qquad
+p_\theta(\tau\mid H,z)=\prod_{j=0}^{k-1}\pi_\theta(a_{t+j}\mid o_{t+j},z)\,P(o_{t+j+1}\mid H_{t+j},a_{t+j}).
+$$
+A row of lag $\Delta$ is an unbiased sample of $\mathcal{T}_{\theta_{t-\Delta}}Q$, not of $\mathcal{T}_{\theta_t}Q$. The **per-row conditional target bias** is
+$$
+b_\Delta(H,z)\;=\;\mathbb{E}_{p_{\theta_{t-\Delta}}}[g]-\mathbb{E}_{p_{\theta_t}}[g].
+$$
+
+**Proposition 1.2 (B-drift invariance of macro labels).** For fixed $\theta$ (actor and its normalizer), $b_\Delta(H,z)$ is independent of $(\omega_{t-\Delta},\omega_t)$, including the motion-normalizer state.
+
+*Proof.* $p_\theta(\tau\mid H,z)$ contains $\pi_\theta$ and $P$ only. $B_\omega$ is used in rollout only to *choose* $z$ at the boundary (`expert`/`near`), i.e. it enters the distribution of the conditioning variable, not the conditional. $g$ uses $Q_{\bar\phi},P_{\bar\psi}$, neither of which reads $B$. ∎
+
+So "historical `behavior_z` executed under older $(\omega,\theta)$" is stale **only through $\theta$**. The $\omega$-dependence of a stored expert row (its vector was $B_{\omega_{t-\Delta}}(m_{\mathrm{demo}})$) is harmless *as long as the label is kept as the executed vector*. Rejected alternative §3.1 shows that re-encoding destroys this property.
+
+**Exact KL of the macro trajectory law.** Dynamics cancel in the likelihood ratio (same $P$), so the chain rule gives, exactly,
+$$
+\mathrm{KL}_\Delta(H,z):=\mathrm{KL}\big(p_{\theta_{t-\Delta}}\|p_{\theta_t}\big)=\mathbb{E}_{p_{\theta_{t-\Delta}}}\Big[\sum_{j=0}^{k-1}\kappa_j\Big],\quad
+\kappa_j=\sum_{i=1}^{29}\Big[\log\tfrac{\sigma^{\mathrm{now}}_{i}}{\sigma^{\mathrm{then}}_{i}}+\tfrac{(\sigma^{\mathrm{then}}_i)^2+(\Delta\mu_{i})^2}{2(\sigma^{\mathrm{now}}_i)^2}-\tfrac12\Big],
+$$
+with $\Delta\mu=\mu_{\theta_t}(o_{t+j},z)-\mu_{\theta_{t-\Delta}}(o_{t+j},z)$. For a shared fixed $\sigma$: $\kappa_j=\|\Delta\mu_j\|^2/(2\sigma^2)=\Delta_\pi(o_{t+j},z)^2/(2\sigma^2)$, where $\Delta_\pi$ is the brief's behavioural drift. Clipping is a deterministic post-map applied identically to both laws, so by data processing the KL of the *applied*-action trajectory law is $\le$ this pre-clip value.
+
+**Two bias bounds (both exact inequalities).**
+1. Pinsker / total variation: $|b_\Delta|\le \operatorname{span}(g)\,\mathrm{TV}\le\operatorname{span}(g)\sqrt{\mathrm{KL}_\Delta/2}$.
+2. Cauchy–Schwarz / $\chi^2$. With $\rho=dp_{\theta_t}/dp_{\theta_{t-\Delta}}=\prod_j \pi_{\theta_t}(a_{\mathrm{raw},j}\mid\cdot)/\pi_{\theta_{t-\Delta}}(a_{\mathrm{raw},j}\mid\cdot)$ and $\mathbb{E}_{\mathrm{then}}[\rho]=1$:
+$$
+|b_\Delta|=\big|\operatorname{Cov}_{\mathrm{then}}(1-\rho,g)\big|\le\sqrt{\operatorname{Var}_{\mathrm{then}}(g)\;\chi^2(p_{\theta_t}\|p_{\theta_{t-\Delta}})},\qquad \chi^2=\mathbb{E}_{\mathrm{then}}[\rho^2]-1 .
+$$
+   For one Gaussian step with shared $\sigma$, $\mathbb{E}[\rho_j^2\mid o]=\exp(\|\Delta\mu_j\|^2/\sigma^2)=e^{2\kappa_j}$. Over a macro, $\chi^2\le\exp\big(\sum_j\sup_o\|\Delta\mu_j\|^2/\sigma^2\big)-1$. Equality ($\chi^2=e^{2\mathrm{KL}}-1$) holds when $\Delta\mu$ is state-independent.
+
+The $\chi^2$ form is the useful one because it scales with $\mathrm{sd}(g)$ rather than the worst-case span. In the author dry run (synthetic 10-step plant, $\sigma=0.2$, 20 000 MC rollouts per row, `spike_sketch_output.json`):
+
+| Injected actor drift | $\overline{\mathrm{KL}}$ (nats/macro) | observed $\lvert b\rvert$ | $\chi^2$ bound | Pinsker bound | $\hat\chi^2$ |
+|---|---:|---:|---:|---:|---:|
+| 0.001 | 0.015–0.019 | ≤ 0.021 | 0.07–0.09 | 1.7–1.8 | 0.03–0.04 |
+| 0.003 | 0.10–0.11 | ≤ 0.045 | 0.20–0.23 | 4.3–4.5 | 0.20–0.26 |
+| 0.01 | 1.1–2.2 | ≤ 0.077 | 1.6–2.8 | 14–20 | 12–49 |
+
+Both bounds held on all 9 rows. The $\chi^2$ bound is 15–25× tighter than Pinsker, but it is still a worst-case certificate and runs 3–10× above the observed bias. $\hat\chi^2$ explodes once KL exceeds about 1. This matters for the IS arm (§2.2, §3.4).
+
+**Fixed-point error under an age mixture.** Let replay ages have data-weights $w_\Delta(H,z)$ and let $\mathcal{T}_{\mathrm{mix}}=\sum_\Delta w_\Delta\mathcal{T}_{\theta_{t-\Delta}}$. Both $\mathcal{T}_{\mathrm{mix}}$ and $\mathcal{T}_{\theta_t}$ are sup-norm contractions with modulus $\gamma_{\mathrm{eff}}=\sup_{H,z}\mathbb{E}[\gamma_{\mathrm{task}}^k(1-d)\mid H,z]$. Interior macros give $\gamma^K_{\mathrm{task}}$; timeout-truncated short macros can raise this toward $\gamma_{\mathrm{task}}$. Therefore
+$$
+\|Q_{\mathrm{mix}}^\star-Q_{\theta_t}^\star\|_\infty\le\frac{\sup_{H,z}\sum_\Delta w_\Delta(H,z)\,|b_\Delta(H,z)|}{1-\gamma_{\mathrm{eff}}}\le\frac{\sup\sum_\Delta w_\Delta\sqrt{\operatorname{Var}_\Delta(g)\,\chi^2_\Delta}}{1-\gamma_{\mathrm{eff}}}.
+$$
+This uses the "frozen target" idealisation, with $\mathcal{T}$ evaluated on a fixed $\bar V$. With $\gamma_{\mathrm{task}}=0.99$ and $K=10$, $1/(1-\gamma^{10})\approx 10.5$: staleness bias is amplified about 10× at the fixed point.
+
+**Exact staleness variance (law of total variance).** For the regression target at $(H,z)$:
+  - P3: Within a macro, actions are drawn from $\pi_\theta(\cdot\mid o,z)$ with $z$ held fixed. $B_\omega$ does not enter $\pi_\theta$'s inputs or the rollout except through the choice of $z$ at boundaries.
+  - P4: Histories include past actions and past executed $z$.
+  - P5: $\pi_{\theta_t}\ll\pi_{\theta_{t-\Delta}}$ (e.g. both Gaussian).
+- **Conclusion.**
+  - (a) The conditional staleness bias $b_\Delta(H,z)$ of a stored row with executed label $z$ depends on $(\omega_{t-\Delta},\omega_t)$ not at all, and on $\theta$ only through $p_\theta(\tau\mid H,z)$.
+  - (b) $|b_\Delta|\le\min\{\operatorname{span}(g)\sqrt{\mathrm{KL}_\Delta/2},\ \sqrt{\operatorname{Var}_{\mathrm{then}}(g)\chi^2_\Delta}\}$, with $\mathrm{KL}_\Delta$ given by the exact chain-rule sum of per-step actor KLs.
+  - (c) Obligation: when $\theta_{t-\Delta}=\theta_t$, the only label $\zeta$ for which the row is an unbiased sample of $\mathcal T_{\theta_t}Q(H,\zeta)$ for all $Q$ is $\zeta=z$ up to $\mathcal T Q$-level sets. Any relabeling map $\zeta=f(\omega_t,\text{stored data})$ is biased unless $\mathcal T_{\theta_t}Q(H,\cdot)$ is constant on $\{z,\zeta\}$.
+- **Implementation independence.** It holds for any parametrisation of $F,B,\pi,Q,P$ and for classical option-critic / SMDP methods. It is a statement about SMDP labels.
+- **Operational test.** `B02-SPIKE` (c): keep-label bias $=0.0$ exactly under common random numbers with $B$ drifted and $\pi$ fixed; re-encode bias $>3$ SE; both bounds hold on all drift rows.
+- **Falsifier.** A system satisfying P1–P5 where re-encoded labels are unbiased with $\mathcal TQ(H,z)\ne\mathcal TQ(H,\zeta)$. Any such case must violate a premise, most plausibly P3 if $B_\omega$ or its normalizer feeds the actor, or P4 if histories omit actions. A premise violation narrows scope (B.9.6 counter).
+
+### C-B02-A-02 — Single-pass normalizer invariant
+
+- **Grade**: 1. **Conclusion shape**: invariant.
+- **Premises.**
+  - P1: A running normalizer of type (C) count-weighted or (E) EMA($\beta$).
+  - P2: The contract issues exactly one update on $m_{\mathrm{cur}}$ and one on $m_{\mathrm{next}}$ per FB update, then freezes.
+  - P3: Replay is a union of contiguous segments.
+- **Conclusion.**
+  - (a) The frozen state is invariant (bitwise) under any number of `z_update`, expert, `near`, target, or evaluation queries.
+  - (b) Any additional call pattern shifts the stationary statistics by exactly the mixture formulas of §1.5. The double-`m_next` (C) bias is $\tfrac16(\mu_n-\mu_c)$, where $\mu_n-\mu_c=\tfrac1N\sum_G(m_{\mathrm{last}}-m_{\mathrm{first}})$. The (E) read-time weights are $1/(2-\beta)$ vs $(2-\beta)/(3-3\beta+\beta^2)$.
+  - (c) Train-mode batch statistics on a query batch of size $n_e$ give per-coordinate relative input error $\to 3/(2n_e)$ for in-distribution Gaussian batches, plus a systematic demo-recentring term.
+- **Operational test.** `B02-SPIKE` (a1)–(a5).
+- **Falsifier.** A normalizer of type (C)/(E) where an extra call with $\mu_s\ne\hat\mu$ leaves the stationary mean unchanged; or replay content where the telescoping identity fails, which can only happen with non-contiguous storage (scope note).
+
+### C-B02-A-03 — Zero controllability makes the planner gradient pure critic error
+
+- **Grade**: 1. **Conclusion shape**: impossibility.
+- **Premises.** P1–P4 of C-B02-A-01, and a set $\mathcal Z\subset\mathcal S^{d_z-1}(\sqrt{d_z})$ on which $p_\theta(\tau\mid H,z)$ does not depend on $z$.
+- **Conclusion.** $\mathcal T_\theta Q(H,\cdot)$ is constant on $\mathcal Z$ for every $Q$. Hence at any fixed point the true $\nabla_z Q^\star(H,z)\cdot u=0$ for tangent directions $u$ within $\mathcal Z$, and any nonzero planner gradient component along $\mathcal Z$ is critic approximation error carrying no task information. No critic architecture or planner optimiser can extract task signal from $z$-directions that $\pi$ ignores.
+- **Operational test.** D5 controllability ratio $\mathcal C(\alpha)$ together with $\|P_\perp\nabla_zQ_{\phi_1}\|$. A regime with $\mathcal C\approx1$ and large $\|\nabla_zQ\|$ is the predicted pathology. Intervening on $z$ along such a direction must leave measured MC return unchanged within CI.
+- **Falsifier.** An intervention study where a $z$-direction with $\mathcal C(\alpha)\approx1$ (within CI) produces a statistically significant change in MC task return. That would indicate that D5's metric misses a behaviourally relevant channel (e.g. contact force not visible in $m$, cf. B03), and it narrows the operational test rather than the theorem.
+
+### C-B02-A-04 (supporting) — $O(d_z)$ gauge symmetry; $\Delta_B$ is not a staleness certificate
+
+- **Grade**: 1 for the symmetry (Prop. 1.4); the diffusion conjecture is *not* claimed. **Conclusion shape**: invariant.
+- **Premises.** The baseline 04/05 losses, the B01 four-site whitening, and isotropic `z_random`/`near` laws. No per-coordinate operation on $z$ before its first linear layer.
+- **Conclusion.** The joint objective is invariant under the $O(d_z)$ action of Prop. 1.4. Consequently, for every $\epsilon>0$ there exist parameter pairs with $\Delta_B^{\mathrm{tot}}\ge1-\epsilon$ and identical task-relevant behaviour as a function of $B$-coordinates, and pairs with $\Delta_B=0$ on a probe set but $\Delta_\pi>0$. So no function of $\Delta_B$ alone bounds $b_\Delta$.
+- **Operational test.** The spike's Procrustes check, plus a parameter-space rotation test: apply $R$ to the absorbing layers and verify the loss is unchanged to fp32 tolerance on a fixed batch with correspondingly rotated `z_random`.
+- **Falsifier.** A loss term in the frozen baselines that is not rotation-invariant, which narrows scope to the invariant subgroup.
+
+---
+
+## 5. Pre-Registered Empirical Spike Protocol
+
+Aligned with `packets/B02/spikes/B02-SPIKE/PLAN.md`: seed `20261023`, max 2 attempts, command `/srv/claude/.venv/bin/python …/gpu_experiments/run_b02_nonstationarity_spike.py`. The runner implements this protocol at the registered path (§12.2). My `spike_sketch.py` is a reference implementation of the CPU stage and may be adopted verbatim or rewritten. Its dry-run output is shown for calibration only. The PLAN's three metrics are the minimal pass set. Items marked **[A+]** are additions this proposal asks the adjudicator to register; they do not alter the PLAN thresholds.
+
+### 5.1 Stage S (CPU, deterministic, < 2 min)
+
+Dimensions are the real ones: $D_m=229$, $d_z=256$, $|a|=29$, $K=10$, LSTM-128 ×2 over 135-dim inputs, $T=600$.
+
+**(a) Single-pass normalizer freeze vs double-update drift.**
+- a1 *(PLAN-1)*: over 400 FB updates, each followed by `sample_ufo_mixed_z` and 8 expert encodings, max |Δ(mean, var, count)| after freeze $=0.0$, and `update_calls` per update $=2$. Dry run: `0.0`, `[2]`.
+- a2 [A+]: the bug arm (auto-updating normalizer left in train mode) is detected (drift $>0$), and its stationary mean is within $5\cdot10^{-3}$ of the closed form $\frac{2n\mu_n+n_e\mu_{\mathrm{demo}}}{3n+n_e}$. Dry run: $0.20844$ vs $0.20825$.
+- a3 [A+]: the EMA read-time weights are within $5\cdot10^{-3}$ of $1/(2-\beta)$ and $(2-\beta)/(3-3\beta+\beta^2)$. Dry run: $0.52625/0.52632$, $0.70108/0.70111$.
+- a4 [A+]: telescoping identity error $<10^{-4}$. Dry run: $7.8\cdot10^{-8}$.
+- a5 [A+]: train-mode batch-statistics relative error within 25 % of $3/(2n_e)$ for $n_e\in\{8,64\}$. Dry run: $0.194/0.1875$, $0.0235/0.0234$.
+
+**(b) `behavior_z` immutability vs overwrite corruption.**
+- b1 *(PLAN-2)*: after 20 FB updates with `z_update` sampling, `max_abs_diff(behavior_z_after, behavior_z_before) == 0.0`, and the storage of `z_update` is disjoint (`data_ptr`). Dry run: `0.0`.
+- b2 [A+]: the overwrite-bug arm is detected. Dry run: $7.06$ max diff, 70.6 % of rows corrupted, mean cosine of corrupted rows to the original $5\cdot10^{-4}$, i.e. the label is replaced by an essentially orthogonal command.
+- b3 [A+]: the critic-target code path reads the replay `z_actual` tensor (asserted by identity), not the update batch's `z_update`.
+
+**(c) Online $(\Delta_B,\Delta_\pi)$ drift tracking.** [A+, all]
+- c1: stored-column $\Delta_\pi$ equals snapshot recomputation, max error $<10^{-6}$. Dry run: $0.0$.
+- c2: across injected actor drifts $\{10^{-3},3\cdot10^{-3},10^{-2}\}$ × 3 rows, both bounds hold: $|b|\le\text{bound}+3\,\mathrm{SE}$. The protocol records bound slack, which is informative and not a pass criterion.
+- c3: $B$ drifted with $\pi$ fixed: keep-label bias $=0.0$ under common random numbers, and re-encode bias $>3$ SE at $\Delta_B\in[0.01,0.03]$. Dry run: $0.0$; $0.0154\pm0.0042$ at $\Delta_B=0.018$.
+- c4: the identity $\|B_{\mathrm{now}}-B_{\mathrm{then}}\|^2=2d_z\Delta_B$ holds within $10^{-3}$ (fp32). Dry run: $1.2\cdot10^{-4}$.
+- c5: under a synthetic pure rotation, Procrustes gives $|\Delta_B^{\mathrm{def}}|<10^{-6}$. Dry run: $7\cdot10^{-11}$.
+- c6: the parameter-space rotation test of C-B02-A-04 shows FB+actor loss invariance $<10^{-4}$ relative. This is not in the sketch; the runner must implement it against `fb_core.py`.
+
+**(d) Full-prefix zero-hidden burn-in vs stale cached hidden state.**
+- d1 *(PLAN-3)*: `max_abs_diff(q_burnin_tail, q_exact_full_tail) < 1e-5` over 16 episodes with $t_0\in[100,568)$ and $L=32$. Dry run: $0.0$.
+- d2 *(PLAN-3)*: the stale cached hidden state after the pre-registered drift (200 Adam steps, lr $3\cdot10^{-4}$, on a fixed regression) has error $>10^{-2}$. Dry run: $1.10$.
+- d3 [A+]: shared-prefix deduplicated burn-in equals per-slice burn-in, max error $<10^{-6}$. This is not in the sketch; the runner implements it.
+
+**Verdict rule.** PASS iff every PLAN item passes. [A+] items are reported individually. A failing [A+] item does not fail the PLAN verdict, but it marks the corresponding §1 formula as *unverified* in synthesis.
+
+### 5.2 Stage G (GPU, integration; beyond the spike and gated by the adjudicator)
+
+Obstacle traversal R2.1, heights `{0.10, 0.20}`, 3 seeds per arm, compute-matched at $2\cdot10^6$ committed control steps. Arms:
+- (A0) baseline FIFO 50k;
+- (A1) M1 gate at $\varepsilon=0.02$;
+- (A2) M1 at $\varepsilon=0.05$;
+- (A3) M1 + M3 IS;
+- (A4) M4 soft weighting;
+- (N) negative control: re-encode expert labels (§3.1(a)), implemented as a *shadow critic* trained alongside A0 that never drives the planner, so the contract stays intact in the acting system.
+
+- **Primary endpoint (value calibration, not task success).** Every 100k steps, from 256 frozen-weight diagnostic-env states, run 32 MC rollouts per $(H,z)$ under $\pi_{\theta_t}$, using planner $z$ for the first macro and then $P_\psi$. Measure the calibration error $\epsilon_Q=\mathbb{E}|Q_{\phi_1}(H,c,z)-\hat G^{\theta_t}_{\mathrm{MC}}(H,z)|$ normalised by $\mathrm{sd}(\hat G)$.
+- **Pre-registered prediction.** A1 reduces mean $\epsilon_Q$ vs A0 by $\ge15\%$ (paired over seeds × checkpoints; one-sided Wilcoxon, $p<0.05$), with admitted-set size $\ge N_{\min}$ for $\ge90\%$ of the run.
+- **Falsifier.** $\epsilon_Q(\mathrm{A1})\ge\epsilon_Q(\mathrm{A0})$, or D2 shows $\overline{\mathrm{KL}}\le0.02$ for all ages of the FIFO window. In that case staleness is immaterial at this training speed, and M1 should be dropped as unnecessary.
+- **Secondary endpoints.** The KL-vs-age profile; $\Delta_B^{\mathrm{gauge}}/\Delta_B^{\mathrm{tot}}$ (tests the gauge-diffusion conjecture); $\Delta_\pi^{\hat R}/\Delta_\pi$ (trigger for §3.3); D4 $S_\pi$ and saturation; D5 $\mathcal C(\alpha)$; the measured diagnostic overhead against the < 5 % budget; and the shadow critic N's $\epsilon_Q$ vs A0, where C-B02-A-01(c) predicts N is worse.
+- **No claim of traversal learning or of superiority over PPO/AMP is made or implied by Stage G** (Charter §2.5). Its endpoints are value-calibration and diagnostic quantities only.
+
+### 5.3 Failure modes and edge cases covered
+
+- Short macros: termination vs timeout (§1.6, M2).
+- `severe_penetration` rows: committed, $\Phi=0$, included in D2/M1 like any row.
+- `invalid` rows: never present; the episode is discarded, so burn-in never sees a partial fabricated prefix.
+- Gate starvation: floors $G_{\min}$, $N_{\min}$; starvation is logged.
+- Ball-striking regime: no gate (§1.1); diagnostics and burn-in only.
+- Singular-sensitivity regime (tanh saturation): reported separately in D4.
+- $n_e=1$ train-mode BN: undefined; caught by D1.
+- Symmetry-breaking per-coordinate $z$ preprocessing: C-B02-A-04 premise check.
+- FIFO-truncated episodes: the telescoping identity is stated over segments.
+
+exec
+/bin/bash -lc "sed -n '287,295p' pinned/orchestrating-ai-research-teams.v1.0-1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7.md; sed -n '520,635p' pinned/orchestrating-ai-research-teams.v1.0-1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7.md; sed -n '658,671p' pinned/orchestrating-ai-research-teams.v1.0-1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7.md" in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+### 11.5 When agreement counts
+
+Agreement between candidates counts as independent evidence only if both of these hold:
+
+1. §11.1–§11.4 held, and that can be shown from logs.  
+2. The agreed point is not stated or implied by the shared brief.
+
+Agreement on a point the brief already frames (for example, an ordering supplied as context) is recorded as **framed agreement** and adds no weight. Each draft must name at least one serious alternative it rejected, with the reason. When drafts converge on the same conclusion and also reject the same alternatives, the adjudicator records that as possible framing-driven convergence.
+
+## Appendix B — Principle necessity protocol
+
+This appendix is about **judging claims by necessity**, not by benchmark score. The goal is to extract constraints that can **rule routes in or out before the fact**—closer to physical laws and mathematical theorems—rather than justifying a technique only because some implementation performed well.
+
+It does not replace the main orchestration cycle (§4) or Appendix A (model roster). It adds a **Principle track** that can veto purely phenomenological justifications.
+
+### B.1 Two different kinds of judgment
+
+| | **Phenomenological / performance judgment** | **Principle / necessity judgment** |
+|---|---|---|
+| Evidence | Scores, demos, correlations from a specific implementation | Constraints, invariants, impossibilities, obligatory functional roles |
+| Force | “This can work” (sufficiency) | “That path is blocked / any solution must …” (necessity) |
+| Analogy | Trying many machines; one is fastest | Thermodynamics: perpetual motion need not be tried again |
+| Output | Engineering baseline | Transferable theorem-like conclusions |
+
+Multi-agent research on open scientific programs should **pursue both**, but must not let the left column quietly promote itself into the right.
+
+### B.2 Three grades of necessity (do not conflate)
+
+#### Grade 1 — Hard necessity (theorem-like)
+
+Under stated assumptions, prove **impossibility** or **obligation**:
+
+- Information: without information gain, states cannot be distinguished (sensing lower bounds)
+- Control: unstable plants cannot be arbitrarily stabilized under given delay/bandwidth limits
+- Computation: a class of maps is unrealizable under given resource bounds
+- Embodiment: without force/contact channels, some manipulation classes are impossible
+
+**Use:** routes that violate a locked Grade-1 claim may be rejected **without** further bake-offs.
+
+#### Grade 2 — Structural necessity (obligatory functional roles)
+
+Implementation need not be unique, but certain **functional roles** must appear for a competence class, for example:
+
+- State estimation (explicit or implicit)
+- Error-driven corrective closed loops
+- Multiple timescales (fast reflexive versus slower intentional)
+- Treating body dynamics as part of prediction, not as decorative outputs
+
+Neuroscience and convergent evolution often supply **candidates** for Grade 2 (recurring functional decomposition), not a unique wiring diagram.
+
+**Use:** a proposal must state how each locked role is realized, and name an operational test that would show the role is absent (B.9). Missing roles mark the design **incomplete** in principle—not “maybe it will emerge, so lock it as the mainline.” A role claimed to be realized “implicitly”, with no such test, counts as missing.
+
+#### Grade 3 — Path contingency (historical fact, not law)
+
+“Earth life happened to take this path” is **not** “every intelligence must.” Specific cortical maps, receptor layouts, or phylogenetic accidents are often Grade 3.
+
+**Use:** strong inspiration and existence proofs (the path is feasible). **Do not** write them as the only admissible road unless upgraded to Grade 1 or 2 (missing it is impossible, or the functional role is obligatory).
+
+**Core research action for agents:** try to **upgrade** literature and anatomy from Grade 3 → 2 → 1. If the upgrade fails, keep the claim labeled as inspiration and **forbid theorem-style use**.
+
+### B.3 What a valid necessity claim looks like
+
+A principle claim eligible for locking must have:
+
+1. **Explicit premises** (organism/machine class, environment, task, resources)
+2. A conclusion of only these shapes: impossibility; lower bound (“any solution must…”); functional completeness (roles R1…Rk); invariant (conserved or monotonic relation)
+3. **Implementation independence** (applies across model families and classical methods alike)
+4. A clear **violation / falsification mode** (a counterexample downgrades the claim or adds premises)
+5. **Ban:** benchmark wins alone must never prove necessity—scores support sufficiency only
+
+Special cautions:
+
+- **Evolution:** lawful use is feasible-region shrinkage under constraints; unlawful use is “mammals did X, therefore every robot must copy X.”
+- **Neural structure:** lawful use is candidate Grade-2 roles (for example, fast/slow pathways → multi-timescale loops); unlawful use is renaming a brain area as a mandatory network module.
+
+### B.4 Lifecycle: Candidate / Locked / Challenged
+
+A necessity claim is not fixed at the start, and it is not endlessly fluid. Each claim is in exactly one of three states:
+
+| State | May | Must not |
+|---|---|---|
+| **Candidate** | Guide exploration and shape proposals | Veto the mainline |
+| **Locked** | Veto routes justified only by phenomenology. An implementation obeys the claim or files a challenge | Depart from the claim without a challenge packet |
+| **Challenged** | Stay on record. Once the challenge is *admitted* (B.9), pause the old lock’s veto until adjudication or until the challenge’s deadline | Apply that lock as a veto while an admitted challenge is open |
+
+Path for one claim:
+
+propose → grade (1, 2, or 3) and scope → **Candidate** → proof or other non-score evidence → **Locked** → counterexample or a change of premises → **Challenged** → upgrade, downgrade, narrow the scope, or retire.
+
+Rules:
+
+- Phenomenology scores never promote **Candidate → Locked** and never rewrite a **Locked** claim. A score may only open a challenge packet.
+- A narrow Grade-1 formal bound may lock early, subject to the verification and signature requirements in B.9.
+- Grade 2 often stays **Candidate**, then locks as the role converges.
+- Grade 3 stays inspiration unless it is upgraded. It does not enter **Locked** on its own.
+
+### B.5 Principle track versus phenomenology track
+
+| Track | Output | Authority |
+|---|---|---|
+| **Principle track** | Premise → necessity claim → grade (1/2/3) → scope of validity | May **veto** lines of work justified only by phenomena |
+| **Phenomenology / baseline track** | Performance, demos, correlations | Proves sufficiency only; cannot alone promote a claim to necessity |
+| **Implementation track** | Algorithms and systems | Must declare which locked principles it obeys; if it violates one, challenge the principle first—do not silently ignore it |
+
+Priority when judging a viewpoint:
+
+1. Conflicts with a locked Grade-1 claim → reject (no need to try)
+2. Missing a locked Grade-2 role → mark incomplete (exploration allowed; not eligible as the locked mainline)
+3. Performance advantage with no principle support → baseline only; not “essentially correct”
+4. Proposal to upgrade a principle → proof or counterexample, not leaderboard climbing
+
+### B.6 Honest scope
+
+For life-like perception–action, stable yields today are mostly **information/control/embodiment lower bounds** plus **Grade-2 structural candidates**. Evolutionary narratives more often give **constructive existence proofs and inspiration** than hard laws.
+
+The aim is not to pretend biology-grade Newtonian laws already exist. The aim is to **maintain an explicit necessity ladder**, upgrade what can be upgraded, and forbid theorem-style wording for what cannot—thereby **shrinking the trial-and-error space**.
+
+### B.7 Minimal artifacts
+
+For each candidate principle, keep a short record:
+
+- `claim.md` — premises, conclusion shape, grade, scope
+- `upgrade-log.md` — attempts to move 3→2→1 and outcomes
+- `violations.md` — known counterexamples or failed transfers
+
+### B.9 Claim governance
+
+1. **Separate roles.** A claim author proposes a claim record (premises, conclusion shape, grade, scope, falsifier). A **claim adjudicator**, who is not the claim author, decides state transitions. With heterogeneous models they are different models, and for high-stakes claims, different families.  
+2. **Locking requires verification and signature.**  
+   - **Grade 1:** a proof checked independently of its author. Acceptable checks: a formal checker; an established published result whose premises are matched item by item to the claim's premises; or review by a qualified human. The human lead must also sign. A Grade-1 lock prunes routes with no contest, so it is an irreversible action in the sense of §6 rule 4.  
+   - **Grade 2:** an argument from premises that applies across implementation classes; a defined operational realization test (rule 3); a logged, serious attempt to find or build a system that reaches the competence class without the role, which failed (`upgrade-log.md`, `violations.md`); and the human lead's signature.  
+3. **Operational realization test.** A proposal claiming to realize a Grade-2 role must name a test that would show the role is absent. Examples: a probe that must recover the estimated quantity within a stated error; an intervention on the named signal that must produce a stated effect; a timescale separation measurable in the closed-loop response. Without such a test, the role is not realized.  
+4. **Challenge admissibility.** A challenge pauses a lock's veto only once it is *admitted*. Admission requires either (a) a concrete counterexample, with artifacts, that satisfies the claim's stated premises, or (b) evidence that a premise fails in the target setting. The claim adjudicator rules on admission and sets a deadline. If the challenge is unresolved by the deadline, the human lead decides whether the veto resumes. A challenge that is not admitted is filed and pauses nothing.  
+5. **Gates before ranking.** Appendix B gates apply before rubric ranking (§4 Step 4). A rubric row about necessity discipline may score the quality of reasoning, but it never substitutes for the gate.  
+6. **Scope-narrowing counter.** Log every narrowing of a claim's scope, and every premise added so the claim can survive a counterexample. At the third such event (the brief may set a different default), the claim goes to mandatory review for retirement. A claim that survives only by shrinking is degenerating.  
+7. **Researcher agreement is not grade evidence.** Several researcher model families agreeing that a claim holds is evidence about how persuasive the argument is. It is not evidence of implementation independence (B.3.3), and it moves no grade.  
+8. **Counterexample searches are experiments.** They run under §12.2, with a `PLAN.md` stating what counts as a counterexample. The runner files the data and does not change claim state.
+
+---
+
+codex
+The action-versus-command distinction is useful, but the proposed gate does not yet justify its claimed bias bound. I also found that fp16 replay storage conflicts with the “exact” drift check, the spike can pass with all drift checks failing, and the GPU test treats correlated checkpoints as independent observations. I’m recording these alongside a counterexample to the necessity claim’s broad relabeling prohibition.
+
+exec
+/bin/bash -lc 'mkdir -p packets/B02/reviews' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+apply patch
+patch: completed
+/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-B-on-A.md
+diff --git a/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-B-on-A.md b/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-B-on-A.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..7c50a3ab32dc4ac9ba4d3076c3f6b24fa5f80efa
+--- /dev/null
++++ b/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-B-on-A.md
+@@ -0,0 +1,61 @@
++# Blind Review B on Proposal A (Packet B02)
++
++Scope: `packets/B02/brief.md` is absent. I used `briefs/B02-nonstationarity-and-off-policy-credit-assignment-in-joint-fb-task-training.md`, also identified by A, plus the charter, Proposal A, and the pinned method's §11.5 and Appendix B. No other review or draft was read. Author-reported dry runs were not independently verified.
++
++## 1. Gate & Hard-Constraint Audit
++
++**Disposition: revise before acceptance; C-B02-A-01 is not eligible for locking as written.**
++
++| Constraint | Audit |
++|---|---|
++| Charter §2.1: no BC/tracking fallback | Pass at specification level: no such actor loss or reward is proposed. |
++| Charter §2.2 and brief §2: BN order, fresh 50/50 relabeling, executed critic labels | Main method preserves these requirements. **[MAJOR]** Stage G's shadow critic N explicitly trains on re-encoded labels; being non-acting does not make that critic compliant. A §3.1 itself rejects this loophole. Designate N an isolated deliberate contract-violation control, rather than claiming the entire protocol satisfies the constraint. |
++| Charter §2.3: single-frame motion-only B | Pass as specified: frame IDs are diagnostic metadata, excluded from network inputs. |
++| Charter §2.4: credible failure versus corruption | Severe penetration is correctly retained with zero absorption potential. **[MAJOR]** Invalid-row exclusion is specified, but mandatory run/evaluation-panel halt and exclusion from normalizer updates are not explicit. Episode discard alone is insufficient. |
++| Charter §2.5: verified evidence versus claims | Pass: synthetic checks are explicitly distinguished from registered experiments and learned competence. |
++| Brief §2: joint training without pretraining/freezing | Pass: temporary frozen-weight diagnostic rollouts do not constitute a frozen training stage. |
++| Brief §2: full-prefix zero-hidden burn-in | Correct in principle, conditional on retaining complete prefixes. FIFO prefix availability and actual recurrent input dimensions remain unresolved below. |
++
++No compliance certification of implementation or unread baseline files is implied.
++
++## 2. Rubric-Keyed Technical Objections
++
++**Exactness of Off-Policy Semantics — 30%**
++
++- **[CRITICAL] M1/M3's advertised certificate does not follow (§§1.2, 2.2).** The conditional trajectory KL is an expectation; a realized path sum and a 32-row bucket average are estimators over different conditioning states. Small average KL neither controls every `(H,z)` nor upper-bounds chi-square divergence. The identity `chi² = exp(2 KL) − 1` requires stronger restrictions than the gate enforces: fixed variance, state-independent likelihood increments and, for the stated simple identity, fixed horizon. Random early termination also needs separate treatment. Thus `KL̄ ≤ 0.02` does not certify `|b| ≤ 0.2 sd(y)` or rare IS truncation. Rare high-drift states can dominate chi-square while being missed by the sample. Supply a justified upper confidence bound under explicit tail assumptions, or call M1 a heuristic and remove its guarantee.
++- **[MAJOR] Policy-independent filtering is assumed, not established (§1.0).** Past actions alone are insufficient: require full relevant observation history, a common initial hidden-state law, and no behavior-policy information outside that history. A finite LSTM representation need not preserve the filtering belief. Under these premises the action-Q/macro-z distinction is sound; the unconditional assertion of zero action-Q age bias is too strong.
++- **[MAJOR] Fixed-target regression and Bellman fixed points are conflated (§1.2).** With fixed `V̄`, the target map is constant in the fitted Q; a roughly 10-fold fixed-point amplification is not established. A genuine contraction argument must define an operator depending on its Q argument, hold the continuation policy fixed, evaluate the operator discrepancy at a specified fixed point, and bound contraction uniformly across old/current kernels and stopping times. Also, §1.6 reverses the sign of the `gamma^K` substitution error: wrong minus correct is `(gamma^K − gamma^k)V̄`.
++- **[MAJOR] Gate edge cases undermine its interpretation (§2.2).** Floors can knowingly admit over-threshold generations; the subsequent monotone cutoff can defeat those floors. The case where even the newest bucket fails has no defined cutoff. Specify precedence, startup and starvation behavior, and report every certificate override. A held-out subset removes direct self-selection but does not establish independence for temporally correlated rows from shared episodes/adaptive collection.
++
++**Compliance with R2.1 & v2 Contracts — 25%**
++
++- **[MAJOR] Exact drift is incompatible with the proposed fp16 storage (§2.0, c1).** Quantizing a mean near one commonly introduces error around `1e-4`, already above the `1e-6` snapshot threshold; quantized standard deviations and raw actions also perturb likelihood ratios. Preserve collection precision or derive quantization bounds and test the actual serialization path.
++- **[MAJOR] Prefix reconstruction is underspecified (§2.3).** Complete prefixes must survive FIFO eviction even when their TD rows are excluded. Stage S's 135-dimensional LSTM input is not reconciled with the explicit additional 256-dimensional previous-z input; specify concatenation/projection and reset semantics. Validate online/target Q and P separately, including bootstrap beyond the sampled slice. `no_grad` alone does not freeze BN updates; the guard must verify the actual update mechanism.
++
++**Computational Overhead — 20%**
++
++- **[MAJOR] The <5% requirement remains unverified (§2.1).** FLOP estimates omit prefix reconstruction across six recurrent networks, replay cloning/transfers, hashes, snapshot maintenance, SVDs, and diagnostic simulation. D5 cannot be excluded merely because it uses separate environments. Equal committed steps are not equal compute across IS, soft-weighting, and shadow-critic arms. Measure synchronized end-to-end time against the same baseline, with an explicit diagnostic/evaluation accounting policy.
++- **[MINOR] Replay memory is understated (§2.0).** Three 29-element fp16 columns require 174 B/step before prompt anchors, IDs, and existing fields; fixed scalar standard deviation reduces this, but must be specified. A 256-element anchor adds 512 B per stored expert/near step. State whether anchors are deduplicated per macro and include prefix retention in the budget.
++
++**Spike Falsifiability — 25%**
++
++- **[CRITICAL] PASS need not establish the brief's drift deliverable (§5.1).** Every drift/bias check is optional `[A+]`; all may fail while PLAN passes. Burn-in equality is not bounded TD error under representation drift. Require a distinct B02 mechanism verdict with generation-lag and value-bias checks, without silently changing the registered PLAN verdict.
++- **[MAJOR] Stage G's significance test uses pseudoreplication (§5.2).** Checkpoints within a seed are correlated. Three independent seed pairs cannot attain one-sided exact signed-rank `p < 0.05` (minimum `1/8`). Predefine seed-level aggregation and enough independent runs, or an appropriately justified dependence-aware analysis. A 1–14% improvement also falls between the ≥15% prediction and the stated non-improvement falsifier; specify success, failure, and inconclusive outcomes.
++
++## 3. Audit of Rejected Alternative & Necessity Claim
++
++**Rejected alternative: substantive analysis, limited novelty.** A distinguishes prompt-coordinate refresh from outcome-dependent hindsight relabeling and identifies a real label/kernel mismatch. However, the brief explicitly asks for this comparison and the charter already forbids changing task-critic labels. Under method §11.5, agreement on retaining executed labels is framed agreement, not independent necessity evidence. The additional comparison against row filtering/untruncated IS is more informative. “Strictly dominated whenever actor drift is zero” is excessive: endpoint values can coincide, and non-constancy along an arc does not imply unequal endpoints.
++
++**C-B02-A-01: retain only a narrowed Candidate.** Parts (a) and (b) have a defensible invariant/bound form and implementation-independent reasoning. Appendix B.3 nevertheless requires explicit scope: a common sufficient history and initial belief, a fixed target functional during comparison, support conditions for the relevant KL direction, and finite span or finite variance/chi-square for useful bounds. P5 alone does not make reverse KL finite.
++
++**[CRITICAL] Part (c) overgeneralizes deterministic label replacement to arbitrary outcome-dependent maps.** For a concrete terminal one-step counterexample, let a fixed Gaussian actor produce Bernoulli reward probabilities `1/4, 1/2, 3/4` under three commands (reward is the indicator of positive action). Collect only the middle command. Let the terminal state also contain independent `u ~ Uniform[0,1]`; relabel high iff `u < 1/4 + r/2`, otherwise low. Then `E[r | high] = 3/4` and `E[r | low] = 1/4`, exactly matching their true operators, although the executed command's value is `1/2`. P1–P5 can hold, and terminal targets are independent of Q, so this works for all Q. It is contract-forbidden but mathematically refutes the unrestricted necessity statement. Restrict (c) to outcome-independent, unweighted replacement at fixed original `(H,z)`, with explicit treatment of pooling and operator-equivalent commands.
++
++The falsifier's assertion that any counterexample “must violate a premise” prejudges the result. Appendix B.3.4 permits a counterexample to invalidate the conclusion itself. The exact-zero/common-random-number demonstration verifies an implementation identity, not universal necessity; one re-encoding failure cannot prove the universal obligation. Appendix B.9 independent verification and human signature remain necessary for any eventual lock.
++
++## 4. Spike Protocol Critique
++
++- **[MAJOR] Missing independence direction.** b1 checks that FB updates do not mutate behavior labels. The brief also requests that mutating behavior labels not change `z_update`. With identical RNG, motion inputs, weights and frozen statistics, alter only `behavior_z` and require identical relabel samples. Test 50/50 composition, online versus target B, permutation, sphere norm, and actual critic consumption; unequal `data_ptr()` values alone do not exclude overlapping storage.
++- **[MAJOR] Missing mechanism controls.** Add matched-capacity FIFO/random-age controls to separate drift selection from smaller replay and shifted source/height distributions. Exercise state-dependent drift, rare high-KL states, changing variance, clipping, short termination/timeout macros, fp16 round trips, and gate starvation. Include both actor-only and normalizer-only drift and a step action-Q control.
++- **[MAJOR] Calibration endpoint is confounded.** Fix diagnostic histories/states and commands across arms, define MC horizon/tail and terminal handling, and match the continuation policy to the critic's intended target. Separate online-versus-target policy lag from replay-age bias. Report raw error and a common normalization: arm-specific `sd(G)` can manufacture apparent improvement. Account for MC uncertainty in both calibration and estimated divergence bounds, not only the bias estimate.
++- **[MAJOR] D5 does not certify uncontrollability.** A motion-distance ratio near one under independent noise can hide reward-relevant contact/ball effects; non-monotone distance versus latent angle is not itself failure. Add paired-noise interventions and task/contact outcomes with confidence intervals. A noisy proxy cannot establish the exact distribution-independence premise of C-B02-A-03.
++- **[MINOR] Thresholds need scope.** A stale hidden state need not exceed `1e-2` if the chosen regression barely changes recurrent dynamics; demonstrate that the injected fault is active before interpreting the negative control. Clarify that `3/(2 n_e)` is an asymptotic normalized mean-square error, not a 19% latent or RMS error, and distinguish same-batch normalization from independent query normalization.
+
+exec
+/bin/bash -lc "wc -w packets/B02/reviews/review-B-on-A.md; rg -n '"'^#'"' packets/B02/reviews/review-B-on-A.md" in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+1636 packets/B02/reviews/review-B-on-A.md
+1:# Blind Review B on Proposal A (Packet B02)
+5:## 1. Gate & Hard-Constraint Audit
+21:## 2. Rubric-Keyed Technical Objections
+45:## 3. Audit of Rejected Alternative & Necessity Claim
+55:## 4. Spike Protocol Critique
+
+codex
+Wrote the complete [blind review](/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-B-on-A.md).
+
+Recommendation: revise before acceptance. The review covers all four rubric dimensions and identifies a counterexample to C-B02-A-01(c).
+
+Used the B02 brief under `briefs/` because the requested path is absent. No other reviews or drafts were read.
+tokens used
+49,412
+Wrote the complete [blind review](/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-B-on-A.md).
+
+Recommendation: revise before acceptance. The review covers all four rubric dimensions and identifies a counterexample to C-B02-A-01(c).
+
+Used the B02 brief under `briefs/` because the requested path is absent. No other reviews or drafts were read.

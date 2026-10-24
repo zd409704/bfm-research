@@ -1,0 +1,32 @@
+--- prompts/B01-draft-A.txt
++++ prompts/B01-draft-B.txt
+@@ -1,4 +1,4 @@
+-You are Primary Author A on Packet B01 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
++You are Primary Author B on Packet B01 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
+ 
+ Read the following frozen context files before writing your proposal:
+ 1. `/srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md`
+@@ -8,11 +8,11 @@
+ 5. `/srv/claude/research/fb-beyond-imitation-acceleration/baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md`
+ 
+ Isolation & Firewall Rules:
+-- Do NOT read or list any directory under `packets/B01/drafts/` other than your own directory `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B01/drafts/A/`.
+-- Write your complete proposal to `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B01/drafts/A/proposal.md`.
++- Do NOT read or list any directory under `packets/B01/drafts/` other than your own directory `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B01/drafts/B/`.
++- Write your complete proposal to `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B01/drafts/B/proposal.md`.
+ 
+-Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B01/drafts/A/proposal.md`:
+-1. `# Proposal A (Packet B01): FB Density Factorization, Gram Conditioning, and Intrinsic Reward Identifiability`
++Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B01/drafts/B/proposal.md`:
++1. `# Proposal B (Packet B01): FB Density Factorization, Gram Conditioning, and Intrinsic Reward Identifiability`
+ 2. `## 1. Exact Spectral Error and Bias Derivation`:
+    - Derive the exact discrepancy between unwhitened single-state goal readout $F(s,a,z)^\top B(g)$, unwhitened one-step intrinsic reward $\tilde{{r}}_z(y) = B(y)^\top z$, and exact whitened readout/reward using the eigendecomposition $\Sigma_B = U \Lambda U^\top$ with $\operatorname{{tr}}(\Lambda) = d_z$ under spherical normalization $\|B(x)\|_2 = \sqrt{{d_z}}$.
+    - Express the cosine alignment error and value bias as explicit functions of the condition number $\kappa(\Sigma_B) = \lambda_{{\max}}/\lambda_{{\min}}$ and effective rank $\operatorname{{erank}}(\Sigma_B) = \exp(H(\Lambda/d_z))$.
+@@ -24,6 +24,6 @@
+ 4. `## 3. Serious Alternative Considered and Rejected`:
+    - Per method v1.0 §11.5, analyze at least one non-trivial alternative approach (e.g., hard Stiefel/batch Cholesky projection inside the forward pass of $B$, or adaptive $\lambda_{{\mathrm{{orth}}}}$ dual ascent without explicit $\widehat{{\Sigma}}_B^{{-1}}$ whitening) and prove why it was rejected.
+ 5. `## 4. Candidate Necessity Claims (Appendix B)`:
+-   - Formulate at least one falsifiable Principle Claim (`C-B01-A-01`) with explicit premises, conclusion shape (impossibility, lower bound, or invariant), necessity grade (Grade 1 or Grade 2), operational test, and falsifier.
++   - Formulate at least one falsifiable Principle Claim (`C-B01-B-01`) with explicit premises, conclusion shape (impossibility, lower bound, or invariant), necessity grade (Grade 1 or Grade 2), operational test, and falsifier.
+ 6. `## 5. Pre-Registered Empirical Spike Protocol`:
+    - Define a concrete PyTorch verification experiment on $d_z \in \{{100, 256\}}$ over $229$-D / $277$-D motion features under anisotropic replay distributions with quantitative pass/fail gates on $\kappa(\Sigma_B)$, $\operatorname{{erank}}(\Sigma_B)$, intrinsic reward MSE, and policy gradient cosine similarity.

@@ -1,0 +1,14 @@
+I have completed the independent cross-family adjudication for Packet `B04` (Order 1) and written the report to [adjudication-agy-order1.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/adjudication-agy-order1.md) (82 lines).
+
+### Summary of Adjudication
+
+1. **Eligibility Gate Check**: Both [order1_P.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/anonymized/order1_P.md) (Candidate P) and [order1_Q.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/anonymized/order1_Q.md) (Candidate Q) **PASS** Hard Constraints (`Charter` HC1–HC5, `Brief` HC1–HC2) and Appendix B.5 gates.
+2. **Rubric Scores**:
+   - **Candidate P (`order1_P.md`)**: **83 / 100** (`24/30` Math Rigor, `21/25` Zero-Future-Leakage, `21/25` Contact Stiffness & Stability, `17/20` 4-Arm Ablation).
+   - **Candidate Q (`order1_Q.md`)**: **81 / 100** (`26/30` Math Rigor, `23/25` Zero-Future-Leakage, `17/25` Contact Stiffness & Stability, `15/20` 4-Arm Ablation).
+3. **Principle Claim Adjudication (Appendix B.9)**:
+   - **P `C-B04-CAND-01`** (Terminal-critic state-gradient amplification): **Tighten-premises** (`Candidate` stay at Grade 2; require directional coherence lower bound and isolated critic-error vector norm rather than non-additive `relL2` difference).
+   - **P `C-B04-CAND-02`** (Soft survival necessity): **Candidate stay** (Grade 1, incorporating Q's closed-loop $\partial_a \ell_i \partial_s \pi_i$ term).
+   - **P `C-B04-CAND-03` & Q `C-B04-CAND-02`** (Head/tail coordinate compatibility & $\kappa$-conditional whitening): **Merge & tighten-premises** (`Candidate` stay at Grade 1; specify unit-trace $\Sigma_B = I$ at $\kappa=1$).
+   - **Q `C-B04-CAND-01`** (Direct parameter-path coverage): **Downgrade** (circular premise $R_{>H} \neq 0$ restates the conclusion $g_\infty - g_H^{\mathrm{oracle}} \neq 0$; retain only as an autodiff sanity check).
+4. **Disposition**: **Recommend `P`** (`order1_P.md`), **Alternate `Q`** (`order1_Q.md`), with 5 mandatory merge items integrating Q's trajectory-tube $C^1$ error/variance bound, closed-loop survival chain rule, corrected Arm B trace-cut bootstrap, detached-rollout throughput controls, and full Charter/B01 boundary safeguards.

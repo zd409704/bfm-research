@@ -1,0 +1,1246 @@
+OpenAI Codex v0.163.0
+--------
+workdir: /srv/claude/research/fb-beyond-imitation-acceleration
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: high
+reasoning summaries: none
+session id: 01a169f4-5b75-7352-8a1a-a0cee24b2b96
+--------
+user
+You are Primary Author B on Packet B03 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
+
+Read the following frozen context files before writing your proposal:
+1. `/srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/fb-beyond-imitation-acceleration/synthesis/B01-synthesis.md`
+3. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/brief.md`
+4. `/srv/claude/research/fb-beyond-imitation-acceleration/baseline/02-fb-paradigm-beyond-imitation-and-exploration.md`
+5. `/srv/claude/research/fb-beyond-imitation-acceleration/baseline/04-joint-fb-ball-striking-v2-architecture.md`
+6. `/srv/claude/research/fb-beyond-imitation-acceleration/baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md`
+
+Isolation & Firewall Rules:
+- Do NOT read or list any directory under `packets/B03/drafts/` other than your own directory `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/B/`.
+- Write your complete proposal to `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/B/proposal.md`.
+- You may also read `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/spikes/B03-SPIKE/VERDICT.json`.
+- Write the output markdown file `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/B/proposal.md` directly without running any bash or python exploratory scripts.
+- Keep your proposal focused, mathematically dense, and between 150 and 250 lines.
+
+Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/B/proposal.md`:
+1. `# Proposal B (Packet B03): Hierarchical Task Coupling Under Partial Observability and Contact Dynamics`
+2. `## 1. Formal Information-Theoretic and Observability Analysis of Kinematic-Only B(m)`:
+   - Prove the exact aliasing boundary of single-frame root-relative motion descriptors $m \in \mathbb{R}^D$ ($D \in \{229, 277\}$): identical kinematic frames across free-air flight, compliant box support (`0.40` m), and rigid impact (`0.60` m) map to identical $B(m)$ vectors (`0.0` $B$-space separation).
+   - Characterize precisely when perceptive context in the low-level actor $\pi_\theta(o_{\mathrm{low}}, z)$ resolves kinematic aliasing vs. the irreducible **isokinematic multi-force bottleneck** (where the same kinematic posture at the same terrain geometry requires distinct contact wrenches/joint torques).
+3. `## 2. Comparative Architecture Analysis: Macro-Step Latent Value vs Action-Level Task Value`:
+   - Compare and unify Design 1 (R2.1 Obstacle Traversal: macro-step $K=10$, recurrent planner $z_t = P_\psi(h_t)$, recurrent twin critic $Q_\phi(h_t, z_{\mathrm{actual}})$ with variable $k \le K$ discount $\gamma_{\mathrm{task}}^k$) and Design 2 (v2 Ball Striking: every-step planner $z_t = P_\psi(o_{\mathrm{task}})$, action-level critic $Q_\phi(o_{\mathrm{task}}, a)$ with chain-rule gradient $\nabla_\psi Q_\phi(o_{\mathrm{task}}, \pi_\theta(o_{\mathrm{low}}, P_\psi(o_{\mathrm{task}})))$ through frozen-weight $\pi_\theta$).
+   - Specify when and how to bridge the two regimes without leaking task/obstacle/ball features into $B(m)$.
+4. `## 3. Serious Alternative Considered and Rejected`:
+   - Per method v1.0 §11.5, analyze at least one non-trivial alternative approach (e.g., augmenting $B(m)$ directly with obstacle heightfields, contact forces, or ball coordinates, or replacing the low-level FB actor with an end-to-end monolithic task RL policy) and prove why it was rejected.
+5. `## 4. Candidate Necessity Claims (Appendix B)`:
+   - Formulate at least one falsifiable Principle Claim (`C-B03-B-01`) with explicit premises, conclusion shape, necessity grade (Grade 1 or Grade 2), operational test, and falsifier.
+6. `## 5. Pre-Registered Empirical Spike Protocol`:
+   - Define a concrete PyTorch verification experiment testing: (a) kinematic-only $B(m)$ contact aliasing across distinct contact regimes, (b) perceptive context disambiguation in $\pi_\theta(o_{\mathrm{low}}, z)$, and (c) the isokinematic multi-force bottleneck lower bound.
+
+codex
+I’ll read the frozen context, then write the proposal directly to your B draft directory, keeping the other authors’ drafts isolated.
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Baseline 05: Autonomous 3D Obstacle Traversal on a 29-DoF Humanoid Plant (v3.1.1 Training Design & R2.1 Implementation Specification)
+
+## 1. Task Definition and Physical Geometry Contract
+
+The autonomous obstacle-traversal task requires a 29-DoF torso-base humanoid robot (`dt_physics = 0.005` s, `decimation = 4`, `dt_control = 0.02` s, 50 Hz control, action `scale = 1.0` across all 29 joint position channels) to start from flat ground in front of a 3D box obstacle, traverse over obstacles of varying heights $h$, and establish a stable bipedal landing on the flat ground behind the obstacle.
+
+### 1.1 Obstacle Geometry and Curriculum Bank
+- **Fixed Box Depth and Width**: Depth $D = 0.3559550643\text{ m}$, width $W = 10.0\text{ m}$, bottom face resting on the ground plane ($z = 0$).
+- **Demonstration Reference Source**: A single 859-frame, 50 Hz retargeted motion file recorded on an obstacle of height $h_{\mathrm{demo}} = 0.7044943571\text{ m}$ (`SHA256: 1be258504c22886147b8739fb8e4bf3689e0d707f59c2ce1b0505686a7fa09c8`).
+- **Discrete Training Height Bank**:
+  $$
+  \mathcal{H}_{\mathrm{bank}} = \{0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70\}\text{ m}.
+  $$
+  Training begins with active quota allocated only to `{0.10, 0.20}` m. Each environment instance maintains a fixed height $h$ throughout an episode.
+
+---
+
+## 2. Architecture and Data Flow (Macro-Step $z$-Critic Formulation)
+
+Unlike ball striking ($K_{\mathrm{hold}}=1$ with physical action-$Q$), 3D obstacle traversal requires sustained multi-step coordination (approach, takeoff, hand/foot placement, clearance, and landing). Therefore, v3.1.1 / R2.1 uses a **macro-step $z$-conditioned task critic $Q_{\phi_1, \phi_2}(H_t, c_t^{\mathrm{geom}}, z_{\mathrm{macro}})$** with macro horizon $K = 10$ control steps ($0.20\text{ s}$).
+
+| Module | Exact Input Schema $\to$ Output | Training Objective & Role of Demonstrations |
+|---|---|---|
+| **Backward Map $B_\omega$** | Single-frame `m[229]` $\to$ `z[256]` on sphere of radius $\sqrt{256}=16$ (`hidden = 256 x 1`) | Updated purely on real replay transitions via FB successor + orthogonality loss. Demonstrations are encoded in `eval/no_grad` mode only; zero supervised imitation loss. |
+| **Forward Ensemble $F_{\eta_1, \eta_2}$** | Policy observation `o` (without reference motion), `z[256]`, applied action `a_applied[29]` $\to$ `[256]` per head (`residual 2048 x 6`) | Diagonal/off-diagonal FB Bellman loss + orthogonality regularizer; optional implicit-$Q$ coefficient defaults to `0`. |
+| **Low-Level Actor $\pi_\theta$** | `o = {state[67], last_action[29], scan[S], scan_valid[S], goal_dir[2]}` and `z[256]` $\to$ 29-D action distribution (`residual 2048 x 6`) | Maximizes conservative $\min_{k=1,2}(F_{\eta_k}(o, a, z)^\top z)$; zero action MSE, zero mimic reward, zero PPO clipping. |
+| **Recurrent Planner $P_\psi$** | Full episode history of `(o_t, z_{t-1}, first_flag)` $\to$ macro latent $z_{\mathrm{plan}} \in \mathcal{S}^{255}(16)$ | Delayed TD3-style policy gradient minimizing $-Q_{\phi_1}(H_t, c_t^{\mathrm{geom}}, P_\psi(H_t))$ (`delay = 2`); no demonstration phase clock. |
+| **Macro Task Twin Critic $Q_{\phi_1, \phi_2}$** | History $H_t$, privileged `critic_geometry` $c_t^{\mathrm{geom}}$, and **actual executed macro $z_{\mathrm{actual}}$** $\to$ scalars $Q_1, Q_2$ | $k$-step macro TD target ($k \in [1, K]$): $R_{\mathrm{macro}} + \gamma_{\mathrm{task}}^k (1 - \text{terminated})\min_{i=1,2} Q_{\bar{\phi}_i}(H_{t+k}, c_{t+k}^{\mathrm{geom}}, P_{\bar{\psi}}(H_{t+k}))$. |
+
+### 2.1 Exact 229-Dim Single-Frame Motion Descriptor `m[229]`
+In the heading-aligned root frame $H$ (where global $(x, y)$ translation and yaw $\psi$ are removed using the `torso_link` quaternion):
+$$
+m_t = \bigl[\underbrace{v_H[3],\, \omega_H[3],\, g_{\mathrm{root}}[3],\, q[29],\, \dot{q}[29]}_{\text{policy.state}[67]},\, \underbrace{\Delta p_{H,1..18}[18 \times 3],\, \mathrm{rot6d}_{H,1..18}[18 \times 6]}_{\text{18 named links}[162]}\bigr] \in \mathbb{R}^{229}.
+$$
+The 18 named links are ordered strictly as: `pelvis`, `torso_link`, `left/right_shoulder_roll_link`, `left/right_elbow_link`, `left/right_wrist_roll_link`, `left/right_wrist_pitch_link`, `left/right_wrist_yaw_link`, `left/right_hip_roll_link`, `left/right_knee_link`, `left/right_ankle_roll_link`.
+
+---
+
+## 3. Unfiltered Single-Frame Expert Provider and Three-Way Source Schedule (R2.1)
+
+### 3.1 Elimination of Scene-Eligibility and 8-Height Static Admission
+Earlier drafts attempted to filter or statically place the 859 demonstration frames against all 8 obstacle heights (`8 x 859` static collision/support sweep). R2.1 eliminates all scene-eligibility filtering based on a foundational principle:
+> **$z$ is a policy conditioning vector, not a physical reset state or open-loop joint command. Whether a demonstration frame can be statically placed without collision against the current obstacle height does not determine whether $B(m_{\mathrm{demo}})$ is a useful latent directional prompt.**
+
+1. `prepare_data.py` runs forward kinematics once on the 859-frame 50 Hz source NPZ to produce `[T, 229]` raw descriptors, finite-difference velocities (never substituting `velocity_command`), and a numerical quality mask.
+2. `CandidateProvider.sample()` draws a valid frame uniformly from `[T, 229]` without querying obstacle height $h$, task stage, or current robot pose.
+3. At each macro boundary, if source `expert` or `near` is selected, `selector` encodes the sampled `[1, 229]` frame once via `FBModel.encode_motion` (`eval/no_grad`). For `near`, it samples a tangent-space rotation with angle $\theta \in [10^\circ, 20^\circ]$ ($\cos\theta \in [\cos 20^\circ, \cos 10^\circ]$) and projects back to radius 16.
+4. Rollout source probabilities $(p_{\mathrm{expert}}, p_{\mathrm{near}}, p_{\mathrm{planner}})$ follow a piece-wise linear schedule over committed control steps $S$ with $S_{\mathrm{ramp}} = 100,000$:
+   $$
+   (0.60, 0.30, 0.10) \xrightarrow{S = 0.5 S_{\mathrm{ramp}}} (0.30, 0.30, 0.40) \xrightarrow{S = S_{\mathrm{ramp}}} (0.10, 0.20, 0.70).
+   $$
+   All evaluation and curriculum-advancement panels use `100%` planner ($p_{\mathrm{planner}} = 1.0$).
+
+---
+
+## 4. Freezing UFO Update Semantics: Separation of `behavior_z` and `z_update`
+
+R2.1 restores exact fidelity to the reference UFO update order (`sample_mixed_z` with `train_goal_ratio = 0.5`, `train_neighborhood_z = False`):
+1. `Collector` records both `m_current` and `m_next` alongside immutable `behavior_z` in `FBReplay`.
+2. In `FBAgent.update`, batch normalizers are updated **once** on real `(obs, m_current)` and **once** on real `(next_obs, m_next)`, eliminating the bug where `m_next` was fed into running statistics twice. Expert frames never update batch normalizers.
+3. Under frozen normalizer statistics (`eval/no_grad`):
+   $$
+   z_{\mathrm{random}} = \operatorname{proj}(\mathcal{N}(0, I_{256})), \quad \mathrm{perm} = \operatorname{randperm}(n), \quad z_{\mathrm{goal}} = \operatorname{proj}\bigl(B_\omega(\tilde{m}_{\mathrm{next}}[\mathrm{perm}])\bigr),
+   $$
+   $$
+   \mathrm{mask} = (\operatorname{rand}(n, 1) < 0.5), \qquad z_{\mathrm{update}} = \operatorname{where}(\mathrm{mask}, z_{\mathrm{goal}}, z_{\mathrm{random}}).
+   $$
+4. `z_update` is passed only to the current batch's FB loss and low-level actor loss. Task critic $Q_{\phi_1, \phi_2}$ always reads the macro's actual executed `z_actual`.
+
+---
+
+## 5. Task Reward, Event Chain, and R2.1 Terminal Boundary (`severe_penetration` vs `invalid`)
+
+### 5.1 Ordered Traversal Event Chain and Potential-Based Reward
+- **Success Criteria**: The robot must pass the front edge $x_{\mathrm{front}}$ within the legal lateral corridor, clear the rear edge $x_{\mathrm{rear}}$ with its entire whole-body and foot bounding footprint (`shapes_from_snapshot`), release all box contact, establish bipedal support on the rear ground with low foot slip and COM inside the support polygon, and maintain stable upright posture for **0.75 s** within the **12.0 s** episode timeout.
+- **Allowed vs Failed Contacts**: Hand support on the obstacle box is explicitly permitted (`allow_hand_on_box = True`). Standing on top of the box, hanging by the hands, crawling on the ground, lateral bypass around the obstacle, or sustained ground non-foot contact with root clearance $< 0.45 L_{\mathrm{leg}}$ for $0.5\text{ s}$ triggers failure termination.
+- **Step Reward**:
+  $$
+  r_t^{\mathrm{task}} = \alpha\bigl(\gamma_{\mathrm{task}}\Phi_{t+1} - \Phi_t\bigr) + \mathbf{1}_{\{\text{first\_success}, t\}} - c_{\mathrm{ctrl}}(a_t, \dot{q}_t), \qquad \alpha \le 0.2,
+  $$
+  with terminal absorption $\Phi_{t+1} = 0$ on failure termination and true end-state potential $\Phi_{t+1}$ on timeout truncation.
+
+### 5.2 R2.1 Narrow Terminal-Boundary Revision: Credible `severe_penetration` vs Data `invalid`
+Prior to R2.1, any runtime contact penetration exceeding $0.03\text{ m}$ raised an `InvalidPhysicsError` that aborted the training run or evaluation panel—turning ordinary exploratory falls and hard box impacts by an untrained random policy into fatal process exits. R2.1 establishes a strict two-category boundary:
+
+| Classification | Exact Trigger Conditions | Required Runtime & Replay Handling |
+|---|---|---|
+| **Credible Task Failure (`severe_penetration`)** | Runtime contact depth exceeds $0.03\text{ m}$ on at least one substep, **AND** all 4 physics substeps complete with finite state/contact tensors, valid schema/indices/timing, no contact buffer overflow (`ncon < nconmax`), and no solver divergence. | Latches failure on first offending substep (`terminated = True`, `failure_reason = severe_penetration`), continues checking remaining substeps in the 4-substep control interval, sets absorption potential $\Phi_{\mathrm{next}} = 0$, commits the real pre-reset final transition to replay once, and resets the environment for the next episode. In evaluation panels, counts as a valid failed trial while preserving the seed and denominator. |
+| **Data Corruption (`invalid`)** | Any `NaN`/`Inf` in state or contacts, contact buffer overflow with dropped contacts, corrupted schema/geometry/timing, missing pre-reset final state, or verified solver divergence (including if corruption occurs on a substep after an initial penetration). | `invalid` takes strict priority over `severe_penetration`. Rejects the entire uncommitted control transition (never enters replay or normalizers, never increments committed step count, never fabricates a zeroed terminal state), logs detailed diagnostic fields, and halts the affected run or evaluation panel. |
+
+---
+
+## 6. Multi-Height Curriculum Advancement and Evaluation Panels
+
+### 6.1 Curriculum Controller (`PoolQuotaSchedule` + Active Unlock State)
+- Advancement from current frontier height $h_{\mathrm{front}}$ to $h_{\mathrm{front}} + 0.10\text{ m}$ is evaluated every `eval_interval_control_steps = 100,000` using an independent `100%` planner evaluation panel (`100` independent ground starts on $h_{\mathrm{front}}$ and `100` on the lowest two heights `{0.10, 0.20}` m, frozen weights/BN, zero replay writes).
+- **Unlock Gate**: Requires the 95% Wilson score lower bound on success rate to satisfy $\mathrm{LB}_{0.95} \ge 0.70$ across **two consecutive non-overlapping evaluation panels**, with no confirmed degradation $> 10$ percentage points on the lowest two heights.
+- **Sampling Quota Allocation**: Once unlocked, each `quota_epoch_control_rows = 4096` allocates `50%` of control steps to the frontier height, `30%` uniformly across intermediate unlocked heights, and `20%` to the lowest two heights.
+
+### 6.2 Held-Out Generalization Panels
+1. **In-Distribution (ID) Panel**: Heights $\{0.10, 0.20, \dots, 0.70\}\text{ m}$ with standard depth $D = 0.356\text{ m}$ and unseen reset seeds.
+2. **Interpolation Panel**: Unseen intermediate heights $\{0.15, 0.25, 0.35, 0.45, 0.55, 0.65\}\text{ m}$.
+3. **Out-of-Distribution (OOD) Panel**: Unseen heights $\{0.05, 0.75, 0.80\}\text{ m}$ and perturbed obstacle depths $D \in \{0.25, 0.45\}\text{ m}$.
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Program Charter: Forward-Backward Reinforcement Learning Beyond Imitation Data and Model-Based Training Acceleration
+
+## 1. Mission Statement
+
+Establish rigorous theoretical, algorithmic, and empirical foundations for joint **Forward-Backward (FB) + Low-Level Actor + Task Critic $Q$ + High-Level Planner** reinforcement learning from scratch, enabling legged and humanoid robots to:
+1. Utilize unindexed single-frame demonstrations purely as latent behavioral prompts ($z = B(m)$) rather than rigid trajectory-tracking constraints.
+2. Discover contact-rich recovery, multi-height obstacle traversal, and dynamic ball-striking behaviors that lie outside the state-action support of the demonstration library.
+3. Combine short-horizon differentiable world-model pathwise gradients with long-horizon FB successor representations without violating Bellman consistency or causal observability boundaries.
+
+---
+
+## 2. Hard Technical Constraints & Non-Goals
+
+1. **No Behavioral Cloning or Tracking Penalty Fallbacks**:
+   - The low-level actor $\pi_\theta(o_{\mathrm{low}}, z)$ is updated exclusively by maximizing the conservative FB value $F(o, a, z)^\top z$ (plus optional task-critic gradient in single-step action-$Q$ variants). Adding a supervised action MSE loss $\|a - a_{\mathrm{demo}}\|^2$ or a per-frame pose-tracking task reward to force convergence is strictly forbidden.
+2. **Strict Separation of Rollout Behavior $z$ and FB Update Relabel $z$**:
+   - During rollout collection, behavior $z$ is chosen at macro-step boundaries from the scheduled three-way mixture (`expert`, `near`, `planner`).
+   - During off-policy FB updates, $z_{\mathrm{update}}$ is sampled fresh via the 50/50 mixture (`50%` uniform hypersphere $\mathcal{S}^{d_z-1}(\sqrt{d_z})$, `50%` current online $B$ encoding of permuted replay next-frame motion $m_{t+1}$) under frozen batch-normalization statistics after updating BN once on current $(o_t, m_t)$ and once on next $(o_{t+1}, m_{t+1})$.
+   - `z_update` must never overwrite `behavior_z` in the replay buffer, and the task critic $Q$ must always train on the actual executed macro behavior $z_{\mathrm{actual}}$ (or executed action $a_{\mathrm{applied}}$).
+3. **Single-Frame Motion-Only Backward Input**:
+   - The backward representation network $B(m)$ receives only single-frame root-relative kinematics (`229` dims in obstacle traversal; `277` dims in ball striking). It must not receive obstacle height, terrain scan, ball position, task phase, or demonstration frame indices.
+4. **Strict Separation of Physical Failure vs Numerical Corruption**:
+   - Runtime contact penetration exceeding `0.03` m with finite state/contact tensors, valid schema/timing, and no solver divergence must be recorded as a credible task termination (`severe_penetration`, `terminated=True`, absorption potential $\Phi_{\mathrm{next}}=0$) and committed to replay.
+   - NaN/Inf values, contact buffer overflow with lost contacts, corrupted state/schema/timing, or verified solver divergence must be classified as `invalid`, rejected from replay and normalizer updates, and halt the affected run or evaluation panel for inspection.
+5. **Strict Separation of Verified Evidence vs Unproven Claims**:
+   - Short CPU integration smoke tests prove only contract, gradient flow, and checkpoint/resume mechanics. No document or proposal may claim that obstacle traversal or ball striking has been learned, or that FB beats PPO/AMP/world-model baselines, until full multi-seed GPU training and held-out evaluation panels pass their pre-registered gates.
+
+---
+
+## 3. Falsifiable Hypotheses
+
+- **H1 (Gram Matrix Conditioning & Reward Readout)**: Standard FB orthonormalization loss $\mathcal{L}_{\mathrm{orth}} = \frac{1}{2N(N-1)}\sum_{i\ne j}(B(x_i)^\top B(x_j))^2 - \frac{1}{N}\sum_i \|B(x_i)\|_2^2$ on a changing replay distribution $\rho$ leaves significant off-diagonal covariance in $\Sigma_B$ during early joint training; explicitly whitening via damped $\widehat{\Sigma}_B^{-1}$ in intrinsic state-matching rewards $r_z(y) = B(y)^\top (\widehat{\Sigma}_B + \lambda I)^{-1} z$ reduces value-target variance and improves single-frame goal-reaching accuracy compared to raw dot products $B(y)^\top z$.
+- **H2 (Off-Policy Decoupling Under Non-Stationary $B$)**: In joint training from scratch, storing raw physical motion frames $m_{\mathrm{current}}, m_{\mathrm{next}}$ in FB replay and re-encoding goal latents on the fly with current $B_{\omega}$, while storing executed $(H_{\mathrm{start}}, z_{\mathrm{actual}}, R_{\mathrm{macro}}, H_{\mathrm{final}})$ in a shorter-window task replay with target-planner bootstrap $\min_{i=1,2} Q_{\bar{\phi}_i}(H_{\mathrm{final}}, P_{\bar{\psi}}(H_{\mathrm{final}}))$, bounds value staleness without requiring importance sampling over the low-level trajectory.
+- **H3 (World-Model Horizon vs FB Terminal Bootstrap)**: A hybrid objective combining $H \in \{8, 16\}$ differentiable world-model steps of dense intrinsic/task rewards with an FB terminal value bootstrap $\gamma^H F(s_H, a_H, z)^\top z$ achieves lower policy gradient bias-variance tradeoff than either $H=1$ first-action FB differentiation or $H=32$ pure world-model unrolling without terminal value representation.
+- **H4 (Three-Way Source Schedule & Out-of-Support Exploration)**: Annealing macro-step latent selection from `(0.60 expert, 0.30 near, 0.10 planner)` to `(0.10 expert, 0.20 near, 0.70 planner)` over $S_{\mathrm{ramp}} = 100,000$ control steps enables the task critic $Q$ to experience both structured high-return regions and off-support recovery transitions, unlocking obstacle heights (`0.10..0.70` m) under `100%` planner evaluation where only a single `0.704` m demonstration exists.
+
+---
+
+## 4. Rubric & Verification Gates
+
+Every research brief (`B01`–`B05`) is evaluated under the following pre-agreed rubric before any empirical spike is locked:
+
+| Criterion | Weight | Pass Requirement |
+|---|---:|---|
+| **Mathematical & Causal Rigor** | 25% | Zero circular definitions, exact tensor dimensions, explicit stop-gradient boundaries, and zero future/privileged leakage into deployable modules. |
+| **Contract & Baseline Alignment** | 25% | Full compliance with the frozen baseline specifications (`baseline/01` through `baseline/05`) and zero violation of Hard Constraints (§2). |
+| **Falsifiability & Ablation Design** | 25% | Concrete, compute-matched experimental comparisons that isolate the proposed mechanism against explicit null baselines. |
+| **Failure-Mode & Edge-Case Coverage** | 25% | Explicit handling of degenerate regimes (e.g., singular $\Sigma_B$, `severe_penetration` vs `invalid` physics, short macro truncation $k < K$, RNN prefix burn-in). |
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/brief.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Brief B03: Motion-Only Backward Map Aliasing and Privileged/Perceptive Compensation in Contact-Rich Tasks
+
+**Packet ID**: `B03`
+**Status**: `READY_NOT_STARTED`
+**Baseline References**: `baseline/02-fb-paradigm-beyond-imitation-and-exploration.md`, `baseline/04-joint-fb-ball-striking-v2-architecture.md`, `baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md`
+
+---
+
+## 1. Problem Statement
+
+In both 3D obstacle traversal (`m[229]`) and dynamic ball striking (`m[277]`), the backward representation network $B_\omega(m)$ is intentionally restricted to **single-frame robot-local body kinematics**, excluding obstacle height $h$, raycast terrain scan `scan[S]`, contact forces, and ball state `ball_state[9]`. This design allows a single unindexed motion capture clip to provide universal kinematic prompts across arbitrary obstacle heights (`0.10..0.70` m) or ball placements without scene-specific retargeting.
+
+However, this creates **contact and geometric aliasing in $B$-space**:
+- A posture with the hands or feet at height $z_{\mathrm{local}}$ above the root maps to the exact same $B(m)$ whether the robot is supported by a `0.40` m box, colliding with the front face of a `0.60` m box, or suspended in mid-air.
+- Similarly, a kicking swing through empty air and an impact swing through a soccer ball at the same kinematic state map to the same $B(m)$.
+
+**Core Question**: Under what mathematical and physical conditions is feeding perceptive/contact context exclusively into $F(o_F, a, z)$, $\pi_\theta(o_{\mathrm{low}}, z)$, $P_\psi(H)$, and $Q_\phi(H, \cdot)$ **necessary and sufficient** to resolve $B$-space contact aliasing, and when does motion-only $B(m)$ create an irreducible bottleneck in controllable contact behavior?
+
+---
+
+## 2. Hard Constraints & Non-Goals
+
+- Must not break the ability to encode demonstration NPZ files that lack ground-truth contact forces, terrain scans, or ball trajectories (`prepare_data.py` only has access to kinematic `qpos`/`qvel` and FK).
+- Must not re-introduce the rejected R1.3 8-height static collision admission pipeline or `infer_source_support_intent`.
+
+---
+
+## 3. Deliverables Required from Primary Authors
+
+1. **Observability & Controllability Analysis**: Formalize the two-stage mapping $H_t \xrightarrow{P_\psi} z_t \xrightarrow{\pi_\theta(o_t, \cdot)} a_t$ and prove when a kinematic latent $z_t \in \mathcal{S}^{d_z-1}(\sqrt{d_z})$ combined with perceptive observation $o_t$ in $\pi_\theta(o_t, z_t)$ can represent distinct contact-force regimes (e.g., hand push-off on box vs swing-over) vs when $\pi_\theta(o_t, z_t)$ collapses them to a single action.
+2. **Diagnostic Protocol for Aliasing Bottlenecks**: Define quantitative diagnostics measuring whether failures on intermediate/high obstacles (`0.30..0.70` m) or ball impacts stem from (a) planner $P_\psi$ selecting poor $z$, (b) $F(o, a, z)$ failing to use `scan[S]` / `ball_state[9]`, or (c) $B(m)$ lacking contact/load velocity-response features (analogous to causal acceleration $\widehat{\ddot{q}}$ in the single-actuator unit representation).
+3. **Minimal Empirical Spike Protocol**: Design a controlled test on obstacle contact / hand-support transitions and ball-impact transitions that isolates $F/\pi$ perceptive conditioning from $B(m)$ input features.
+
+---
+
+## 4. Adjudication Rubric
+
+| Dimension | Weight | Scoring Standard |
+|---|---:|---|
+| Compatibility with Kinematic-Only Demo NPZ | 30% | Preserves zero-force NPZ compatibility without static scene filtering. |
+| Rigor of Aliasing Analysis | 25% | Distinguishes planner expressivity from low-level actor/forward observability. |
+| Diagnostic Precision | 25% | Provides actionable metrics separating $B$-aliasing from $Q/P$ exploration failure. |
+| Spike Falsifiability | 20% | Defines a minimal, reproducible test with clear pass/fail criteria. |
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/synthesis/B01-synthesis.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Synthesis B01 — FB Density Factorization, Gram Matrix Conditioning, and Intrinsic Reward Identifiability
+
+- **Packet ID**: `B01`
+- **Decision ID**: `D-B01-001`
+- **Lead Track**: Proposal B (`codex` `gpt-6-astra`, `85.5/100`) merged with Proposal A (`claude` Opus, `74.5/100`) and Cross-Family Reviews/Adjudications (`agy` `gemini-4-argon-high` + `claude` `sonnet`).
+- **Empirical Verification**: `packets/B01/spikes/B01-SPIKE/VERDICT.json` (`PASS`).
+
+---
+
+## 1. Unified Mathematical Theory of FB Coordinate Systems
+
+Let $(\mathcal{X}, ho)$ be the valid replay outcome distribution (including committed `severe_penetration` failure transitions and excluding `invalid` numerical corruption rows), and let $B: \mathcal{X} 	o \mathcal{S}^{d_z-1}(\sqrt{d_z})$ be the single-frame root-relative backward representation ($D \in \{229, 277\}$) satisfying $\|B(x)\|_2^2 = d_z$. Its Gram covariance is
+$$\Sigma_B = \mathbb{E}_{y \sim ho}[B(y)B(y)^	op], \qquad \operatorname{tr}(\Sigma_B) = \mathbb{E}_ho[\|B(y)\|_2^2] = d_z.$$
+Let $\Psi(s,a,z) = \mathbb{E}^{\pi_z}\left[\sum_{t=0}^\infty \gamma^t B(s_{t+1}) \,\middle|\, s_0=s, a_0=aight]$ denote the discounted feature occupancy vector. Under rank-$d_z$ successor-measure density factorization $m^{\pi_z}(s,a,y) pprox F(s,a,z)^	op B(y)$, the population least-squares minimizer satisfies
+$$\Psi(s,a,z) = \Sigma_B F(s,a,z) + h(s,a,z),$$
+where $h(s,a,z) = \Psi(s,a,z) - \Sigma_B F(s,a,z)$ is the representation-factorization residual ($h \equiv 0$ at an exact rank-$d_z$ fixed point).
+
+### 1.1 Three Distinct Readouts and Their Exact Dependence on $\Sigma_B$
+
+| Readout Type | Formula | Exact Value under $\Psi = \Sigma_B F + h$ | Requires Explicit $\Sigma_B^{-1}$? |
+|---|---|---|---|
+| **1. Zero-shot linear task reward** $r(y) = B(y)^	op \lambda$ | $z_r = \mathbb{E}_ho[B(y)r(y)] = \Sigma_B \lambda$, value $F(s,a,z)^	op z_r$ | $\Psi(s,a,z)^	op \lambda - h(s,a,z)^	op \lambda$ | **No** ($\Sigma_B^{-1}$ inside $F$ and $\Sigma_B$ inside $z_r$ cancel identically) |
+| **2. In-support single-frame goal density** $r_g(y) = rac{\mathbf{1}_{y=g}}{ho(g)}$ | $z_g = \mathbb{E}_ho[B(y)r_g(y)] = B(g)$, value $F(s,a,z)^	op B(g)$ | $\Psi(s,a,z)^	op \Sigma_B^{-1} B(g) - h^	op \Sigma_B^{-1} B(g)$ | **No** ($z_g = B(g)$ is already the exact dual density prompt) |
+| **3. Explicit per-step intrinsic reward** $r_z(y) = B(y)^	op v_z$ in $H$-step rollouts | $\mathbb{E}^{\pi_z}\left[\sum_{t=0}^\infty \gamma^t B(s_{t+1})^	op v_zight]$ | $F(s,a,z)^	op (\Sigma_B v_z) + h^	op v_z$ | **Yes, mandatory**: $v_z = \Sigma_B^{-1} z$ is required so $\Sigma_B v_z = z$ matches the terminal bootstrap $F^	op z$ |
+
+### 1.2 Exact Error Bounds When $\Sigma_B 
+eq I_{d_z}$
+
+1. **Per-step intrinsic reward discrepancy**: Comparing raw inner-product reward $	ilde{r}_z(y) = B(y)^	op z$ against the FB-consistent intrinsic reward $r_z^*(y) = B(y)^	op \Sigma_B^{-1} z$:
+   - For uniform spherical commands $\mathbb{E}[zz^	op] = I_{d_z}$, the normalized MSE and population cosine are governed by the **harmonic-mean eigenvalue** $\lambda_H = d_z / \operatorname{tr}(\Sigma_B^{-1})$:
+     $$\mathrm{NMSE}_{\mathrm{unif}} = rac{\mathbb{E}_{z, y\simho}[(	ilde{r}_z(y) - r_z^*(y))^2]}{\mathbb{E}_{z, y\simho}[r_z^*(y)^2]} = 1 - \lambda_H = 1 - rac{d_z}{\sum_{i=1}^{d_z} \lambda_i^{-1}}, \qquad \cos_{\mathrm{pop}} = \sqrt{\lambda_H}.$$
+   - For a specific command $z$, the Kantorovich inequality yields the tight lower bound:
+     $$\cos_ho(	ilde{r}_z, r_z^*) = rac{\|z\|_2^2}{\sqrt{(z^	op \Sigma_B z)(z^	op \Sigma_B^{-1} z)}} \ge rac{2\sqrt{\kappa(\Sigma_B)}}{1 + \kappa(\Sigma_B)}.$$
+2. **Why $\mathcal{L}_{\mathrm{orth}}$ leaves severe inverse anisotropy (Mechanism of Charter H1)**:
+   - Under spherical normalization $\|B(x)\|_2 = \sqrt{d_z}$, the expected orthogonality penalty $\mathcal{L}_{\mathrm{orth}} = rac{1}{2}\mathbb{E}_{x,x'}[(B(x)^	op B(x') - d_z \delta_{xx'})^2]$ is proportional to $\|\Sigma_B - I_{d_z}\|_F^2 = \sum_{i=1}^{d_z} (\lambda_i - 1)^2$.
+   - A nearly collapsed eigendirection $\lambda_{d_z} = \delta \ll 1$ contributes at most $(1-\delta)^2 < 1$ to $\|\Sigma_B - I_{d_z}\|_F^2$, whereas its contribution to the intrinsic reward error $\sum_i (\lambda_i - 1)^2/\lambda_i$ scales as $(1-\delta)^2/\delta 	o \infty$.
+3. **Exact $H$-step hybrid Bellman splice bias**:
+   - Splicing an $H$-step world-model head with linear reward matrix $M$ onto a terminal FB bootstrap $\gamma^H ar{F}(\hat{s}_H, \pi_	heta(\hat{s}_H, z), z)^	op z$ produces the exact Bellman splice discrepancy:
+     $$b_H(s,a,z) = \Psi_H(s,a,z)^	op (M - \Sigma_{ar{B}}^{-1}) z - \gamma^H h(\hat{s}_H, a_H, z)^	op \Sigma_{ar{B}}^{-1} z,$$
+     where $\Psi_H(s,a,z) = \mathbb{E}\left[\sum_{t=0}^{H-1} \gamma^t ar{B}(\hat{m}_{t+1})ight]$. Setting $M = W_t pprox \Sigma_{ar{B}}^{-1}$ eliminates the first term up to damping and tracker lag.
+4. **Nullspace non-identifiability (`C-B01-B-02`)**:
+   - When $\operatorname{rank}(\Sigma_B) = r < d_z$, any $n \in \ker(\Sigma_B)$ satisfies $n^	op B(x) = 0$ $ho$-a.s., so $F$ and $F + tn$ produce identical replay inner products $F^	op B(x)$ while differing by $t(n^	op z)$ on $F^	op z$. Only the support projection $P z = \Sigma_B \Sigma_B^+ z$ is identifiable from replay density training.
+
+---
+
+## 2. Concrete Algorithm Specification & UFO Contract Integration
+
+### 2.1 Causal Target-Coordinate Gram Tracker & Dual-Bound Damping
+- Track the Gram matrix of the **target** backward network $ar{B}$ in FP64 under `torch.no_grad()` and `eval()` mode (after the two-pass online BN statistics update and freeze), once per update on valid committed `m_next` batches ($N=1024$):
+  $$G_t = rac{1}{N}\sum_{i=1}^N ar{B}_t(m_{\mathrm{next}, i})ar{B}_t(m_{\mathrm{next}, i})^	op, \qquad \widehat{\Sigma}_t = \operatorname{sym}\!\left((1-eta_\Sigma)\widehat{\Sigma}_{t-1} + eta_\Sigma G_tight), \quad \widehat{\Sigma}_0 = I_{d_z}, \quad eta_\Sigma = 0.01.$$
+- Compute extreme eigenvalues $s_{\min} = \max(\lambda_{\min}(\widehat{\Sigma}_t), 0)$ and $s_{\max} = \lambda_{\max}(\widehat{\Sigma}_t)$, and apply the **dual-bound Tikhonov damping rule**:
+  $$\ell_t = \max\!\left(10^{-3},\ 0.05 - s_{\min},\ rac{s_{\max} - 100 s_{\min}}{99}ight), \qquad W_t = (\widehat{\Sigma}_t + \ell_t I_{d_z})^{-1}.$$
+  This guarantees $\|W_t\|_2 \le 20$ and $\kappa(\widehat{\Sigma}_t + \ell_t I_{d_z}) \le 100$ for every PSD matrix $\widehat{\Sigma}_t$.
+- Factorize $\widehat{\Sigma}_t + \ell_t I_{d_z} = L_t L_t^	op$ via FP64 Cholesky and solve $v_z = \operatorname{cholesky\_solve}(z, L_t)$ in $O(d_z^2)$ per command without materializing an unstable inverse.
+
+### 2.2 Four-Site Whitening & Stop-Gradient Contract
+1. **Site (i) `z_update` relabeling**: **No whitening**. Keep 50% $\operatorname{proj}_{\sqrt{d_z}}(\mathcal{N}(0,I))$ + 50% $\operatorname{proj}_{\sqrt{d_z}}(B_\omega(m_{\mathrm{next}}[\mathrm{perm}]))$ under frozen BN.
+2. **Site (ii) `expert`/`near` rollout encoding**: **No whitening**. Keep raw $\operatorname{proj}_{\sqrt{d_z}}(B_\omega(m_{\mathrm{demo}}))$ and 10–20° tangent rotation for `near`. Never overwrite `behavior_z`.
+3. **Site (iii) 1-step low-level actor**: **No whitening**. Maximize $\min_{k \in \{1,2\}} (F_k(o, \pi_	heta(o,z), z)^	op z)$ with scalar inner product computed **before** $\min$.
+4. **Site (iv) $H$-step world-model hybrid rollout**: Apply $r_z(\hat{y}_h) = ar{B}(\hat{m}_{h+1})^	op W_t z$ with `stop_grad` on $W_t$, $z$, and $ar{B}$ weights while preserving pathwise gradients $\partial ar{B}(\hat{m}_{h+1}) / \partial \hat{m}_{h+1}$ into the world model and policy $\pi_	heta$.
+5. **Per-Command / Per-State Leverage Routing & Gate Hysteresis**:
+   - Monitor state leverage $\ell(\hat{y}_h) = ar{B}(\hat{y}_h)^	op W_t ar{B}(\hat{y}_h)/d_z$ and command gain $g(z) = z^	op W_t z / d_z$.
+   - If any rollout state exceeds $2	imes$ the 99.9th percentile of replay leverage or if the whitened split-half gate $\|W_t^{1/2}(\Sigma_{(1)} - \Sigma_{(2)})W_t^{1/2}\|_2 \le 0.15$ is closed (with 200-update dwell-time hysteresis), route the actor update for that command cleanly to the 1-step standard FB actor objective rather than zero-tail truncation.
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/baseline/04-joint-fb-ball-striking-v2-architecture.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Baseline 04: Joint FB + Task-Q + Planner Architecture for 29-DoF Humanoid Dynamic Ball Striking (v2 Specification)
+
+## 1. Scope and Design Philosophy
+
+This baseline specifies the **v2 Joint Training Architecture** for 29-DoF humanoid dynamic ball striking from random initialization. The system uses unindexed single-frame human/robot kicking motion capture data strictly to construct latent exploration anchors $z_{\mathrm{exp}} = \operatorname{proj}(B_\omega(m_{\mathrm{demo}}))$ and local tangent perturbations $z_{\mathrm{near}}$, while jointly training six modules from scratch:
+- Backward motion encoder $B_\omega(m)$
+- Forward successor ensemble $F_{\eta_1, \eta_2}(o_F, a, z)$
+- Low-level conditioned actor $\pi_\theta(o_{\mathrm{low}}, z)$
+- Recurrent high-level latent planner $P_\psi(H_{\mathrm{plan}})$
+- Twin action-conditioned task critics $Q_{\phi_1, \phi_2}(H_Q, a)$
+
+No pre-trained checkpoints, Stage-1 freeze phases, behavioral cloning losses, or per-frame tracking rewards are used.
+
+---
+
+## 2. Information Partitioning and Exact Tensor Schemas
+
+### 2.1 Explicit `kick_leg` Task Conditioning
+Because demonstration clips contain both left-foot and right-foot kicks while the pure task reward must specify which foot is required to strike the ball before contact occurs, each episode samples a fixed binary one-hot command:
+$$
+\text{kick\_leg} \in \{[1, 0], [0, 1]\} \in \mathbb{R}^2 \quad (\text{left foot vs right foot}),
+$$
+which remains constant throughout the episode and is provided to the task reward, low-level actor, planner, and task critic (as well as $o_F$), but **never** to the backward motion encoder $B_\omega$.
+
+### 2.2 Module-by-Module Input Partition Table
+
+| Input / State Tensor | Dim | Exact Coordinate and Physical Definition | Allowed Consumers | Explicitly Excluded From |
+|---|---:|---|---|---|
+| **Single-Frame Motion $m_t$** | `277` | `joint_pos_rel[29]` + `joint_vel_rel[29]` + `body_pos_local_yaw[14x3=42]` + `body_quat_local_yaw[14x4=56]` + `body_lin_vel_local_yaw[14x3=42]` + `body_ang_vel_local_yaw[14x3=42]` + `root_lin_vel_b[3]` + `root_ang_vel_b[3]` + `projected_gravity_b[3]` + `base_height[1]` + `feet_pos_b[2x3=6]` + `feet_lin_vel_b[2x3=6]` + `torso_pos_b[3]` + `torso_quat_b[4]` + `torso_lin_vel_b[3]` + `torso_ang_vel_b[3]` + `pelvis_ang_vel_b[3]` | $B_\omega(m)$ only | Task reward, ball state, `kick_leg`, `last_action` |
+| **Low-Level Policy Obs $o_t^{\mathrm{low}}$** | `93` | `base_lin_vel[3]` + `base_ang_vel[3]` + `projected_gravity[3]` + `joint_pos[29]` + `joint_vel[29]` + `actions[29]` (previous step $a_{t-1}$) + `ball_state[9]` (`ball_pos_b[3]`, `ball_vel_b[3]`, `target_pos_b[3]`) + `kick_leg[2]` | $\pi_\theta(o_{\mathrm{low}}, z)$ | Demonstration frame index, privileged contact forces |
+| **Planner Obs $o_t^{\mathrm{plan}}$** | `93` | Identical to $o_t^{\mathrm{low}}$; fed sequentially into recurrent state $H_t^{\mathrm{plan}}$ | $P_\psi(H_t^{\mathrm{plan}})$ | Privileged critic state, reference motion frames |
+| **Forward Network Obs $o_t^F$** | `297` | `m_t[277]` + `ball_state[9]` + `kick_leg[2]` + `feet_contact_binary[2]` + `ball_contact_force_b[3]` + `root_height_error[1]` + `ball_to_target_dist[1]` + `kick_foot_to_ball_dist[1]` + `support_foot_slip_norm[1]` | $F_{\eta_1, \eta_2}(o_t^F, a_t, z)$ | Future demonstration frames |
+| **Task Critic Obs $o_t^Q$** | `135` | $o_t^{\mathrm{low}}[93]$ + privileged body/contact features (`feet_pos_b[6]`, `feet_vel_b[6]`, `contact_forces_feet[6]`, `ball_ang_vel_b[3]`, `kick_window_timer[1]`, `has_kicked[1]`, `min_foot_ball_dist_in_ep[1]`, `ball_speed_toward_goal[1]`, `torso_upright_cos[1]`, `joint_torques_scaled[16]`) | $Q_{\phi_1, \phi_2}(H_t^Q, a_t)$ | Demonstration reference poses |
+
+---
+
+## 3. Exact Task Reward and Termination Specification
+
+### 3.1 Pure Task Reward (4 Terms, Zero Imitation Tracking Terms)
+Let $p_{\mathrm{foot}} \in \mathbb{R}^3$ be the world position of the designated `kick_leg` ankle/foot link, $p_{\mathrm{ball}} \in \mathbb{R}^3$ and $v_{\mathrm{ball}} \in \mathbb{R}^3$ be the ball position and linear velocity, and $p_{\mathrm{goal}} \in \mathbb{R}^3$ be the target goal position. Define unit direction vectors:
+$$
+\hat{d}_{\mathrm{fb}} = \frac{p_{\mathrm{ball}} - p_{\mathrm{foot}}}{\|p_{\mathrm{ball}} - p_{\mathrm{foot}}\|_2 + 10^{-6}}, \qquad \hat{d}_{\mathrm{bg}} = \frac{p_{\mathrm{goal}} - p_{\mathrm{ball}}}{\|p_{\mathrm{goal}} - p_{\mathrm{ball}}\|_2 + 10^{-6}}.
+$$
+A valid foot-ball contact impulse occurs on step $t$ when $\|p_{\mathrm{ball},t} - p_{\mathrm{foot},t}\|_2 < r_{\mathrm{contact}}$ and $\|v_{\mathrm{ball},t} - v_{\mathrm{ball},t-1}\|_2 > \Delta v_{\mathrm{min}}$, setting `has_kicked = True` and starting a 5-step post-impact evaluation window (`window_steps = 5`, $\tau_{\mathrm{win}} \in \{1, 2, 3, 4, 5\}$).
+
+The step task reward $r_t^{\mathrm{task}}$ is the weighted sum of four terms:
+1. **`ApproachBallReward` (weight $= 50.0$, active only while `not has_kicked`)**:
+   $$
+   r_{\mathrm{app},t} = \max\!\bigl(0,\, \langle v_{\mathrm{foot},t},\, \hat{d}_{\mathrm{fb},t} \rangle\bigr) \cdot \exp\!\bigl(-2.0\,\|p_{\mathrm{ball},t} - p_{\mathrm{foot},t}\|_2\bigr).
+   $$
+2. **`KickBallVelReward` (weight $= 50.0$, active during the 5-step post-kick window $\tau_{\mathrm{win}} \in [1, 5]$)**:
+   $$
+   r_{\mathrm{vel},t} = \max\!\bigl(0,\, \langle v_{\mathrm{ball},t},\, \hat{d}_{\mathrm{bg},t} \rangle\bigr).
+   $$
+3. **`BallTargetDistanceReward` (weight $= 30.0$, active after `has_kicked`)**:
+   $$
+   r_{\mathrm{dist},t} = \exp\!\bigl(-0.5\,\|p_{\mathrm{goal},t} - p_{\mathrm{ball},t}\|_2\bigr) - \exp\!\bigl(-0.5\,\|p_{\mathrm{goal},t-1} - p_{\mathrm{ball},t-1}\|_2\bigr).
+   $$
+4. **`PostKickRecoveryReward` (weight $= 10.0$, active for $t > t_{\mathrm{kick}} + 5$)**:
+   $$
+   r_{\mathrm{rec},t} = \exp\!\bigl(-4.0\,\|g_{\mathrm{proj},t} - g_{\mathrm{upright}}\|_2^2 - 0.5\,\|v_{\mathrm{root},t}\|_2^2\bigr).
+   $$
+
+### 3.2 Resolution of the Cross-Segment Window Leak (Audit Fix #1)
+In v1, `has_kicked` and the 5-step post-kick timer were stored in un-reset environment attributes or leaked across episode resets when an episode terminated inside the 5-step window. In v2:
+- `has_kicked[env_id]` and `kick_window_remaining[env_id]` are explicitly zeroed inside `reset_idx(env_ids)` before computing initial observations.
+- All replay transitions record `pre_reset` terminal flags (`terminated_t`, `truncated_t`) prior to auto-reset.
+
+---
+
+## 4. Network Architectures and Mathematical Loss Functions
+
+### 4.1 Backward Map $B_\omega$ and Forward Ensemble $F_{\eta_1, \eta_2}$
+- **Backward Map $B_\omega(m)$**: Input $m \in \mathbb{R}^{277}$ (running mean/std normalized) $\to$ MLP `[512, 512, 256]` with LayerNorm + SiLU $\to$ L2 spherical projection onto radius $\sqrt{d_z}$ ($d_z = 100$, radius $10.0$):
+  $$
+  B_\omega(m) = \sqrt{d_z}\,\frac{\tilde{B}_\omega(m)}{\|\tilde{B}_\omega(m)\|_2 + 10^{-8}}.
+  $$
+- **Forward Ensemble $F_{\eta_k}(o_F, a, z)$ ($k \in \{1, 2\}$)**: State-action branch $(o_F, a) \in \mathbb{R}^{297+29} \to [1024, 512]$ concatenated with state-latent branch $(o_F, z) \in \mathbb{R}^{297+100} \to [1024, 512]$ $\to$ trunk `[1024, 1024, 100]` outputting $F_{\eta_k}(o_F, a, z) \in \mathbb{R}^{100}$.
+- **Exact Ensemble Scalar Inner-Product Before Aggregation (Audit Fix #3)**:
+  For a batch of $N$ transitions $(o_{F,i}, a_i, o_{F,i}', m_{i}')$ and relabeled latents $z_i$, define the $N \times N$ successor logit matrix for each head $k \in \{1, 2\}$ **before** taking any ensemble minimum or pessimistic combination:
+  $$
+  M_{ij}^{(k)} = F_{\eta_k}(o_{F,i}, a_i, z_i)^\top B_\omega(m_j'), \qquad \bar{M}_{ij}^{(k)} = F_{\bar{\eta}_k}(o_{F,i}', a_i', z_i)^\top B_{\bar{\omega}}(m_j'),
+  $$
+  where $a_i' = \pi_\theta(o_{\mathrm{low},i}', z_i)$. The target scalar matrix is aggregated over scalar inner products (never coordinate-wise $\min(F_1, F_2)$ before the dot product, because coordinates of $B$ can be negative):
+  $$
+  \bar{M}_{ij} = \frac{1}{2}\bigl(\bar{M}_{ij}^{(1)} + \bar{M}_{ij}^{(2)}\bigr), \qquad \delta_{ij}^{(k)} = M_{ij}^{(k)} - \gamma_{\mathrm{FB}}(1 - d_i)\operatorname{stopgrad}(\bar{M}_{ij}).
+  $$
+  The total FB loss is:
+  $$
+  \mathcal{L}_{\mathrm{FB}}(\eta_1, \eta_2, \omega) = \sum_{k=1}^2 \left[\frac{1}{2N(N-1)}\sum_{i \neq j} \bigl(\delta_{ij}^{(k)}\bigr)^2 - \frac{1}{N}\sum_{i=1}^N M_{ii}^{(k)}\right] + \lambda_{\mathrm{orth}} \mathcal{L}_{\mathrm{orth}}(B_\omega).
+  $$
+
+### 4.2 High-Level Recurrent Planner $P_\psi$ and Action-Conditioned Twin Critic $Q_{\phi_1, \phi_2}$
+- **Single-Step Planner Hold ($K_{\mathrm{hold}} = 1$, Audit Fix #4)**:
+  Because the ball-striking task critic $Q_{\phi_1, \phi_2}(H_t^Q, a_t)$ is conditioned on the **physical 29-DoF action $a_t$** rather than a multi-step macro $z$, setting $K_{\mathrm{hold}} > 1$ caused credit-assignment misalignment between step-level $Q(H_t^Q, a_t)$ and held $z$. In v2, $K_{\mathrm{hold}} = 1$: the recurrent planner updates $H_t^{\mathrm{plan}}$ and outputs $z_t^{\mathrm{plan}} \in \mathcal{S}^{d_z-1}(\sqrt{d_z})$ at every control step ($50\text{ Hz}$).
+  - Architecture of $P_\psi$: `2-layer LSTM (hidden_size=128)` over $o_t^{\mathrm{plan}}[93]$ $\to$ MLP `[128, 64, 32]` with ELU $\to$ linear readout to $\mathbb{R}^{100}$ $\to$ spherical projection $\sqrt{100}\,\hat{z}$.
+  - Architecture of $Q_{\phi_1, \phi_2}$: `2-layer LSTM (hidden_size=128)` over $o_t^Q[135]$, concatenated with $a_t[29]$ $\to$ MLP `[256, 256, 1]`.
+
+- **Task Critic Bellman Target with Task-Only Actor EMA $\bar{\theta}$**:
+  To prevent rapid FB representation updates on $\pi_\theta$ from destabilizing the one-step target action in $Q_{\phi}$, v2 maintains a dedicated target actor $\pi_{\bar{\theta}}$ alongside target planner $P_{\bar{\psi}}$ and target critics $Q_{\bar{\phi}_1, \bar{\phi}_2}$:
+  $$
+  z_{t+1}^{\mathrm{targ}} = P_{\bar{\psi}}(H_{t+1}^{\mathrm{plan}}), \qquad a_{t+1}^{\mathrm{targ}} = \operatorname{clip}\bigl(\pi_{\bar{\theta}}(o_{t+1}^{\mathrm{low}}, z_{t+1}^{\mathrm{targ}}) + \operatorname{clip}(\epsilon, -c, c), -1, 1\bigr),
+  $$
+  $$
+  y_t^Q = r_t^{\mathrm{task}} + \gamma_{\mathrm{task}}(1 - \text{terminated}_t)\min_{k=1,2} Q_{\bar{\phi}_k}\bigl(H_{t+1}^Q, a_{t+1}^{\mathrm{targ}}\bigr).
+  $$
+
+- **Low-Level Actor $\pi_\theta$ and Planner $P_\psi$ Objectives**:
+  - Low-level actor $\pi_\theta(o_{\mathrm{low}}, z_{\mathrm{update}})$ maximizes the conservative FB scalar inner product:
+    $$
+    \mathcal{L}_\pi(\theta) = -\mathbb{E}_{o_F, o_{\mathrm{low}}, z_{\mathrm{update}}}\left[\min_{k=1,2} \Bigl(F_{\eta_k}\bigl(o_F, \pi_\theta(o_{\mathrm{low}}, z_{\mathrm{update}}), z_{\mathrm{update}}\bigr)^\top z_{\mathrm{update}}\Bigr)\right].
+    $$
+  - High-level planner $P_\psi$ maximizes $Q_{\phi_1}$ through the frozen low-level actor $\pi_\theta$:
+    $$
+    \mathcal{L}_{\mathrm{plan}}(\psi) = -\mathbb{E}_{H^{\mathrm{plan}}, H^Q, o_{\mathrm{low}}}\Bigl[Q_{\phi_1}\bigl(H^Q, \pi_\theta(o_{\mathrm{low}}, P_\psi(H^{\mathrm{plan}}))\bigr)\Bigr].
+    $$
+
+### 4.3 Full-Prefix Zero-Hidden RNN Burn-In (Audit Fix #5)
+Storing stale LSTM hidden states in the replay buffer introduces severe off-policy representation drift as $P_\psi$ and $Q_{\phi_1, \phi_2}$ evolve. In v2:
+- `TaskEpisodeReplay` stores complete variable-length episode trajectories from $t=0$ with zero initial hidden states $(h_0=0, c_0=0)$.
+- For sampled slice $[t_0, t_0 + L_{\mathrm{train}})$, the prefix $[0, t_0)$ is unrolled from $(h_0=0, c_0=0)$ under `torch.no_grad()` using the **current** online/target network weights to produce exact hidden states at $t_0$, and backpropagation through time (BPTT) runs over $[t_0, t_0 + L_{\mathrm{train}})$.
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/baseline/02-fb-paradigm-beyond-imitation-and-exploration.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Baseline 02: How the Joint FB + Task-Q + Planner Paradigm Surpasses Imitation Data and Drives Exploration
+
+## 1. Core Mechanism: Demonstrations as Exploration Anchors Rather Than Optimal Policies
+
+In the joint **FB + Low-Level Actor + Task Critic $Q$ + High-Level Planner** architecture trained from random initialization, demonstration trajectories serve exclusively to initialize and guide exploration in the latent space $z = B(m)$, rather than acting as supervisory action labels or per-frame tracking targets.
+
+The system breaks through the state-action support of the demonstration library via five coupled mechanisms:
+1. **No Supervised Action Regression**: The low-level actor $\pi_\theta(o, z)$ is trained by maximizing the successor inner product $F(o, \pi_\theta(o, z), z)^\top z$, not by minimizing $\|a - a_{\mathrm{demo}}\|^2$. Even when conditioned on an expert-encoded latent $z_{\mathrm{exp}} = B(m_{\mathrm{demo}})$, the actor optimizes discounted future reachability of $B$-features under real physics rather than copying single-step joint commands.
+2. **Continuous Latent Perturbation (`near-z` and Random Sphere)**: Rollouts inject local tangent-space perturbations $z_{\mathrm{near}}$ ($10^\circ$–$20^\circ$ around $z_{\mathrm{exp}}$) and planner-proposed $z_{\mathrm{plan}}$, while off-policy FB updates train on a 50/50 mixture of permuted replay goal latents and uniform spherical latents $\mathcal{S}^{d_z-1}(\sqrt{d_z})$. This populates a continuous behavioral manifold around and beyond the demonstration frames.
+3. **Unindexed Single-Frame Backward Encoding**: Because $B(m)$ encodes a single frame without demonstration timestamps or phase locks, the high-level planner $P_\psi$ can re-order, hold, skip, or stitch latent skills in response to real-time observations.
+4. **Independent Task Critic $Q$**: The task critic $Q_\phi$ trains via temporal-difference learning on **actual task rewards and real environment transitions** (whether generated by `expert`, `near`, or `planner` latents). Whenever an off-support perturbation or recovery maneuver achieves higher task return than the nominal demonstration, $Q_\phi$ assigns it higher value and shifts the planner $P_\psi$ toward that superior behavior.
+
+---
+
+## 2. Paradigm Comparison Across Four Learning Frameworks
+
+| Dimension | Behavioral Cloning (BC) | Reference Tracking RL (DeepMimic-Style) | Imitation Prior + Task RL (AMP / Pretrained Skill Space) | Joint FB + Task-Q + Planner (This Paradigm) |
+|---|---|---|---|---|
+| **Role of Demonstrations** | Direct supervised target $s \mapsto a_{\mathrm{demo}}$ | Per-frame pose tracking reward $r_{\mathrm{track}}(s_t, m_t^{\*}) + r_{\mathrm{task}}$ | Discriminator style reward or frozen pretrained low-level skill space | Unindexed single-frame latent prompts $z = B(m_{\mathrm{demo}})$ for rollout seeding only |
+| **Low-Level Actor Objective** | $\min_\theta \|a - a_{\mathrm{demo}}\|^2$ | $\max_\theta J(r_{\mathrm{track}} + r_{\mathrm{task}})$ | Pretrained or style-regularized policy gradient | $\max_\theta F(o, \pi_\theta(o,z), z)^\top z$ (plus optional task-$Q$ gradient in $K_{\mathrm{hold}}=1$) |
+| **Temporal / Phase Freedom** | Locked to demonstration state distribution | Locked to reference phase clock $\phi \in [0,1]$ or frame index $t$ | Free timing, but constrained by discriminator distribution or frozen skill manifold | Fully phase-free: $B(m)$ is single-frame; planner $P_\psi$ selects $z$ every $K$ control steps |
+| **Behavior Outside Demo Support** | Compounding covariate shift error | Penalized by $r_{\mathrm{track}}$ whenever task requires deviating from reference | Limited by frozen skill repertoire or adversarial mode collapse | Explicitly explored via `near` / `planner` rollouts and $50\%$ spherical FB updates; evaluated by task $Q$ |
+| **Primary Failure Modes** | Out-of-distribution collapse | Tradeoff conflict between tracking fidelity and task adaptation | Pretraining-to-task distribution mismatch; discriminator gaming | Multi-network non-stationarity from scratch; motion-only $B$ aliasing in contact tasks |
+
+---
+
+## 3. Three Levels of Behavioral Freedom Beyond Demonstrations
+
+### 3.1 Action-Level Freedom (New Physical Execution for the Same Latent Target)
+- $B(m)$ maps a 229-dim or 277-dim kinematic frame to a 256-dim vector $z$ on the sphere of radius $\sqrt{d_z} = 16$. This is a many-to-one kinematic projection that discards environment geometry and actuator commands.
+- The FB objective $F(o, a, z)^\top B(m')$ evaluates **discounted multi-step state visitation** under real physics ($\gamma_{\mathrm{FB}}$), not single-step pose matching.
+- When obstacle height, ball position, friction, or base perturbation differs from the recording environment, the low-level actor $\pi_\theta(o_{\mathrm{low}}, z)$ reads current proprioception and terrain/ball observations in $o_{\mathrm{low}}$ and synthesizes new joint torque/position targets that still drive the robot toward the future kinematic outcome represented by $z$.
+
+### 3.2 Temporal and Sequential Freedom (Re-Ordering and Variable-Duration Execution)
+- Because $m_t$ contains no frame counter or global world position $(x, y, \psi)$, any demonstration frame is a standalone directional prompt on $\mathcal{S}^{d_z-1}(\sqrt{d_z})$.
+- During rollout, `CandidateProvider` samples valid demonstration frames uniformly (or by motion weights) without stage or geometry filtering, while in evaluation (`100%` planner), $P_\psi$ generates $z_t$ purely from real observation history.
+- Consequently, the planner can extend preparation steps, insert an extra balance-recovery macro-step before takeoff, or transition immediately into landing stabilization—compositions that never occurred as a contiguous trajectory in the dataset.
+
+### 3.3 Representation-Space Interpolation and Extrapolation
+- **Rollout `near-z` exploration**: Tangent-space perturbations around $z_{\mathrm{exp}} = \operatorname{proj}(B(m_{\mathrm{demo}}))$ with angular offset $\theta \in [10^\circ, 20^\circ]$:
+  $$
+  u_{\perp} = \xi - \frac{\langle \xi, z_{\mathrm{exp}} \rangle}{\|z_{\mathrm{exp}}\|_2^2} z_{\mathrm{exp}}, \qquad z_{\mathrm{near}} = \sqrt{d_z}\bigl(\cos\theta \cdot \hat{z}_{\mathrm{exp}} + \sin\theta \cdot \hat{u}_{\perp}\bigr).
+  $$
+- **FB update `z_update` relabeling**: For every batch of $n$ transitions from `FBReplay`, $z_{\mathrm{update}}$ is constructed via:
+  $$
+  z_{\mathrm{random}} = \operatorname{proj}(\mathcal{N}(0, I_{d_z})), \quad z_{\mathrm{goal}} = \operatorname{proj}\bigl(B_{\omega}(\tilde{m}_{\mathrm{next}}[\operatorname{perm}])\bigr), \quad z_{\mathrm{update}} = \operatorname{where}(u < 0.5, z_{\mathrm{goal}}, z_{\mathrm{random}}).
+  $$
+- Because `FBReplay` stores real physical transitions $(o_t, a_t, o_{t+1}, m_t, m_{t+1})$ collected across all three rollout sources (`expert`, `near`, `planner`), $B_{\omega}(\tilde{m}_{\mathrm{next}})$ increasingly encodes **newly discovered physical postures** (including hand support on obstacles, stumbled recovery, and modified landing stances), expanding the grounded goal manifold beyond the initial NPZ file.
+
+---
+
+## 4. Critical Vulnerability: Motion-Only $B$ Aliasing in Contact-Rich Tasks
+
+In both the obstacle-traversal baseline (`229`-dim $m_t$) and the ball-striking v2 baseline (`277`-dim $m_t$), the backward network $B(m)$ observes **only robot body kinematics**:
+- Root linear velocity $v_H \in \mathbb{R}^3$, root angular velocity $\omega_H \in \mathbb{R}^3$, projected gravity $g \in \mathbb{R}^3$, joint positions $q \in \mathbb{R}^{29}$, joint velocities $\dot{q} \in \mathbb{R}^{29}$, and root-relative link positions and 6D rotations.
+- $B(m)$ does **not** observe contact forces, obstacle height $h$, terrain scan $s_t$, or ball position/velocity.
+
+### 4.1 What Motion-Only $B$ Can and Cannot Distinguish
+- **Cannot distinguish in $B$-space**: Stepping in mid-air vs stepping onto a solid `0.40` m box with identical joint angles and root velocities; swinging a leg through empty space vs striking a ball at the exact same kinematic state. Both map to the same $e = B(m)$.
+- **How the overall architecture compensates**:
+  1. The forward network $F(o, a, z)$ and low-level actor $\pi_\theta(o, z)$ receive full policy observations $o$ (including terrain height scan `scan[S]` or ball state `ball_state[9]`), enabling $F$ to predict how terrain or ball geometry alters future body motion and enabling $\pi_\theta$ to adjust joint commands accordingly.
+  2. The task critic $Q(H, \cdot)$ receives privileged task/geometry features (`critic_geometry` or privileged ball-interaction state) and trains directly on true task rewards (obstacle clearance + stable rear landing, or ball approach + velocity toward goal).
+- **Remaining bottleneck**: If accomplishing the task requires commanding two distinct contact forces under nearly identical kinematic postures, a purely kinematic $z$ space may lack the parameterization to let the planner specify the contact force intention directly. Evaluating when motion-only $B$ suffices vs when contact-aware augmentation is required is a core open research brief (`B03`).
+
+---
+
+## 5. Non-Stationarity and Stability Risks in Joint Training from Scratch
+
+Unlike two-stage pipelines (pretrain FB on a large mocap dataset, then freeze FB and train a high-level policy), joint training from random initialization updates six networks simultaneously:
+
+| Risk | Mechanism of Instability | Architectural Mitigation in Baseline |
+|---|---|---|
+| **Drifting Semantics of $z$** | As $B_\omega$ updates, the same physical frame $m$ maps to a changing $z$, and a fixed $z$ stored in task replay changes its behavioral meaning under $\pi_\theta(o, z)$. | Never cache demonstration $z$ across updates; re-encode raw `[1, 229]` or `[1, 277]` frames online (`eval/no_grad`) at each macro boundary; use a smaller, fresher task replay window (`50k` macros) with delayed planner updates (`delay=2`). |
+| **Behavior $z$ Overwrite Bug** | Replacing `behavior_z` with FB relabeled $z$ corrupts the off-policy action label read by task critic $Q$. | Strict separation: `FBReplay` stores immutable `behavior_z` while sampling temporary `z_update` inside `FBAgent.update`; `TaskReplay` stores immutable `z_actual` executed during the macro-step. |
+| **Batch Normalization Shift** | Updating `obs_normalizer` / `motion_normalizer` twice on `m_next` or allowing expert queries to mutate running statistics biases $B$. | `FBAgent.update` updates BN once on real `(obs, m_current)` and once on `(next_obs, m_next)`, then freezes BN (`eval/no_grad`) for `z_update` sampling and expert encoding. |
+| **Early Actor Collapse** | Before $F$ and $B$ form a coherent successor representation, maximizing $F^\top z$ pushes $\pi_\theta$ along noisy gradients, producing immediate falls or severe contact penetrations. | Orthonormalization loss $\mathcal{L}_{\mathrm{orth}}$ with weight $\lambda_{\mathrm{orth}}=1.0$, target EMA $\tau=0.01$ (`0.005`), pessimistic ensemble aggregation over $F$, and R2.1 separation of `severe_penetration` task failure from numerical `invalid`. |
+
+---
+
+## 6. Required Empirical Evidence to Validate "Beyond Imitation"
+
+A valid scientific claim that this paradigm surpasses imitation data requires four quantitative evaluation tiers (none of which is satisfied by short CPU smoke runs):
+1. **In-Distribution vs Out-of-Distribution Task Success**:
+   - In obstacle traversal: demonstrating only $h_{\mathrm{demo}} \approx 0.704$ m, yet achieving $\ge 70\%$ 95% Wilson lower-bound success under `100%` planner control across unseen heights $h \in [0.10, 0.70]$ m and held-out OOD heights/depths.
+2. **Emergence of Novel Contact Modes**:
+   - Quantitative frequency and success contribution of hand-on-box support, multi-step takeoff adjustments, and stumbled landing recovery that have zero occurrence in the 859-frame source NPZ.
+3. **Planner-vs-Expert Source Dominance Crossover**:
+   - Longitudinal tracking of episode return $R(\text{planner})$ vs $R(\text{expert})$ and $Q_1(H, z_{\mathrm{plan}}) - Q_1(H, z_{\mathrm{exp}})$ showing the point in training where planner-selected latents outperform direct expert encodings.
+4. **Compute-Matched Baseline Ablations**:
+   - Direct comparison against (a) pure task PPO from scratch, (b) DeepMimic-style tracking + task reward PPO, (c) AMP + task reward PPO, and (d) joint FB without `expert`/`near` exploration prompts (`100%` planner from step 0).
+
+exec
+/bin/bash -lc 'for p in /AGENTS.md /srv/AGENTS.md /srv/claude/AGENTS.md /srv/claude/research/AGENTS.md /srv/claude/research/fb-beyond-imitation-acceleration/AGENTS.md; do if test -f "$p"; then cat "$p"; fi; done' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/synthesis/B01-synthesis.md /srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/brief.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Synthesis B01 — FB Density Factorization, Gram Matrix Conditioning, and Intrinsic Reward Identifiability
+
+- **Packet ID**: `B01`
+- **Decision ID**: `D-B01-001`
+- **Lead Track**: Proposal B (`codex` `gpt-6-astra`, `85.5/100`) merged with Proposal A (`claude` Opus, `74.5/100`) and Cross-Family Reviews/Adjudications (`agy` `gemini-4-argon-high` + `claude` `sonnet`).
+- **Empirical Verification**: `packets/B01/spikes/B01-SPIKE/VERDICT.json` (`PASS`).
+
+---
+
+## 1. Unified Mathematical Theory of FB Coordinate Systems
+
+Let $(\mathcal{X}, ho)$ be the valid replay outcome distribution (including committed `severe_penetration` failure transitions and excluding `invalid` numerical corruption rows), and let $B: \mathcal{X} 	o \mathcal{S}^{d_z-1}(\sqrt{d_z})$ be the single-frame root-relative backward representation ($D \in \{229, 277\}$) satisfying $\|B(x)\|_2^2 = d_z$. Its Gram covariance is
+$$\Sigma_B = \mathbb{E}_{y \sim ho}[B(y)B(y)^	op], \qquad \operatorname{tr}(\Sigma_B) = \mathbb{E}_ho[\|B(y)\|_2^2] = d_z.$$
+Let $\Psi(s,a,z) = \mathbb{E}^{\pi_z}\left[\sum_{t=0}^\infty \gamma^t B(s_{t+1}) \,\middle|\, s_0=s, a_0=aight]$ denote the discounted feature occupancy vector. Under rank-$d_z$ successor-measure density factorization $m^{\pi_z}(s,a,y) pprox F(s,a,z)^	op B(y)$, the population least-squares minimizer satisfies
+$$\Psi(s,a,z) = \Sigma_B F(s,a,z) + h(s,a,z),$$
+where $h(s,a,z) = \Psi(s,a,z) - \Sigma_B F(s,a,z)$ is the representation-factorization residual ($h \equiv 0$ at an exact rank-$d_z$ fixed point).
+
+### 1.1 Three Distinct Readouts and Their Exact Dependence on $\Sigma_B$
+
+| Readout Type | Formula | Exact Value under $\Psi = \Sigma_B F + h$ | Requires Explicit $\Sigma_B^{-1}$? |
+|---|---|---|---|
+| **1. Zero-shot linear task reward** $r(y) = B(y)^	op \lambda$ | $z_r = \mathbb{E}_ho[B(y)r(y)] = \Sigma_B \lambda$, value $F(s,a,z)^	op z_r$ | $\Psi(s,a,z)^	op \lambda - h(s,a,z)^	op \lambda$ | **No** ($\Sigma_B^{-1}$ inside $F$ and $\Sigma_B$ inside $z_r$ cancel identically) |
+| **2. In-support single-frame goal density** $r_g(y) = rac{\mathbf{1}_{y=g}}{ho(g)}$ | $z_g = \mathbb{E}_ho[B(y)r_g(y)] = B(g)$, value $F(s,a,z)^	op B(g)$ | $\Psi(s,a,z)^	op \Sigma_B^{-1} B(g) - h^	op \Sigma_B^{-1} B(g)$ | **No** ($z_g = B(g)$ is already the exact dual density prompt) |
+| **3. Explicit per-step intrinsic reward** $r_z(y) = B(y)^	op v_z$ in $H$-step rollouts | $\mathbb{E}^{\pi_z}\left[\sum_{t=0}^\infty \gamma^t B(s_{t+1})^	op v_zight]$ | $F(s,a,z)^	op (\Sigma_B v_z) + h^	op v_z$ | **Yes, mandatory**: $v_z = \Sigma_B^{-1} z$ is required so $\Sigma_B v_z = z$ matches the terminal bootstrap $F^	op z$ |
+
+### 1.2 Exact Error Bounds When $\Sigma_B 
+eq I_{d_z}$
+
+1. **Per-step intrinsic reward discrepancy**: Comparing raw inner-product reward $	ilde{r}_z(y) = B(y)^	op z$ against the FB-consistent intrinsic reward $r_z^*(y) = B(y)^	op \Sigma_B^{-1} z$:
+   - For uniform spherical commands $\mathbb{E}[zz^	op] = I_{d_z}$, the normalized MSE and population cosine are governed by the **harmonic-mean eigenvalue** $\lambda_H = d_z / \operatorname{tr}(\Sigma_B^{-1})$:
+     $$\mathrm{NMSE}_{\mathrm{unif}} = rac{\mathbb{E}_{z, y\simho}[(	ilde{r}_z(y) - r_z^*(y))^2]}{\mathbb{E}_{z, y\simho}[r_z^*(y)^2]} = 1 - \lambda_H = 1 - rac{d_z}{\sum_{i=1}^{d_z} \lambda_i^{-1}}, \qquad \cos_{\mathrm{pop}} = \sqrt{\lambda_H}.$$
+   - For a specific command $z$, the Kantorovich inequality yields the tight lower bound:
+     $$\cos_ho(	ilde{r}_z, r_z^*) = rac{\|z\|_2^2}{\sqrt{(z^	op \Sigma_B z)(z^	op \Sigma_B^{-1} z)}} \ge rac{2\sqrt{\kappa(\Sigma_B)}}{1 + \kappa(\Sigma_B)}.$$
+2. **Why $\mathcal{L}_{\mathrm{orth}}$ leaves severe inverse anisotropy (Mechanism of Charter H1)**:
+   - Under spherical normalization $\|B(x)\|_2 = \sqrt{d_z}$, the expected orthogonality penalty $\mathcal{L}_{\mathrm{orth}} = rac{1}{2}\mathbb{E}_{x,x'}[(B(x)^	op B(x') - d_z \delta_{xx'})^2]$ is proportional to $\|\Sigma_B - I_{d_z}\|_F^2 = \sum_{i=1}^{d_z} (\lambda_i - 1)^2$.
+   - A nearly collapsed eigendirection $\lambda_{d_z} = \delta \ll 1$ contributes at most $(1-\delta)^2 < 1$ to $\|\Sigma_B - I_{d_z}\|_F^2$, whereas its contribution to the intrinsic reward error $\sum_i (\lambda_i - 1)^2/\lambda_i$ scales as $(1-\delta)^2/\delta 	o \infty$.
+3. **Exact $H$-step hybrid Bellman splice bias**:
+   - Splicing an $H$-step world-model head with linear reward matrix $M$ onto a terminal FB bootstrap $\gamma^H ar{F}(\hat{s}_H, \pi_	heta(\hat{s}_H, z), z)^	op z$ produces the exact Bellman splice discrepancy:
+     $$b_H(s,a,z) = \Psi_H(s,a,z)^	op (M - \Sigma_{ar{B}}^{-1}) z - \gamma^H h(\hat{s}_H, a_H, z)^	op \Sigma_{ar{B}}^{-1} z,$$
+     where $\Psi_H(s,a,z) = \mathbb{E}\left[\sum_{t=0}^{H-1} \gamma^t ar{B}(\hat{m}_{t+1})ight]$. Setting $M = W_t pprox \Sigma_{ar{B}}^{-1}$ eliminates the first term up to damping and tracker lag.
+4. **Nullspace non-identifiability (`C-B01-B-02`)**:
+   - When $\operatorname{rank}(\Sigma_B) = r < d_z$, any $n \in \ker(\Sigma_B)$ satisfies $n^	op B(x) = 0$ $ho$-a.s., so $F$ and $F + tn$ produce identical replay inner products $F^	op B(x)$ while differing by $t(n^	op z)$ on $F^	op z$. Only the support projection $P z = \Sigma_B \Sigma_B^+ z$ is identifiable from replay density training.
+
+---
+
+## 2. Concrete Algorithm Specification & UFO Contract Integration
+
+### 2.1 Causal Target-Coordinate Gram Tracker & Dual-Bound Damping
+- Track the Gram matrix of the **target** backward network $ar{B}$ in FP64 under `torch.no_grad()` and `eval()` mode (after the two-pass online BN statistics update and freeze), once per update on valid committed `m_next` batches ($N=1024$):
+  $$G_t = rac{1}{N}\sum_{i=1}^N ar{B}_t(m_{\mathrm{next}, i})ar{B}_t(m_{\mathrm{next}, i})^	op, \qquad \widehat{\Sigma}_t = \operatorname{sym}\!\left((1-eta_\Sigma)\widehat{\Sigma}_{t-1} + eta_\Sigma G_tight), \quad \widehat{\Sigma}_0 = I_{d_z}, \quad eta_\Sigma = 0.01.$$
+- Compute extreme eigenvalues $s_{\min} = \max(\lambda_{\min}(\widehat{\Sigma}_t), 0)$ and $s_{\max} = \lambda_{\max}(\widehat{\Sigma}_t)$, and apply the **dual-bound Tikhonov damping rule**:
+  $$\ell_t = \max\!\left(10^{-3},\ 0.05 - s_{\min},\ rac{s_{\max} - 100 s_{\min}}{99}ight), \qquad W_t = (\widehat{\Sigma}_t + \ell_t I_{d_z})^{-1}.$$
+  This guarantees $\|W_t\|_2 \le 20$ and $\kappa(\widehat{\Sigma}_t + \ell_t I_{d_z}) \le 100$ for every PSD matrix $\widehat{\Sigma}_t$.
+- Factorize $\widehat{\Sigma}_t + \ell_t I_{d_z} = L_t L_t^	op$ via FP64 Cholesky and solve $v_z = \operatorname{cholesky\_solve}(z, L_t)$ in $O(d_z^2)$ per command without materializing an unstable inverse.
+
+### 2.2 Four-Site Whitening & Stop-Gradient Contract
+1. **Site (i) `z_update` relabeling**: **No whitening**. Keep 50% $\operatorname{proj}_{\sqrt{d_z}}(\mathcal{N}(0,I))$ + 50% $\operatorname{proj}_{\sqrt{d_z}}(B_\omega(m_{\mathrm{next}}[\mathrm{perm}]))$ under frozen BN.
+2. **Site (ii) `expert`/`near` rollout encoding**: **No whitening**. Keep raw $\operatorname{proj}_{\sqrt{d_z}}(B_\omega(m_{\mathrm{demo}}))$ and 10–20° tangent rotation for `near`. Never overwrite `behavior_z`.
+3. **Site (iii) 1-step low-level actor**: **No whitening**. Maximize $\min_{k \in \{1,2\}} (F_k(o, \pi_	heta(o,z), z)^	op z)$ with scalar inner product computed **before** $\min$.
+4. **Site (iv) $H$-step world-model hybrid rollout**: Apply $r_z(\hat{y}_h) = ar{B}(\hat{m}_{h+1})^	op W_t z$ with `stop_grad` on $W_t$, $z$, and $ar{B}$ weights while preserving pathwise gradients $\partial ar{B}(\hat{m}_{h+1}) / \partial \hat{m}_{h+1}$ into the world model and policy $\pi_	heta$.
+5. **Per-Command / Per-State Leverage Routing & Gate Hysteresis**:
+   - Monitor state leverage $\ell(\hat{y}_h) = ar{B}(\hat{y}_h)^	op W_t ar{B}(\hat{y}_h)/d_z$ and command gain $g(z) = z^	op W_t z / d_z$.
+   - If any rollout state exceeds $2	imes$ the 99.9th percentile of replay leverage or if the whitened split-half gate $\|W_t^{1/2}(\Sigma_{(1)} - \Sigma_{(2)})W_t^{1/2}\|_2 \le 0.15$ is closed (with 200-update dwell-time hysteresis), route the actor update for that command cleanly to the 1-step standard FB actor objective rather than zero-tail truncation.
+# Brief B03: Motion-Only Backward Map Aliasing and Privileged/Perceptive Compensation in Contact-Rich Tasks
+
+**Packet ID**: `B03`
+**Status**: `READY_NOT_STARTED`
+**Baseline References**: `baseline/02-fb-paradigm-beyond-imitation-and-exploration.md`, `baseline/04-joint-fb-ball-striking-v2-architecture.md`, `baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md`
+
+---
+
+## 1. Problem Statement
+
+In both 3D obstacle traversal (`m[229]`) and dynamic ball striking (`m[277]`), the backward representation network $B_\omega(m)$ is intentionally restricted to **single-frame robot-local body kinematics**, excluding obstacle height $h$, raycast terrain scan `scan[S]`, contact forces, and ball state `ball_state[9]`. This design allows a single unindexed motion capture clip to provide universal kinematic prompts across arbitrary obstacle heights (`0.10..0.70` m) or ball placements without scene-specific retargeting.
+
+However, this creates **contact and geometric aliasing in $B$-space**:
+- A posture with the hands or feet at height $z_{\mathrm{local}}$ above the root maps to the exact same $B(m)$ whether the robot is supported by a `0.40` m box, colliding with the front face of a `0.60` m box, or suspended in mid-air.
+- Similarly, a kicking swing through empty air and an impact swing through a soccer ball at the same kinematic state map to the same $B(m)$.
+
+**Core Question**: Under what mathematical and physical conditions is feeding perceptive/contact context exclusively into $F(o_F, a, z)$, $\pi_\theta(o_{\mathrm{low}}, z)$, $P_\psi(H)$, and $Q_\phi(H, \cdot)$ **necessary and sufficient** to resolve $B$-space contact aliasing, and when does motion-only $B(m)$ create an irreducible bottleneck in controllable contact behavior?
+
+---
+
+## 2. Hard Constraints & Non-Goals
+
+- Must not break the ability to encode demonstration NPZ files that lack ground-truth contact forces, terrain scans, or ball trajectories (`prepare_data.py` only has access to kinematic `qpos`/`qvel` and FK).
+- Must not re-introduce the rejected R1.3 8-height static collision admission pipeline or `infer_source_support_intent`.
+
+---
+
+## 3. Deliverables Required from Primary Authors
+
+1. **Observability & Controllability Analysis**: Formalize the two-stage mapping $H_t \xrightarrow{P_\psi} z_t \xrightarrow{\pi_\theta(o_t, \cdot)} a_t$ and prove when a kinematic latent $z_t \in \mathcal{S}^{d_z-1}(\sqrt{d_z})$ combined with perceptive observation $o_t$ in $\pi_\theta(o_t, z_t)$ can represent distinct contact-force regimes (e.g., hand push-off on box vs swing-over) vs when $\pi_\theta(o_t, z_t)$ collapses them to a single action.
+2. **Diagnostic Protocol for Aliasing Bottlenecks**: Define quantitative diagnostics measuring whether failures on intermediate/high obstacles (`0.30..0.70` m) or ball impacts stem from (a) planner $P_\psi$ selecting poor $z$, (b) $F(o, a, z)$ failing to use `scan[S]` / `ball_state[9]`, or (c) $B(m)$ lacking contact/load velocity-response features (analogous to causal acceleration $\widehat{\ddot{q}}$ in the single-actuator unit representation).
+3. **Minimal Empirical Spike Protocol**: Design a controlled test on obstacle contact / hand-support transitions and ball-impact transitions that isolates $F/\pi$ perceptive conditioning from $B(m)$ input features.
+
+---
+
+## 4. Adjudication Rubric
+
+| Dimension | Weight | Scoring Standard |
+|---|---:|---|
+| Compatibility with Kinematic-Only Demo NPZ | 30% | Preserves zero-force NPZ compatibility without static scene filtering. |
+| Rigor of Aliasing Analysis | 25% | Distinguishes planner expressivity from low-level actor/forward observability. |
+| Diagnostic Precision | 25% | Provides actionable metrics separating $B$-aliasing from $Q/P$ exploration failure. |
+| Spike Falsifiability | 20% | Defines a minimal, reproducible test with clear pass/fail criteria. |
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/baseline/04-joint-fb-ball-striking-v2-architecture.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Baseline 04: Joint FB + Task-Q + Planner Architecture for 29-DoF Humanoid Dynamic Ball Striking (v2 Specification)
+
+## 1. Scope and Design Philosophy
+
+This baseline specifies the **v2 Joint Training Architecture** for 29-DoF humanoid dynamic ball striking from random initialization. The system uses unindexed single-frame human/robot kicking motion capture data strictly to construct latent exploration anchors $z_{\mathrm{exp}} = \operatorname{proj}(B_\omega(m_{\mathrm{demo}}))$ and local tangent perturbations $z_{\mathrm{near}}$, while jointly training six modules from scratch:
+- Backward motion encoder $B_\omega(m)$
+- Forward successor ensemble $F_{\eta_1, \eta_2}(o_F, a, z)$
+- Low-level conditioned actor $\pi_\theta(o_{\mathrm{low}}, z)$
+- Recurrent high-level latent planner $P_\psi(H_{\mathrm{plan}})$
+- Twin action-conditioned task critics $Q_{\phi_1, \phi_2}(H_Q, a)$
+
+No pre-trained checkpoints, Stage-1 freeze phases, behavioral cloning losses, or per-frame tracking rewards are used.
+
+---
+
+## 2. Information Partitioning and Exact Tensor Schemas
+
+### 2.1 Explicit `kick_leg` Task Conditioning
+Because demonstration clips contain both left-foot and right-foot kicks while the pure task reward must specify which foot is required to strike the ball before contact occurs, each episode samples a fixed binary one-hot command:
+$$
+\text{kick\_leg} \in \{[1, 0], [0, 1]\} \in \mathbb{R}^2 \quad (\text{left foot vs right foot}),
+$$
+which remains constant throughout the episode and is provided to the task reward, low-level actor, planner, and task critic (as well as $o_F$), but **never** to the backward motion encoder $B_\omega$.
+
+### 2.2 Module-by-Module Input Partition Table
+
+| Input / State Tensor | Dim | Exact Coordinate and Physical Definition | Allowed Consumers | Explicitly Excluded From |
+|---|---:|---|---|---|
+| **Single-Frame Motion $m_t$** | `277` | `joint_pos_rel[29]` + `joint_vel_rel[29]` + `body_pos_local_yaw[14x3=42]` + `body_quat_local_yaw[14x4=56]` + `body_lin_vel_local_yaw[14x3=42]` + `body_ang_vel_local_yaw[14x3=42]` + `root_lin_vel_b[3]` + `root_ang_vel_b[3]` + `projected_gravity_b[3]` + `base_height[1]` + `feet_pos_b[2x3=6]` + `feet_lin_vel_b[2x3=6]` + `torso_pos_b[3]` + `torso_quat_b[4]` + `torso_lin_vel_b[3]` + `torso_ang_vel_b[3]` + `pelvis_ang_vel_b[3]` | $B_\omega(m)$ only | Task reward, ball state, `kick_leg`, `last_action` |
+| **Low-Level Policy Obs $o_t^{\mathrm{low}}$** | `93` | `base_lin_vel[3]` + `base_ang_vel[3]` + `projected_gravity[3]` + `joint_pos[29]` + `joint_vel[29]` + `actions[29]` (previous step $a_{t-1}$) + `ball_state[9]` (`ball_pos_b[3]`, `ball_vel_b[3]`, `target_pos_b[3]`) + `kick_leg[2]` | $\pi_\theta(o_{\mathrm{low}}, z)$ | Demonstration frame index, privileged contact forces |
+| **Planner Obs $o_t^{\mathrm{plan}}$** | `93` | Identical to $o_t^{\mathrm{low}}$; fed sequentially into recurrent state $H_t^{\mathrm{plan}}$ | $P_\psi(H_t^{\mathrm{plan}})$ | Privileged critic state, reference motion frames |
+| **Forward Network Obs $o_t^F$** | `297` | `m_t[277]` + `ball_state[9]` + `kick_leg[2]` + `feet_contact_binary[2]` + `ball_contact_force_b[3]` + `root_height_error[1]` + `ball_to_target_dist[1]` + `kick_foot_to_ball_dist[1]` + `support_foot_slip_norm[1]` | $F_{\eta_1, \eta_2}(o_t^F, a_t, z)$ | Future demonstration frames |
+| **Task Critic Obs $o_t^Q$** | `135` | $o_t^{\mathrm{low}}[93]$ + privileged body/contact features (`feet_pos_b[6]`, `feet_vel_b[6]`, `contact_forces_feet[6]`, `ball_ang_vel_b[3]`, `kick_window_timer[1]`, `has_kicked[1]`, `min_foot_ball_dist_in_ep[1]`, `ball_speed_toward_goal[1]`, `torso_upright_cos[1]`, `joint_torques_scaled[16]`) | $Q_{\phi_1, \phi_2}(H_t^Q, a_t)$ | Demonstration reference poses |
+
+---
+
+## 3. Exact Task Reward and Termination Specification
+
+### 3.1 Pure Task Reward (4 Terms, Zero Imitation Tracking Terms)
+Let $p_{\mathrm{foot}} \in \mathbb{R}^3$ be the world position of the designated `kick_leg` ankle/foot link, $p_{\mathrm{ball}} \in \mathbb{R}^3$ and $v_{\mathrm{ball}} \in \mathbb{R}^3$ be the ball position and linear velocity, and $p_{\mathrm{goal}} \in \mathbb{R}^3$ be the target goal position. Define unit direction vectors:
+$$
+\hat{d}_{\mathrm{fb}} = \frac{p_{\mathrm{ball}} - p_{\mathrm{foot}}}{\|p_{\mathrm{ball}} - p_{\mathrm{foot}}\|_2 + 10^{-6}}, \qquad \hat{d}_{\mathrm{bg}} = \frac{p_{\mathrm{goal}} - p_{\mathrm{ball}}}{\|p_{\mathrm{goal}} - p_{\mathrm{ball}}\|_2 + 10^{-6}}.
+$$
+A valid foot-ball contact impulse occurs on step $t$ when $\|p_{\mathrm{ball},t} - p_{\mathrm{foot},t}\|_2 < r_{\mathrm{contact}}$ and $\|v_{\mathrm{ball},t} - v_{\mathrm{ball},t-1}\|_2 > \Delta v_{\mathrm{min}}$, setting `has_kicked = True` and starting a 5-step post-impact evaluation window (`window_steps = 5`, $\tau_{\mathrm{win}} \in \{1, 2, 3, 4, 5\}$).
+
+The step task reward $r_t^{\mathrm{task}}$ is the weighted sum of four terms:
+1. **`ApproachBallReward` (weight $= 50.0$, active only while `not has_kicked`)**:
+   $$
+   r_{\mathrm{app},t} = \max\!\bigl(0,\, \langle v_{\mathrm{foot},t},\, \hat{d}_{\mathrm{fb},t} \rangle\bigr) \cdot \exp\!\bigl(-2.0\,\|p_{\mathrm{ball},t} - p_{\mathrm{foot},t}\|_2\bigr).
+   $$
+2. **`KickBallVelReward` (weight $= 50.0$, active during the 5-step post-kick window $\tau_{\mathrm{win}} \in [1, 5]$)**:
+   $$
+   r_{\mathrm{vel},t} = \max\!\bigl(0,\, \langle v_{\mathrm{ball},t},\, \hat{d}_{\mathrm{bg},t} \rangle\bigr).
+   $$
+3. **`BallTargetDistanceReward` (weight $= 30.0$, active after `has_kicked`)**:
+   $$
+   r_{\mathrm{dist},t} = \exp\!\bigl(-0.5\,\|p_{\mathrm{goal},t} - p_{\mathrm{ball},t}\|_2\bigr) - \exp\!\bigl(-0.5\,\|p_{\mathrm{goal},t-1} - p_{\mathrm{ball},t-1}\|_2\bigr).
+   $$
+4. **`PostKickRecoveryReward` (weight $= 10.0$, active for $t > t_{\mathrm{kick}} + 5$)**:
+   $$
+   r_{\mathrm{rec},t} = \exp\!\bigl(-4.0\,\|g_{\mathrm{proj},t} - g_{\mathrm{upright}}\|_2^2 - 0.5\,\|v_{\mathrm{root},t}\|_2^2\bigr).
+   $$
+
+### 3.2 Resolution of the Cross-Segment Window Leak (Audit Fix #1)
+In v1, `has_kicked` and the 5-step post-kick timer were stored in un-reset environment attributes or leaked across episode resets when an episode terminated inside the 5-step window. In v2:
+- `has_kicked[env_id]` and `kick_window_remaining[env_id]` are explicitly zeroed inside `reset_idx(env_ids)` before computing initial observations.
+- All replay transitions record `pre_reset` terminal flags (`terminated_t`, `truncated_t`) prior to auto-reset.
+
+---
+
+## 4. Network Architectures and Mathematical Loss Functions
+
+### 4.1 Backward Map $B_\omega$ and Forward Ensemble $F_{\eta_1, \eta_2}$
+- **Backward Map $B_\omega(m)$**: Input $m \in \mathbb{R}^{277}$ (running mean/std normalized) $\to$ MLP `[512, 512, 256]` with LayerNorm + SiLU $\to$ L2 spherical projection onto radius $\sqrt{d_z}$ ($d_z = 100$, radius $10.0$):
+  $$
+  B_\omega(m) = \sqrt{d_z}\,\frac{\tilde{B}_\omega(m)}{\|\tilde{B}_\omega(m)\|_2 + 10^{-8}}.
+  $$
+- **Forward Ensemble $F_{\eta_k}(o_F, a, z)$ ($k \in \{1, 2\}$)**: State-action branch $(o_F, a) \in \mathbb{R}^{297+29} \to [1024, 512]$ concatenated with state-latent branch $(o_F, z) \in \mathbb{R}^{297+100} \to [1024, 512]$ $\to$ trunk `[1024, 1024, 100]` outputting $F_{\eta_k}(o_F, a, z) \in \mathbb{R}^{100}$.
+- **Exact Ensemble Scalar Inner-Product Before Aggregation (Audit Fix #3)**:
+  For a batch of $N$ transitions $(o_{F,i}, a_i, o_{F,i}', m_{i}')$ and relabeled latents $z_i$, define the $N \times N$ successor logit matrix for each head $k \in \{1, 2\}$ **before** taking any ensemble minimum or pessimistic combination:
+  $$
+  M_{ij}^{(k)} = F_{\eta_k}(o_{F,i}, a_i, z_i)^\top B_\omega(m_j'), \qquad \bar{M}_{ij}^{(k)} = F_{\bar{\eta}_k}(o_{F,i}', a_i', z_i)^\top B_{\bar{\omega}}(m_j'),
+  $$
+  where $a_i' = \pi_\theta(o_{\mathrm{low},i}', z_i)$. The target scalar matrix is aggregated over scalar inner products (never coordinate-wise $\min(F_1, F_2)$ before the dot product, because coordinates of $B$ can be negative):
+  $$
+  \bar{M}_{ij} = \frac{1}{2}\bigl(\bar{M}_{ij}^{(1)} + \bar{M}_{ij}^{(2)}\bigr), \qquad \delta_{ij}^{(k)} = M_{ij}^{(k)} - \gamma_{\mathrm{FB}}(1 - d_i)\operatorname{stopgrad}(\bar{M}_{ij}).
+  $$
+  The total FB loss is:
+  $$
+  \mathcal{L}_{\mathrm{FB}}(\eta_1, \eta_2, \omega) = \sum_{k=1}^2 \left[\frac{1}{2N(N-1)}\sum_{i \neq j} \bigl(\delta_{ij}^{(k)}\bigr)^2 - \frac{1}{N}\sum_{i=1}^N M_{ii}^{(k)}\right] + \lambda_{\mathrm{orth}} \mathcal{L}_{\mathrm{orth}}(B_\omega).
+  $$
+
+### 4.2 High-Level Recurrent Planner $P_\psi$ and Action-Conditioned Twin Critic $Q_{\phi_1, \phi_2}$
+- **Single-Step Planner Hold ($K_{\mathrm{hold}} = 1$, Audit Fix #4)**:
+  Because the ball-striking task critic $Q_{\phi_1, \phi_2}(H_t^Q, a_t)$ is conditioned on the **physical 29-DoF action $a_t$** rather than a multi-step macro $z$, setting $K_{\mathrm{hold}} > 1$ caused credit-assignment misalignment between step-level $Q(H_t^Q, a_t)$ and held $z$. In v2, $K_{\mathrm{hold}} = 1$: the recurrent planner updates $H_t^{\mathrm{plan}}$ and outputs $z_t^{\mathrm{plan}} \in \mathcal{S}^{d_z-1}(\sqrt{d_z})$ at every control step ($50\text{ Hz}$).
+  - Architecture of $P_\psi$: `2-layer LSTM (hidden_size=128)` over $o_t^{\mathrm{plan}}[93]$ $\to$ MLP `[128, 64, 32]` with ELU $\to$ linear readout to $\mathbb{R}^{100}$ $\to$ spherical projection $\sqrt{100}\,\hat{z}$.
+  - Architecture of $Q_{\phi_1, \phi_2}$: `2-layer LSTM (hidden_size=128)` over $o_t^Q[135]$, concatenated with $a_t[29]$ $\to$ MLP `[256, 256, 1]`.
+
+- **Task Critic Bellman Target with Task-Only Actor EMA $\bar{\theta}$**:
+  To prevent rapid FB representation updates on $\pi_\theta$ from destabilizing the one-step target action in $Q_{\phi}$, v2 maintains a dedicated target actor $\pi_{\bar{\theta}}$ alongside target planner $P_{\bar{\psi}}$ and target critics $Q_{\bar{\phi}_1, \bar{\phi}_2}$:
+  $$
+  z_{t+1}^{\mathrm{targ}} = P_{\bar{\psi}}(H_{t+1}^{\mathrm{plan}}), \qquad a_{t+1}^{\mathrm{targ}} = \operatorname{clip}\bigl(\pi_{\bar{\theta}}(o_{t+1}^{\mathrm{low}}, z_{t+1}^{\mathrm{targ}}) + \operatorname{clip}(\epsilon, -c, c), -1, 1\bigr),
+  $$
+  $$
+  y_t^Q = r_t^{\mathrm{task}} + \gamma_{\mathrm{task}}(1 - \text{terminated}_t)\min_{k=1,2} Q_{\bar{\phi}_k}\bigl(H_{t+1}^Q, a_{t+1}^{\mathrm{targ}}\bigr).
+  $$
+
+- **Low-Level Actor $\pi_\theta$ and Planner $P_\psi$ Objectives**:
+  - Low-level actor $\pi_\theta(o_{\mathrm{low}}, z_{\mathrm{update}})$ maximizes the conservative FB scalar inner product:
+    $$
+    \mathcal{L}_\pi(\theta) = -\mathbb{E}_{o_F, o_{\mathrm{low}}, z_{\mathrm{update}}}\left[\min_{k=1,2} \Bigl(F_{\eta_k}\bigl(o_F, \pi_\theta(o_{\mathrm{low}}, z_{\mathrm{update}}), z_{\mathrm{update}}\bigr)^\top z_{\mathrm{update}}\Bigr)\right].
+    $$
+  - High-level planner $P_\psi$ maximizes $Q_{\phi_1}$ through the frozen low-level actor $\pi_\theta$:
+    $$
+    \mathcal{L}_{\mathrm{plan}}(\psi) = -\mathbb{E}_{H^{\mathrm{plan}}, H^Q, o_{\mathrm{low}}}\Bigl[Q_{\phi_1}\bigl(H^Q, \pi_\theta(o_{\mathrm{low}}, P_\psi(H^{\mathrm{plan}}))\bigr)\Bigr].
+    $$
+
+### 4.3 Full-Prefix Zero-Hidden RNN Burn-In (Audit Fix #5)
+Storing stale LSTM hidden states in the replay buffer introduces severe off-policy representation drift as $P_\psi$ and $Q_{\phi_1, \phi_2}$ evolve. In v2:
+- `TaskEpisodeReplay` stores complete variable-length episode trajectories from $t=0$ with zero initial hidden states $(h_0=0, c_0=0)$.
+- For sampled slice $[t_0, t_0 + L_{\mathrm{train}})$, the prefix $[0, t_0)$ is unrolled from $(h_0=0, c_0=0)$ under `torch.no_grad()` using the **current** online/target network weights to produce exact hidden states at $t_0$, and backpropagation through time (BPTT) runs over $[t_0, t_0 + L_{\mathrm{train}})$.
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/packets/AGENTS.md /srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/AGENTS.md /srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/B/AGENTS.md /srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/spikes/B03-SPIKE/VERDICT.json' in /srv/claude/research/fb-beyond-imitation-acceleration
+ exited 1 in 0ms:
+cat: /srv/claude/research/fb-beyond-imitation-acceleration/packets/AGENTS.md: No such file or directory
+cat: /srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/AGENTS.md: No such file or directory
+cat: /srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/B/AGENTS.md: No such file or directory
+{
+  "experiment_id": "B03_CONTACT_ALIASING_AND_PERCEPTIVE_COMPENSATION",
+  "device": "cpu",
+  "elapsed_sec": 1.238,
+  "verdict": "PASS",
+  "b_space_kinematic_aliasing_max_diff": 0.0,
+  "perceptive_context_disambiguation_action_mse": 0.0003300176467746496,
+  "irreducible_isokinematic_multi_force_mse": 0.8953267335891724
+}
+codex
+The key distinction is between identical backward encodings and identical controller inputs: context or planner-selected latents can resolve the former, while indistinguishable inputs impose a conditional error bound. I also found dimension inconsistencies in the ball-striking specification; the proposal will flag those explicitly and treat the existing CPU verdict as limited evidence.
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/baseline/02-fb-paradigm-beyond-imitation-and-exploration.md /srv/claude/research/fb-beyond-imitation-acceleration/baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Baseline 02: How the Joint FB + Task-Q + Planner Paradigm Surpasses Imitation Data and Drives Exploration
+
+## 1. Core Mechanism: Demonstrations as Exploration Anchors Rather Than Optimal Policies
+
+In the joint **FB + Low-Level Actor + Task Critic $Q$ + High-Level Planner** architecture trained from random initialization, demonstration trajectories serve exclusively to initialize and guide exploration in the latent space $z = B(m)$, rather than acting as supervisory action labels or per-frame tracking targets.
+
+The system breaks through the state-action support of the demonstration library via five coupled mechanisms:
+1. **No Supervised Action Regression**: The low-level actor $\pi_\theta(o, z)$ is trained by maximizing the successor inner product $F(o, \pi_\theta(o, z), z)^\top z$, not by minimizing $\|a - a_{\mathrm{demo}}\|^2$. Even when conditioned on an expert-encoded latent $z_{\mathrm{exp}} = B(m_{\mathrm{demo}})$, the actor optimizes discounted future reachability of $B$-features under real physics rather than copying single-step joint commands.
+2. **Continuous Latent Perturbation (`near-z` and Random Sphere)**: Rollouts inject local tangent-space perturbations $z_{\mathrm{near}}$ ($10^\circ$–$20^\circ$ around $z_{\mathrm{exp}}$) and planner-proposed $z_{\mathrm{plan}}$, while off-policy FB updates train on a 50/50 mixture of permuted replay goal latents and uniform spherical latents $\mathcal{S}^{d_z-1}(\sqrt{d_z})$. This populates a continuous behavioral manifold around and beyond the demonstration frames.
+3. **Unindexed Single-Frame Backward Encoding**: Because $B(m)$ encodes a single frame without demonstration timestamps or phase locks, the high-level planner $P_\psi$ can re-order, hold, skip, or stitch latent skills in response to real-time observations.
+4. **Independent Task Critic $Q$**: The task critic $Q_\phi$ trains via temporal-difference learning on **actual task rewards and real environment transitions** (whether generated by `expert`, `near`, or `planner` latents). Whenever an off-support perturbation or recovery maneuver achieves higher task return than the nominal demonstration, $Q_\phi$ assigns it higher value and shifts the planner $P_\psi$ toward that superior behavior.
+
+---
+
+## 2. Paradigm Comparison Across Four Learning Frameworks
+
+| Dimension | Behavioral Cloning (BC) | Reference Tracking RL (DeepMimic-Style) | Imitation Prior + Task RL (AMP / Pretrained Skill Space) | Joint FB + Task-Q + Planner (This Paradigm) |
+|---|---|---|---|---|
+| **Role of Demonstrations** | Direct supervised target $s \mapsto a_{\mathrm{demo}}$ | Per-frame pose tracking reward $r_{\mathrm{track}}(s_t, m_t^{\*}) + r_{\mathrm{task}}$ | Discriminator style reward or frozen pretrained low-level skill space | Unindexed single-frame latent prompts $z = B(m_{\mathrm{demo}})$ for rollout seeding only |
+| **Low-Level Actor Objective** | $\min_\theta \|a - a_{\mathrm{demo}}\|^2$ | $\max_\theta J(r_{\mathrm{track}} + r_{\mathrm{task}})$ | Pretrained or style-regularized policy gradient | $\max_\theta F(o, \pi_\theta(o,z), z)^\top z$ (plus optional task-$Q$ gradient in $K_{\mathrm{hold}}=1$) |
+| **Temporal / Phase Freedom** | Locked to demonstration state distribution | Locked to reference phase clock $\phi \in [0,1]$ or frame index $t$ | Free timing, but constrained by discriminator distribution or frozen skill manifold | Fully phase-free: $B(m)$ is single-frame; planner $P_\psi$ selects $z$ every $K$ control steps |
+| **Behavior Outside Demo Support** | Compounding covariate shift error | Penalized by $r_{\mathrm{track}}$ whenever task requires deviating from reference | Limited by frozen skill repertoire or adversarial mode collapse | Explicitly explored via `near` / `planner` rollouts and $50\%$ spherical FB updates; evaluated by task $Q$ |
+| **Primary Failure Modes** | Out-of-distribution collapse | Tradeoff conflict between tracking fidelity and task adaptation | Pretraining-to-task distribution mismatch; discriminator gaming | Multi-network non-stationarity from scratch; motion-only $B$ aliasing in contact tasks |
+
+---
+
+## 3. Three Levels of Behavioral Freedom Beyond Demonstrations
+
+### 3.1 Action-Level Freedom (New Physical Execution for the Same Latent Target)
+- $B(m)$ maps a 229-dim or 277-dim kinematic frame to a 256-dim vector $z$ on the sphere of radius $\sqrt{d_z} = 16$. This is a many-to-one kinematic projection that discards environment geometry and actuator commands.
+- The FB objective $F(o, a, z)^\top B(m')$ evaluates **discounted multi-step state visitation** under real physics ($\gamma_{\mathrm{FB}}$), not single-step pose matching.
+- When obstacle height, ball position, friction, or base perturbation differs from the recording environment, the low-level actor $\pi_\theta(o_{\mathrm{low}}, z)$ reads current proprioception and terrain/ball observations in $o_{\mathrm{low}}$ and synthesizes new joint torque/position targets that still drive the robot toward the future kinematic outcome represented by $z$.
+
+### 3.2 Temporal and Sequential Freedom (Re-Ordering and Variable-Duration Execution)
+- Because $m_t$ contains no frame counter or global world position $(x, y, \psi)$, any demonstration frame is a standalone directional prompt on $\mathcal{S}^{d_z-1}(\sqrt{d_z})$.
+- During rollout, `CandidateProvider` samples valid demonstration frames uniformly (or by motion weights) without stage or geometry filtering, while in evaluation (`100%` planner), $P_\psi$ generates $z_t$ purely from real observation history.
+- Consequently, the planner can extend preparation steps, insert an extra balance-recovery macro-step before takeoff, or transition immediately into landing stabilization—compositions that never occurred as a contiguous trajectory in the dataset.
+
+### 3.3 Representation-Space Interpolation and Extrapolation
+- **Rollout `near-z` exploration**: Tangent-space perturbations around $z_{\mathrm{exp}} = \operatorname{proj}(B(m_{\mathrm{demo}}))$ with angular offset $\theta \in [10^\circ, 20^\circ]$:
+  $$
+  u_{\perp} = \xi - \frac{\langle \xi, z_{\mathrm{exp}} \rangle}{\|z_{\mathrm{exp}}\|_2^2} z_{\mathrm{exp}}, \qquad z_{\mathrm{near}} = \sqrt{d_z}\bigl(\cos\theta \cdot \hat{z}_{\mathrm{exp}} + \sin\theta \cdot \hat{u}_{\perp}\bigr).
+  $$
+- **FB update `z_update` relabeling**: For every batch of $n$ transitions from `FBReplay`, $z_{\mathrm{update}}$ is constructed via:
+  $$
+  z_{\mathrm{random}} = \operatorname{proj}(\mathcal{N}(0, I_{d_z})), \quad z_{\mathrm{goal}} = \operatorname{proj}\bigl(B_{\omega}(\tilde{m}_{\mathrm{next}}[\operatorname{perm}])\bigr), \quad z_{\mathrm{update}} = \operatorname{where}(u < 0.5, z_{\mathrm{goal}}, z_{\mathrm{random}}).
+  $$
+- Because `FBReplay` stores real physical transitions $(o_t, a_t, o_{t+1}, m_t, m_{t+1})$ collected across all three rollout sources (`expert`, `near`, `planner`), $B_{\omega}(\tilde{m}_{\mathrm{next}})$ increasingly encodes **newly discovered physical postures** (including hand support on obstacles, stumbled recovery, and modified landing stances), expanding the grounded goal manifold beyond the initial NPZ file.
+
+---
+
+## 4. Critical Vulnerability: Motion-Only $B$ Aliasing in Contact-Rich Tasks
+
+In both the obstacle-traversal baseline (`229`-dim $m_t$) and the ball-striking v2 baseline (`277`-dim $m_t$), the backward network $B(m)$ observes **only robot body kinematics**:
+- Root linear velocity $v_H \in \mathbb{R}^3$, root angular velocity $\omega_H \in \mathbb{R}^3$, projected gravity $g \in \mathbb{R}^3$, joint positions $q \in \mathbb{R}^{29}$, joint velocities $\dot{q} \in \mathbb{R}^{29}$, and root-relative link positions and 6D rotations.
+- $B(m)$ does **not** observe contact forces, obstacle height $h$, terrain scan $s_t$, or ball position/velocity.
+
+### 4.1 What Motion-Only $B$ Can and Cannot Distinguish
+- **Cannot distinguish in $B$-space**: Stepping in mid-air vs stepping onto a solid `0.40` m box with identical joint angles and root velocities; swinging a leg through empty space vs striking a ball at the exact same kinematic state. Both map to the same $e = B(m)$.
+- **How the overall architecture compensates**:
+  1. The forward network $F(o, a, z)$ and low-level actor $\pi_\theta(o, z)$ receive full policy observations $o$ (including terrain height scan `scan[S]` or ball state `ball_state[9]`), enabling $F$ to predict how terrain or ball geometry alters future body motion and enabling $\pi_\theta$ to adjust joint commands accordingly.
+  2. The task critic $Q(H, \cdot)$ receives privileged task/geometry features (`critic_geometry` or privileged ball-interaction state) and trains directly on true task rewards (obstacle clearance + stable rear landing, or ball approach + velocity toward goal).
+- **Remaining bottleneck**: If accomplishing the task requires commanding two distinct contact forces under nearly identical kinematic postures, a purely kinematic $z$ space may lack the parameterization to let the planner specify the contact force intention directly. Evaluating when motion-only $B$ suffices vs when contact-aware augmentation is required is a core open research brief (`B03`).
+
+---
+
+## 5. Non-Stationarity and Stability Risks in Joint Training from Scratch
+
+Unlike two-stage pipelines (pretrain FB on a large mocap dataset, then freeze FB and train a high-level policy), joint training from random initialization updates six networks simultaneously:
+
+| Risk | Mechanism of Instability | Architectural Mitigation in Baseline |
+|---|---|---|
+| **Drifting Semantics of $z$** | As $B_\omega$ updates, the same physical frame $m$ maps to a changing $z$, and a fixed $z$ stored in task replay changes its behavioral meaning under $\pi_\theta(o, z)$. | Never cache demonstration $z$ across updates; re-encode raw `[1, 229]` or `[1, 277]` frames online (`eval/no_grad`) at each macro boundary; use a smaller, fresher task replay window (`50k` macros) with delayed planner updates (`delay=2`). |
+| **Behavior $z$ Overwrite Bug** | Replacing `behavior_z` with FB relabeled $z$ corrupts the off-policy action label read by task critic $Q$. | Strict separation: `FBReplay` stores immutable `behavior_z` while sampling temporary `z_update` inside `FBAgent.update`; `TaskReplay` stores immutable `z_actual` executed during the macro-step. |
+| **Batch Normalization Shift** | Updating `obs_normalizer` / `motion_normalizer` twice on `m_next` or allowing expert queries to mutate running statistics biases $B$. | `FBAgent.update` updates BN once on real `(obs, m_current)` and once on `(next_obs, m_next)`, then freezes BN (`eval/no_grad`) for `z_update` sampling and expert encoding. |
+| **Early Actor Collapse** | Before $F$ and $B$ form a coherent successor representation, maximizing $F^\top z$ pushes $\pi_\theta$ along noisy gradients, producing immediate falls or severe contact penetrations. | Orthonormalization loss $\mathcal{L}_{\mathrm{orth}}$ with weight $\lambda_{\mathrm{orth}}=1.0$, target EMA $\tau=0.01$ (`0.005`), pessimistic ensemble aggregation over $F$, and R2.1 separation of `severe_penetration` task failure from numerical `invalid`. |
+
+---
+
+## 6. Required Empirical Evidence to Validate "Beyond Imitation"
+
+A valid scientific claim that this paradigm surpasses imitation data requires four quantitative evaluation tiers (none of which is satisfied by short CPU smoke runs):
+1. **In-Distribution vs Out-of-Distribution Task Success**:
+   - In obstacle traversal: demonstrating only $h_{\mathrm{demo}} \approx 0.704$ m, yet achieving $\ge 70\%$ 95% Wilson lower-bound success under `100%` planner control across unseen heights $h \in [0.10, 0.70]$ m and held-out OOD heights/depths.
+2. **Emergence of Novel Contact Modes**:
+   - Quantitative frequency and success contribution of hand-on-box support, multi-step takeoff adjustments, and stumbled landing recovery that have zero occurrence in the 859-frame source NPZ.
+3. **Planner-vs-Expert Source Dominance Crossover**:
+   - Longitudinal tracking of episode return $R(\text{planner})$ vs $R(\text{expert})$ and $Q_1(H, z_{\mathrm{plan}}) - Q_1(H, z_{\mathrm{exp}})$ showing the point in training where planner-selected latents outperform direct expert encodings.
+4. **Compute-Matched Baseline Ablations**:
+   - Direct comparison against (a) pure task PPO from scratch, (b) DeepMimic-style tracking + task reward PPO, (c) AMP + task reward PPO, and (d) joint FB without `expert`/`near` exploration prompts (`100%` planner from step 0).
+# Baseline 05: Autonomous 3D Obstacle Traversal on a 29-DoF Humanoid Plant (v3.1.1 Training Design & R2.1 Implementation Specification)
+
+## 1. Task Definition and Physical Geometry Contract
+
+The autonomous obstacle-traversal task requires a 29-DoF torso-base humanoid robot (`dt_physics = 0.005` s, `decimation = 4`, `dt_control = 0.02` s, 50 Hz control, action `scale = 1.0` across all 29 joint position channels) to start from flat ground in front of a 3D box obstacle, traverse over obstacles of varying heights $h$, and establish a stable bipedal landing on the flat ground behind the obstacle.
+
+### 1.1 Obstacle Geometry and Curriculum Bank
+- **Fixed Box Depth and Width**: Depth $D = 0.3559550643\text{ m}$, width $W = 10.0\text{ m}$, bottom face resting on the ground plane ($z = 0$).
+- **Demonstration Reference Source**: A single 859-frame, 50 Hz retargeted motion file recorded on an obstacle of height $h_{\mathrm{demo}} = 0.7044943571\text{ m}$ (`SHA256: 1be258504c22886147b8739fb8e4bf3689e0d707f59c2ce1b0505686a7fa09c8`).
+- **Discrete Training Height Bank**:
+  $$
+  \mathcal{H}_{\mathrm{bank}} = \{0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70\}\text{ m}.
+  $$
+  Training begins with active quota allocated only to `{0.10, 0.20}` m. Each environment instance maintains a fixed height $h$ throughout an episode.
+
+---
+
+## 2. Architecture and Data Flow (Macro-Step $z$-Critic Formulation)
+
+Unlike ball striking ($K_{\mathrm{hold}}=1$ with physical action-$Q$), 3D obstacle traversal requires sustained multi-step coordination (approach, takeoff, hand/foot placement, clearance, and landing). Therefore, v3.1.1 / R2.1 uses a **macro-step $z$-conditioned task critic $Q_{\phi_1, \phi_2}(H_t, c_t^{\mathrm{geom}}, z_{\mathrm{macro}})$** with macro horizon $K = 10$ control steps ($0.20\text{ s}$).
+
+| Module | Exact Input Schema $\to$ Output | Training Objective & Role of Demonstrations |
+|---|---|---|
+| **Backward Map $B_\omega$** | Single-frame `m[229]` $\to$ `z[256]` on sphere of radius $\sqrt{256}=16$ (`hidden = 256 x 1`) | Updated purely on real replay transitions via FB successor + orthogonality loss. Demonstrations are encoded in `eval/no_grad` mode only; zero supervised imitation loss. |
+| **Forward Ensemble $F_{\eta_1, \eta_2}$** | Policy observation `o` (without reference motion), `z[256]`, applied action `a_applied[29]` $\to$ `[256]` per head (`residual 2048 x 6`) | Diagonal/off-diagonal FB Bellman loss + orthogonality regularizer; optional implicit-$Q$ coefficient defaults to `0`. |
+| **Low-Level Actor $\pi_\theta$** | `o = {state[67], last_action[29], scan[S], scan_valid[S], goal_dir[2]}` and `z[256]` $\to$ 29-D action distribution (`residual 2048 x 6`) | Maximizes conservative $\min_{k=1,2}(F_{\eta_k}(o, a, z)^\top z)$; zero action MSE, zero mimic reward, zero PPO clipping. |
+| **Recurrent Planner $P_\psi$** | Full episode history of `(o_t, z_{t-1}, first_flag)` $\to$ macro latent $z_{\mathrm{plan}} \in \mathcal{S}^{255}(16)$ | Delayed TD3-style policy gradient minimizing $-Q_{\phi_1}(H_t, c_t^{\mathrm{geom}}, P_\psi(H_t))$ (`delay = 2`); no demonstration phase clock. |
+| **Macro Task Twin Critic $Q_{\phi_1, \phi_2}$** | History $H_t$, privileged `critic_geometry` $c_t^{\mathrm{geom}}$, and **actual executed macro $z_{\mathrm{actual}}$** $\to$ scalars $Q_1, Q_2$ | $k$-step macro TD target ($k \in [1, K]$): $R_{\mathrm{macro}} + \gamma_{\mathrm{task}}^k (1 - \text{terminated})\min_{i=1,2} Q_{\bar{\phi}_i}(H_{t+k}, c_{t+k}^{\mathrm{geom}}, P_{\bar{\psi}}(H_{t+k}))$. |
+
+### 2.1 Exact 229-Dim Single-Frame Motion Descriptor `m[229]`
+In the heading-aligned root frame $H$ (where global $(x, y)$ translation and yaw $\psi$ are removed using the `torso_link` quaternion):
+$$
+m_t = \bigl[\underbrace{v_H[3],\, \omega_H[3],\, g_{\mathrm{root}}[3],\, q[29],\, \dot{q}[29]}_{\text{policy.state}[67]},\, \underbrace{\Delta p_{H,1..18}[18 \times 3],\, \mathrm{rot6d}_{H,1..18}[18 \times 6]}_{\text{18 named links}[162]}\bigr] \in \mathbb{R}^{229}.
+$$
+The 18 named links are ordered strictly as: `pelvis`, `torso_link`, `left/right_shoulder_roll_link`, `left/right_elbow_link`, `left/right_wrist_roll_link`, `left/right_wrist_pitch_link`, `left/right_wrist_yaw_link`, `left/right_hip_roll_link`, `left/right_knee_link`, `left/right_ankle_roll_link`.
+
+---
+
+## 3. Unfiltered Single-Frame Expert Provider and Three-Way Source Schedule (R2.1)
+
+### 3.1 Elimination of Scene-Eligibility and 8-Height Static Admission
+Earlier drafts attempted to filter or statically place the 859 demonstration frames against all 8 obstacle heights (`8 x 859` static collision/support sweep). R2.1 eliminates all scene-eligibility filtering based on a foundational principle:
+> **$z$ is a policy conditioning vector, not a physical reset state or open-loop joint command. Whether a demonstration frame can be statically placed without collision against the current obstacle height does not determine whether $B(m_{\mathrm{demo}})$ is a useful latent directional prompt.**
+
+1. `prepare_data.py` runs forward kinematics once on the 859-frame 50 Hz source NPZ to produce `[T, 229]` raw descriptors, finite-difference velocities (never substituting `velocity_command`), and a numerical quality mask.
+2. `CandidateProvider.sample()` draws a valid frame uniformly from `[T, 229]` without querying obstacle height $h$, task stage, or current robot pose.
+3. At each macro boundary, if source `expert` or `near` is selected, `selector` encodes the sampled `[1, 229]` frame once via `FBModel.encode_motion` (`eval/no_grad`). For `near`, it samples a tangent-space rotation with angle $\theta \in [10^\circ, 20^\circ]$ ($\cos\theta \in [\cos 20^\circ, \cos 10^\circ]$) and projects back to radius 16.
+4. Rollout source probabilities $(p_{\mathrm{expert}}, p_{\mathrm{near}}, p_{\mathrm{planner}})$ follow a piece-wise linear schedule over committed control steps $S$ with $S_{\mathrm{ramp}} = 100,000$:
+   $$
+   (0.60, 0.30, 0.10) \xrightarrow{S = 0.5 S_{\mathrm{ramp}}} (0.30, 0.30, 0.40) \xrightarrow{S = S_{\mathrm{ramp}}} (0.10, 0.20, 0.70).
+   $$
+   All evaluation and curriculum-advancement panels use `100%` planner ($p_{\mathrm{planner}} = 1.0$).
+
+---
+
+## 4. Freezing UFO Update Semantics: Separation of `behavior_z` and `z_update`
+
+R2.1 restores exact fidelity to the reference UFO update order (`sample_mixed_z` with `train_goal_ratio = 0.5`, `train_neighborhood_z = False`):
+1. `Collector` records both `m_current` and `m_next` alongside immutable `behavior_z` in `FBReplay`.
+2. In `FBAgent.update`, batch normalizers are updated **once** on real `(obs, m_current)` and **once** on real `(next_obs, m_next)`, eliminating the bug where `m_next` was fed into running statistics twice. Expert frames never update batch normalizers.
+3. Under frozen normalizer statistics (`eval/no_grad`):
+   $$
+   z_{\mathrm{random}} = \operatorname{proj}(\mathcal{N}(0, I_{256})), \quad \mathrm{perm} = \operatorname{randperm}(n), \quad z_{\mathrm{goal}} = \operatorname{proj}\bigl(B_\omega(\tilde{m}_{\mathrm{next}}[\mathrm{perm}])\bigr),
+   $$
+   $$
+   \mathrm{mask} = (\operatorname{rand}(n, 1) < 0.5), \qquad z_{\mathrm{update}} = \operatorname{where}(\mathrm{mask}, z_{\mathrm{goal}}, z_{\mathrm{random}}).
+   $$
+4. `z_update` is passed only to the current batch's FB loss and low-level actor loss. Task critic $Q_{\phi_1, \phi_2}$ always reads the macro's actual executed `z_actual`.
+
+---
+
+## 5. Task Reward, Event Chain, and R2.1 Terminal Boundary (`severe_penetration` vs `invalid`)
+
+### 5.1 Ordered Traversal Event Chain and Potential-Based Reward
+- **Success Criteria**: The robot must pass the front edge $x_{\mathrm{front}}$ within the legal lateral corridor, clear the rear edge $x_{\mathrm{rear}}$ with its entire whole-body and foot bounding footprint (`shapes_from_snapshot`), release all box contact, establish bipedal support on the rear ground with low foot slip and COM inside the support polygon, and maintain stable upright posture for **0.75 s** within the **12.0 s** episode timeout.
+- **Allowed vs Failed Contacts**: Hand support on the obstacle box is explicitly permitted (`allow_hand_on_box = True`). Standing on top of the box, hanging by the hands, crawling on the ground, lateral bypass around the obstacle, or sustained ground non-foot contact with root clearance $< 0.45 L_{\mathrm{leg}}$ for $0.5\text{ s}$ triggers failure termination.
+- **Step Reward**:
+  $$
+  r_t^{\mathrm{task}} = \alpha\bigl(\gamma_{\mathrm{task}}\Phi_{t+1} - \Phi_t\bigr) + \mathbf{1}_{\{\text{first\_success}, t\}} - c_{\mathrm{ctrl}}(a_t, \dot{q}_t), \qquad \alpha \le 0.2,
+  $$
+  with terminal absorption $\Phi_{t+1} = 0$ on failure termination and true end-state potential $\Phi_{t+1}$ on timeout truncation.
+
+### 5.2 R2.1 Narrow Terminal-Boundary Revision: Credible `severe_penetration` vs Data `invalid`
+Prior to R2.1, any runtime contact penetration exceeding $0.03\text{ m}$ raised an `InvalidPhysicsError` that aborted the training run or evaluation panel—turning ordinary exploratory falls and hard box impacts by an untrained random policy into fatal process exits. R2.1 establishes a strict two-category boundary:
+
+| Classification | Exact Trigger Conditions | Required Runtime & Replay Handling |
+|---|---|---|
+| **Credible Task Failure (`severe_penetration`)** | Runtime contact depth exceeds $0.03\text{ m}$ on at least one substep, **AND** all 4 physics substeps complete with finite state/contact tensors, valid schema/indices/timing, no contact buffer overflow (`ncon < nconmax`), and no solver divergence. | Latches failure on first offending substep (`terminated = True`, `failure_reason = severe_penetration`), continues checking remaining substeps in the 4-substep control interval, sets absorption potential $\Phi_{\mathrm{next}} = 0$, commits the real pre-reset final transition to replay once, and resets the environment for the next episode. In evaluation panels, counts as a valid failed trial while preserving the seed and denominator. |
+| **Data Corruption (`invalid`)** | Any `NaN`/`Inf` in state or contacts, contact buffer overflow with dropped contacts, corrupted schema/geometry/timing, missing pre-reset final state, or verified solver divergence (including if corruption occurs on a substep after an initial penetration). | `invalid` takes strict priority over `severe_penetration`. Rejects the entire uncommitted control transition (never enters replay or normalizers, never increments committed step count, never fabricates a zeroed terminal state), logs detailed diagnostic fields, and halts the affected run or evaluation panel. |
+
+---
+
+## 6. Multi-Height Curriculum Advancement and Evaluation Panels
+
+### 6.1 Curriculum Controller (`PoolQuotaSchedule` + Active Unlock State)
+- Advancement from current frontier height $h_{\mathrm{front}}$ to $h_{\mathrm{front}} + 0.10\text{ m}$ is evaluated every `eval_interval_control_steps = 100,000` using an independent `100%` planner evaluation panel (`100` independent ground starts on $h_{\mathrm{front}}$ and `100` on the lowest two heights `{0.10, 0.20}` m, frozen weights/BN, zero replay writes).
+- **Unlock Gate**: Requires the 95% Wilson score lower bound on success rate to satisfy $\mathrm{LB}_{0.95} \ge 0.70$ across **two consecutive non-overlapping evaluation panels**, with no confirmed degradation $> 10$ percentage points on the lowest two heights.
+- **Sampling Quota Allocation**: Once unlocked, each `quota_epoch_control_rows = 4096` allocates `50%` of control steps to the frontier height, `30%` uniformly across intermediate unlocked heights, and `20%` to the lowest two heights.
+
+### 6.2 Held-Out Generalization Panels
+1. **In-Distribution (ID) Panel**: Heights $\{0.10, 0.20, \dots, 0.70\}\text{ m}$ with standard depth $D = 0.356\text{ m}$ and unseen reset seeds.
+2. **Interpolation Panel**: Unseen intermediate heights $\{0.15, 0.25, 0.35, 0.45, 0.55, 0.65\}\text{ m}$.
+3. **Out-of-Distribution (OOD) Panel**: Unseen heights $\{0.05, 0.75, 0.80\}\text{ m}$ and perturbed obstacle depths $D \in \{0.25, 0.45\}\text{ m}$.
+
+apply patch
+patch: completed
+/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/B/proposal.md
+diff --git a/packets/B03/drafts/B/proposal.md b/packets/B03/drafts/B/proposal.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..ac047a806d9e0074ab19837b2b236724eee52890
+--- /dev/null
++++ b/packets/B03/drafts/B/proposal.md
+@@ -0,0 +1,216 @@
++# Proposal B (Packet B03): Hierarchical Task Coupling Under Partial Observability and Contact Dynamics
++
++Primary Author B; frozen-context proposal; no training or new spike execution is claimed.
++Decision: preserve motion-only $B$; distinguish missing information, inaccessible actions, and critic/planner learning failure before changing control frequency.
++Sources: [Charter](../../../../PROGRAM_CHARTER.md), [B01 synthesis](../../../../synthesis/B01-synthesis.md), [B03 brief](../../brief.md), and frozen baselines [02](../../../../baseline/02-fb-paradigm-beyond-imitation-and-exploration.md), [04](../../../../baseline/04-joint-fb-ball-striking-v2-architecture.md), [05](../../../../baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md).
++The proposal supplies the serious-alternative analysis requested under method v1.0 §11.5; it does not assume additional unstated method requirements.
++
++## 1. Formal Information-Theoretic and Observability Analysis of Kinematic-Only B(m)
++
++Let physical state $X=(q,v,g,\lambda,\chi)$ contain generalized configuration/velocity, geometry, contact wrench, and hidden material/actuator state.
++Let $M=\kappa_D(X)$ be the frozen single-frame descriptor, $D\in\{229,277\}$, and $E=B_{\omega,\nu}(M)$ with fixed weights and normalization statistics $\nu$.
++For traversal, $D=67+18(3+6)=229$, $d_z=256$, radius $16$; v2 ball striking declares $D=277$, $d_z=100$, radius $10$.
++Use the task-specific v2 dimensions rather than baseline 02's generic assertion that both tasks use 256 latent coordinates.
++Schema caveat: baseline 04's enumerated motion fields sum to 278, and its nominal 93-D actor fields sum to 107; these must be reconciled before simulator integration.
++This proposal proves statements for the declared abstract descriptor sizes; it does not silently delete a field or claim that inconsistent production schemas were validated.
++
++**Proposition 1 — exact forced aliasing boundary.**
++Define $x\sim_\kappa x'$ iff $\kappa_D(x)=\kappa_D(x')$ and $x\sim_B x'$ iff $B(\kappa_D(x))=B(\kappa_D(x'))$.
++Then $\sim_\kappa\subseteq\sim_B$, because a deterministic function assigns a single output to a single input.
++Consequently, for admissible snapshots $x_{\rm air},x_{.40},x_{.60}$ with identical descriptors,
++$$m_{\rm air}=m_{.40}=m_{.60}=m_\star\quad\Longrightarrow\quad B(m_{\rm air})=B(m_{.40})=B(m_{.60}),\qquad\max_{i,j}\|B(m_i)-B(m_j)\|_2=0.0.$$
++The regimes are free-air flight, compliant support on a $0.40$ m box, and rigid impact on a $0.60$ m box; their geometry/contact metadata never enters this equality.
++Interpret impact at a specified pre-impact instant, with impulse determining the subsequent velocity jump; equal frames do not require equal accelerations or equal next frames.
++Different root translations/box placement and contact internal states can realize identical root-relative frames; the 277-D descriptor's base-height channel must also match.
++This is conditional on identical complete descriptors, not merely identical joint angles, nor an assertion that every arbitrary posture realizes all three regimes.
++There may be additional learned collisions between distinct descriptors; the converse implication is unjustified unless $B$ is injective on the relevant descriptor support.
++Conversely, any two different descriptors can be separated by some motion-only map: equality of $M$ is exactly the aliasing forced by the input contract.
++For approximately matched frames, a local Lipschitz bound gives $\|B(m)-B(m')\|\le L\|m-m'\|$, not exact zero.
++Freeze BN, dropout, and weights: changing encoder state between queries invalidates the comparison.
++
++Let $C$ denote contact regime, with logarithms in nats.
++The Markov chain $C\to M\to E$ gives $I(C;E\mid M)=0$ and $I(C;E)\le I(C;M)$.
++In a balanced matched-frame triad, $M=m_\star$, hence $I(C;E)=0$, $H(C\mid E)=\log3$, and optimal classification accuracy is $1/3$.
++Outside this controlled distribution, kinematics may correlate with contact, so claiming globally $I(C;E)=0$ would be false.
++Any deterministic Gram correction $WB(m)$ preserves equality; B01 whitening cannot recover omitted contact information.
++
++**Proposition 2 — exact controller information boundary.**
++Write deployable history $\mathcal H_t=(o_{0:t}^{\rm deploy},a_{0:t-1},z_{0:t-1})$, $z_t=P_\psi(\mathcal H_t)$, and actor information $U_t=(o_t^{\rm low},z_t)$.
++Let $\mathcal A^\star(x,\iota)$ be acceptable physical actions for hidden state $x$ and task intention $\iota$, including actuator and safety constraints.
++A deterministic memoryless actor can satisfy every case iff each information fiber admits a common action:
++$$\forall u:\quad \bigcap_{(x,\iota):\,U(x,\iota)=u}\mathcal A^\star(x,\iota)\ne\varnothing,$$
++subject to existence of a measurable selector and sufficient network capacity.
++Necessity follows because the actor emits one action at $u$; sufficiency follows by choosing a common action on each fiber.
++For unique desired commands $A^\star$, squared-error optimality instead has the exact Bayes decomposition
++$$\mathbb E\|f(U)-A^\star\|^2=\mathbb E\,\mathrm{tr}\operatorname{Cov}(A^\star\mid U)+\mathbb E\|f(U)-\mathbb E[A^\star\mid U]\|^2.$$
++Thus zero error is possible iff $\operatorname{Cov}(A^\star\mid U)=0$ almost surely; unrelated private randomization cannot reduce this lower bound.
++Perceptive context resolves aliasing when scans/ball state/history identify the required action sufficiently, even with the same $B(m_\star)$.
++Different geometry readings alone are insufficient if hidden friction, preload, stiffness, or task intention still requires incompatible actions.
++An RNN can exploit past action-response measurements only if the relevant state is identifiable before the decision deadline; unseen independent disturbances defeat arbitrary memory.
++Privileged $F/Q$ inputs improve conditional value estimates but cannot transmit unavailable facts to a deployable actor at execution.
++
++**Isokinematic multi-force bottleneck.**
++At a fixed posture and terrain geometry, constrained dynamics satisfy
++$$\mathcal M(q)\ddot q+c(q,\dot q)=S^\top\tau+J(q)^\top\lambda,\qquad J\ddot q+\dot J\dot q=0.$$
++Different admissible loads or intentions may require $\tau_1\ne\tau_2$ while all observed kinematics and geometry agree.
++For identical desired acceleration, differences obey $S^\top(\tau_1-\tau_2)+J^\top(\lambda_1-\lambda_2)=0$, where feasible.
++Redundant contacts can change internal wrench without requiring distinct commands; distinct measured forces alone therefore do not prove a control bottleneck.
++Require distinct necessary actuator commands, or disjoint acceptable-action sets, rather than simply $\lambda_1\ne\lambda_2$.
++For an equally likely hidden binary load with identical $U$ and unique targets $\tau_\pm$, every torque controller satisfies
++$$\inf_f\mathbb E\|f(U)-\tau_C\|^2=\tfrac14\|\tau_+-\tau_-\|^2.$$
++For position-command actors, apply this bound to required position targets, or explicitly convert via fixed invertible PD gains at the matched $(q,\dot q)$.
++A hidden actuator state can itself change torque for the same command; audit that state before interpreting an action-space bound as a torque-space bound.
++The bound is irreducible relative to the available information, not an unconditional limitation of all kinematic-latent architectures.
++A planner is free to choose $z_+\ne z_-$ off the demonstration image when its history reveals the load/intention.
++Even then, feasibility also requires $\mathcal R_\theta(o)=\{\pi_\theta(o,z):z\in\mathcal S^{d_z-1}(\sqrt{d_z})\}$ to intersect the desired action set.
++Locally, inaccessible force directions are detected by $\delta\tau\notin\operatorname{im}(D_aT\,D_z\pi_\theta\,\Pi_z)$, with $\Pi_z=I-zz^\top/d_z$.
++This rank test is local only; a failed local search is not proof of global impossibility.
++Finally, if every available action has the same future $B$-feature occupancy but different force outcomes, FB rewards cannot identify a preferred force policy.
++That is an objective-identifiability failure; distinct latents may still exist, but FB-only actor training supplies no preference among those force-equivalent solutions.
++
++## 2. Comparative Architecture Analysis: Macro-Step Latent Value vs Action-Level Task Value
++
++Use separate causal recurrent states $h_t^P$ and $h_t^Q$; the latter may include permitted privileged information $c_t$.
++A shorthand $P(o_{\rm task})$ denotes the causal recurrent summary, not a replacement of v2's LSTM by a memoryless planner.
++Define $\gamma=\gamma_{\rm task}$; $d$ means true termination, never timeout alone.
++
++| Contract | Design 1: R2.1 traversal | Design 2: v2 ball striking |
++|---|---|---|
++| Decision | $z=P_\psi(h_t^P)$ held for $K=10$ controls, $0.20$ s | $z=P_\psi(h_t^P)$ each control, $K=1$, $0.02$ s |
++| Critic action | Actual executed macro $z_{\rm actual}\in\mathbb R^{256}$ | Applied physical action $a_{\rm applied}\in\mathbb R^{29}$ |
++| Inputs | Recurrent history plus privileged geometry for $Q$ | Separate recurrent deployable planner / privileged critic streams |
++| Planner derivative | $D_\psi P^\top\nabla_zQ_1(h^Q,c,z)$ | $D_\psi P^\top D_z\pi_\theta^\top\nabla_aQ_1(h^Q,a)$ |
++| Main limitation | Commitment delay and changing intra-macro policy | Actor Jacobian rank/saturation and rapid latent switching |
++
++For Design 1, use each actual duration $1\le k\le10$ and discounted reward sum
++$$R_{t:k}=\sum_{j=0}^{k-1}\gamma^j r_{t+j},\qquad y_t^z=R_{t:k}+\gamma^k(1-d_{t+k})\min_iQ_{\bar\phi_i}(h_{t+k}^Q,c_{t+k},P_{\bar\psi}(h_{t+k}^P)).$$
++Train both heads on $(h_t^Q,c_t,z_{\rm actual},R_{t:k},k,h_{t+k}^Q,c_{t+k},d)$; never substitute $z_{\rm update}$.
++A timeout uses the true pre-reset final history and bootstraps; a true terminal absorbs and does not bootstrap.
++Arbitrary replay-slice endings inside a held macro are not new decisions: retain the held latent and remaining duration or exclude these cuts.
++The baseline treats timeout as a decision boundary for continuation; any alternative preserving residual hold requires that residual in the bootstrap state.
++Update the recurrent history on every control step, including observations during a held latent.
++
++For Design 2, maintain the task-only EMA actor $\pi_{\bar\theta}$ as well as target planner and critics:
++$$a'=\operatorname{clip}\{\pi_{\bar\theta}(o_{\rm low}',P_{\bar\psi}(h^{P'}))+\operatorname{clip}(\epsilon,-c,c),-1,1\},$$
++$$y_t^a=r_t+\gamma(1-d_{t+1})\min_iQ_{\bar\phi_i}(h_{t+1}^Q,a'),\qquad \mathcal L_P=-\mathbb E Q_{\phi_1}(h_t^Q,\pi_\theta(o_t^{\rm low},P_\psi(h_t^P))).$$
++Freeze $\theta,\phi$ parameters during the planner update while preserving $D_z\pi_\theta$ and $\nabla_aQ$; placing the actor call inside no_grad would destroy the intended gradient.
++Targets are detached; planner gradients flow through its current recurrent training segment, not through environment transitions or privileged feature construction.
++Low-level updates remain $-\mathbb E\min_i[F_i(o_F,\pi_\theta(o_{\rm low},z_{\rm update}),z_{\rm update})^\top z_{\rm update}]$.
++Take scalar inner products before the ensemble minimum; no demonstration action regression or pose-tracking reward is introduced.
++
++**Unification and controlled bridge.**
++Both critics evaluate options: $Q^{(K)}(h,z)$ integrates the closed-loop actor under a commitment rule until the next permitted planner decision.
++With $K=1$, fixed $\theta$, and identical continuation policy/information, $Q^{(1)}(h,z)=Q^a(h,\pi_\theta(o_{\rm low},z))$.
++This identity additionally requires the first physical action to be sufficient for subsequent evolution; if recurrent updates retain $z$ independently of $a$, include that memory in the action critic state or do not assert equality.
++It also assumes deterministic execution or integration over the same action noise; TD3 target smoothing is a regularized approximation.
++For $K>1$, $Q^a(h,a_t)$ alone does not encode the subsequent $K-1$ held-latent actions, so the one-step chain rule is not the macro policy gradient.
++Bridge first by separate $K=1$ and $K=10$ experiments on the same task, with identical rewards, action bounds, observation channels, and committed control-step budgets.
++An optional contact-sensitive controller chooses the next hold duration $k_{\rm plan}\in\{1,10\}$ using deployable history only; store $(z_{\rm actual},k_{\rm plan},k_{\rm actual})$.
++Train a duration-conditioned option critic, or include the fixed stopping rule in its definition; a changed duration policy changes the value function.
++Unexpected causal event interruption closes a macro at actual $k$ and triggers a new decision; critic targets use $\gamma^k$ and the same interruption rule.
++This bridge is a new ablation, not a silent change to frozen R2.1 or v2; shortening holds cannot solve hidden-load indistinguishability.
++Keep $B$ motion-only throughout; contact estimates from past sensor/action response belong in deployable history if actually available, and privileged forces remain confined to allowed training modules.
++
++**Replay, representation, and causality.**
++Reconstruct each online/target RNN from zero over the complete episode prefix under frozen-weight no_grad burn-in, then BPTT the sampled segment.
++Do not share hidden states between networks or carry them across resets; reset ball kick flags/timers before constructing initial observations.
++Maintain immutable behavior labels, raw $(m_t,m_{t+1})$, and two real-data normalization passes; demonstrations never update normalizers.
++Keep the 50/50 random-sphere/current-$B(m_{\rm next}[perm])$ update mixture and unfiltered expert/near/planner rollout schedule; no static admission or support-intent inference.
++A shorter task replay window and actor EMA mitigate nonstationarity but do not prove Bellman stationarity or eliminate replay-distribution bias.
++B01 permits unchanged $F^\top z$ actor readouts and raw demo prompts; do not whiten these or confuse contact aliasing with covariance rank loss.
++If a later bridge adds model rollouts, use target-coordinate $\bar B^\top Wz$ rewards and the B01 gated terminal splice; no model rollout is needed here.
++Finite credible severe penetration is a committed failure with absorption; invalid physics overrides it, rejects the whole transition, excludes normalization updates, and halts the affected run.
++
++## 3. Serious Alternative Considered and Rejected
++
++**Alternative A: augment the backward target to $B'(m,g,\lambda,b)$ with heightfields, contact wrench, and ball coordinates.**
++Its serious advantage is that geometry and force-specific target rewards become representable, potentially distinguishing support, impact, and desired load.
++However, the available demonstration provider supplies only $m$; an implementation would need an extension $e(m)=(m,\hat g(m),\hat\lambda(m),\hat b(m))$.
++Take two physically admissible source worlds with the same $m$ and different $\lambda$: no deterministic $\hat\lambda(m)$ can equal both.
++More generally, positive $H(g,\lambda,b\mid M)$ prevents universally correct recovery; random imputation restores uncertainty, not the missing realized context.
++Appending the current environment instead encodes a scene-conditioned command, changes the demonstration semantics, and still cannot identify a hidden load from a heightfield.
++Therefore this is rejected as incompatible with the frozen encoder/NPZ contract and insufficient as a universal observability fix, not as universally inferior RL.
++The rejection is falsifiable in a different program: annotated source forces and permitted task-conditioned targets remove the compatibility argument.
++
++**Alternative B: a recurrent monolithic task policy with identical deployable observations.**
++This removes the restricted latent action image and can outperform a poorly conditioned hierarchy; it deserves a compute-matched experimental comparator.
++It cannot overcome Proposition 2: identical available histories still imply the same conditional action distribution and the same hidden-load risk floor.
++Replacing the hierarchy also abandons the specified demonstration-as-prompt and FB research question, so it is rejected as the proposal's implementation, not dismissed on performance grounds.
++The chosen alternative is separate information routing into the existing actor/planner/critics, with explicit tests for latent controllability and information insufficiency.
++
++## 4. Candidate Necessity Claims (Appendix B)
++
++**C-B03-B-01 — information separation is necessary for incompatible contact commands.**
++Premises: fixed deterministic encoder; identical complete $M$; identical deployable histories and task commands; hidden balanced load $C\in\{-,+\}$ independent of policy randomization; unique feasible required torque targets separated by $\Delta>0$.
++Conclusion shape: $B$ separation is exactly zero and every deployable hierarchy has $\mathbb E\|\hat\tau-\tau_C\|^2\ge\Delta^2/4$; achieving zero error requires additional distinguishing information or relaxing the command requirements.
++Necessity grade: **Grade 1**, a conditional mathematical necessity established by functional equality and conditional-variance decomposition.
++Operational test: exact duplicated descriptors/histories, balanced paired loads, audited actuator conversion, and the analytic torque-risk experiment in §5.
++Falsifier: paired population risk strictly below $\Delta^2/4$ with all premises verified; inspect leaked regime bits, correlated randomness, actuator state, and error normalization before declaring a counterexample.
++Scope: different planner latents based on distinguishable histories violate a premise and are an expected escape, not a falsifier.
++
++**C-B03-B-02 — context sufficiency requires action availability as well as information.**
++Premises: observable causal context makes the required action deterministic; the fixed actor's latent action image contains that action; a measurable planner selector exists.
++Conclusion shape: a hierarchy with motion-only $B$ can represent zero-error contact-specific execution; neither $B$ augmentation nor a contact-specific demonstration is necessary.
++Necessity grade: **Grade 1** for the two feasibility conditions; successful learning is not part of the theorem.
++Operational test: the constructed contextual controller plus latent-search and Jacobian diagnostics below.
++Falsifier: verified premises with no selectable zero-error action; optimization failure alone does not falsify existence.
++
++## 5. Pre-Registered Empirical Spike Protocol
++
++This is a prospective replication/extension, specified after reading the permitted existing verdict; its thresholds are not retroactive preregistration of that run.
++The existing JSON reports CPU PASS, $B$ max difference $0.0$, perceptive action MSE $0.0003300176467746496$, and multi-force MSE $0.8953267335891724$.
++It supplies no seeds, force separation, normalization convention, or uncertainty; its last number cannot establish the bound without those premises.
++No new scripts or experiments are executed in this proposal-writing task.
++
++**Fixed setup.**
++Use PyTorch CPU float64, deterministic algorithms, seeds $\{11,23,37,53,71\}$, $N=4096$ matched base frames, and disjoint base-frame IDs for train/test splits.
++Test $(D,d_z)=(229,256),(277,100)$ with frozen eval-mode encoders; clone each generated frame exactly across three regimes.
++Random vectors test the encoder contract only; additionally use valid extracted kinematic frames when the schema audit and simulator adapters are available.
++No descriptor is augmented with regime labels; synthetic metadata is stored in separate tensors and never used to filter demonstration candidates.
++Use explicit sum-over-actuators risk in normalized torque units; a library elementwise MSE on 29 channels must be multiplied by 29.
++
++**(a) Exact aliasing and negative controls.**
++Construct $m_{\rm air}=m_{\rm compliant\,0.40}=m_{\rm rigid\,0.60}$ with torch.clone; compare all encoder outputs and require maximum absolute difference exactly $0.0$.
++Repeat across encoder seeds and a fixed frozen normalization transform; test terrain/ball/force metadata perturbations with descriptor unchanged.
++A negative control changes a descriptor coordinate and records resulting separation without requiring injectivity of a random network.
++Report failures as encoder-contract or determinism failures, never as evidence that kinematics recovered unobserved forces.
++
++**(b) Perceptive disambiguation as a representability experiment.**
++Use a controlled single-actuator fixture embedded in 29 channels: $\ddot q_1=a_1+c$, with context $c\in\{-1,0,1\}$ visible in an independent sensor channel.
++The three regime labels index known dynamics offsets; they do not assert that real height scans directly reveal compliance.
++At matched $q,\dot q$ and desired zero acceleration, the frozen constructed actor $\pi(o,z)=-c\,e_1$ succeeds while the context-blind optimal actor emits zero.
++Balanced risk is exactly $0$ versus $2/3$; require numerical risks $\le10^{-12}$ and $|R_{\rm blind}-2/3|\le10^{-12}$.
++Implement the actor as nn.Linear with fixed weights; no supervised action training or changes to the FB actor objective are permitted.
++This tests the existence of context-sensitive execution, not its emergence under joint FB training; shuffled context must destroy the advantage.
++
++**(c) Hidden multi-force lower bound, using identical geometry and sensor histories.**
++Set hidden load $s\in\{-1,+1\}$, $\ddot q_1=a_1-s$, required $\tau_s=s e_1$, and expose neither $s$ nor a correlated past response.
++For each base frame include both loads with identical actor inputs and fixed shared latent; $\Delta=2$ and the risk floor is $1$.
++The following PyTorch core evaluates the exact paired identity, avoiding finite-sample claims about an optimizer reaching the Bayes solution:
++~~~python
++N, A = 4096, 29
++u = torch.zeros(N, A, dtype=torch.float64)
++v = torch.zeros_like(u); v[:, 0] = 1
++def paired_risk(a):
++    return (((a-v).square().sum(-1) + (a+v).square().sum(-1))/2).mean()
++assert torch.allclose(paired_risk(u), torch.tensor(1., dtype=u.dtype))
++a = torch.randn(N, A, dtype=u.dtype)
++assert torch.allclose(paired_risk(a), 1 + a.square().sum(-1).mean())
++~~~
++Require identity residual $\le10^{-10}$ for every seed; report the minimum, mean, and per-seed results without selecting the best run.
++Escape control: reveal $s$ causally to the planner and use $z_s=\sqrt{d_z}\,s e_1$, $\pi(o,z)=(z_1/\sqrt{d_z})e_1$; risk must become zero.
++A second escape reveals a prior load-response observation to an RNN; a newly randomized load after that observation must restore the bound.
++The constructed controls certify the conditional theorem and its boundaries, not full contact dynamics or learned humanoid success.
++
++**Simulator extension and diagnosis, separately gated.**
++After schema reconciliation, collect valid paired hand-support/obstacle-impact and ball-impact snapshots; record wrench, action, geometry, causal history, and subsequent kinematics.
++Use same-state simulator branching for action comparisons; do not label near-matched frames as exact duplicates or force matching through invalid resets.
++On heights $0.30$–$0.70$ and ball impacts, evaluate a fixed 128-latent candidate bank per snapshot with independent repeated branches and identical budgets across ablations.
++A successful candidate with poor planner choice indicates a planning/ranking opportunity; failure of this finite search does not prove the latent image is empty.
++Measure $F^\top z$ calibration against realized discounted feature rewards with B01-compatible coordinates, and $Q$ rank correlation against realized task returns.
++Mask/shuffle scan or ball context separately in $F$ and $\pi$; large residuals with actor reachability intact implicate prediction/conditioning rather than backward aliasing.
++Compare causal-history load prediction with a privileged-load diagnostic oracle to quantify remaining observability; oracle success is not deployable performance.
++Match $K=1$, $K=10$, and adaptive-hold arms by committed physics steps, optimizer steps, and seeds; report wall time and actual decision counts separately.
++Keep all primary numerical gates above fixed; simulator return comparisons report paired seed differences and 95% intervals without claiming necessity from significance.
++Credible severe penetration remains a valid failed trial; invalid corruption halts the panel with its denominator retained as incomplete, never silently dropped.
++Full traversal/striking claims require the charter's multi-seed training and held-out gates, including planner-only evaluations and the traversal Wilson-bound curriculum criteria.
+
+codex
+The 216-line proposal is written. It includes the aliasing proof, a conditional force-error bound, the bridge between macro and action critics, and a PyTorch protocol that separates representability tests from learned-control claims. I’m checking the saved file’s structure and length.
+exec
+/bin/bash -lc 'wc -l /srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/B/proposal.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+216 /srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/B/proposal.md
+
+exec
+/bin/bash -lc "rg -n '"'^#|C-B03-B-01|0'"\\.0|0\\.40|0\\.60|Grade 1' /srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/B/proposal.md" in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+1:# Proposal B (Packet B03): Hierarchical Task Coupling Under Partial Observability and Contact Dynamics
+8:## 1. Formal Information-Theoretic and Observability Analysis of Kinematic-Only B(m)
+21:$$m_{\rm air}=m_{.40}=m_{.60}=m_\star\quad\Longrightarrow\quad B(m_{\rm air})=B(m_{.40})=B(m_{.60}),\qquad\max_{i,j}\|B(m_i)-B(m_j)\|_2=0.0.$$
+22:The regimes are free-air flight, compliant support on a $0.40$ m box, and rigid impact on a $0.60$ m box; their geometry/contact metadata never enters this equality.
+71:## 2. Comparative Architecture Analysis: Macro-Step Latent Value vs Action-Level Task Value
+79:| Decision | $z=P_\psi(h_t^P)$ held for $K=10$ controls, $0.20$ s | $z=P_\psi(h_t^P)$ each control, $K=1$, $0.02$ s |
+124:## 3. Serious Alternative Considered and Rejected
+141:## 4. Candidate Necessity Claims (Appendix B)
+143:**C-B03-B-01 — information separation is necessary for incompatible contact commands.**
+146:Necessity grade: **Grade 1**, a conditional mathematical necessity established by functional equality and conditional-variance decomposition.
+154:Necessity grade: **Grade 1** for the two feasibility conditions; successful learning is not part of the theorem.
+158:## 5. Pre-Registered Empirical Spike Protocol
+161:The existing JSON reports CPU PASS, $B$ max difference $0.0$, perceptive action MSE $0.0003300176467746496$, and multi-force MSE $0.8953267335891724$.
+173:Construct $m_{\rm air}=m_{\rm compliant\,0.40}=m_{\rm rigid\,0.60}$ with torch.clone; compare all encoder outputs and require maximum absolute difference exactly $0.0$.
+
+codex
+Created [proposal.md](/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/B/proposal.md): 216 lines, including all five required sections, proofs, architecture comparison, falsifiable claims, and spike protocol. No new experiments were run.
+tokens used
+49,993
+Created [proposal.md](/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/B/proposal.md): 216 lines, including all five required sections, proofs, architecture comparison, falsifiable claims, and spike protocol. No new experiments were run.

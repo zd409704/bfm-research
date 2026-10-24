@@ -1,0 +1,18 @@
+I've written the review to `packets/B02/reviews/review-A-on-B.md`. **Proposal B breaks no hard constraint, but it isn't ready to lock:** I found 1 critical and 10 major problems.
+
+**The brief file is missing.** `packets/B02/brief.md` doesn't exist. Like Proposal B, I used `briefs/B02-nonstationarity-and-off-policy-credit-assignment-in-joint-fb-task-training.md` for the rubric and constraints. The review records this as a confound so the orchestrator can confirm everyone worked from the same brief. I opened nothing in `reviews/` or `drafts/`.
+
+**The math holds up.** I re-derived B's main equations, including the bias bounds, the batch-norm update formulas and the numeric fixtures, and found no errors. B's point that the ball-striking observation components add up to 107, not the stated 93, is correct.
+
+**Main findings:**
+- **Critical, necessity claim `C-B02-B-01`:** the claim is true by definition. Two probability measures that agree on every bounded function are the same measure, so the stated falsifier can never be met and the claim can't rule out any approach. I suggested restating it as a lower bound on worst-case bias, which would make it testable. Its "relabeling alone supplies neither" clause also goes further than the proof supports, since B itself admits relabeling works when a valid coordinate mapping exists.
+- **Major, hidden pretraining stage:** the replay gate skips task updates whenever no recent data passes its drift thresholds. Early in training that could happen for long stretches, giving an undeclared FB-only phase, which the brief forbids. No skip-rate ceiling or fallback is set.
+- **Major, gate doesn't match the bound:** the gate uses a threshold on post-squash action change (RMS 0.05). The bias bound is in pre-squash Mahalanobis distance, and with exploration noise of 0.1 that threshold lets through data where the bound guarantees nothing.
+- **Major, wrong alternative rejected:** B rejected re-encoding the observed outcome frames, not the brief's option (c), re-encoding the expert frame that prompted the macro. Its counterexample also only works if the encoder and actor are out of sync.
+- **Major, spike flaws:**
+  - Test D contradicts the gate's own rule (keep only the newest unbroken run of passing data): under that rule the "old but still good" data the test is meant to keep would be excluded.
+  - There's no test that actually trains a critic over many updates to check value stability under replay lag, which the brief asks for.
+  - The alert thresholds are never checked for false alarms.
+  - The overhead check times only small CPU toy models, so it says nothing about production cost.
+
+Other major items in the file: the importance-weighting mode has no minimum effective sample size or abort rule, and the rejected alternative isn't fully covered.

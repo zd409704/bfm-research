@@ -1,0 +1,19 @@
+I have completed the independent cross-family adjudication for Packet `B01` (Order 1) and written the full report to [adjudication-agy-order1.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B01/adjudication-agy-order1.md).
+
+### Summary of Adjudication
+
+1. **Eligibility Gate Check**:
+   - **Candidate P** ([order1_P.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B01/anonymized/order1_P.md)) and **Candidate Q** ([order1_Q.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B01/anonymized/order1_Q.md)) **PASS** all Hard Constraints in [PROGRAM_CHARTER.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md) (§2), [brief.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B01/brief.md) (§2), and Appendix B.5 gates (note: Reviewer B's `[CRITICAL]` gate objection against Candidate P's hybrid actor objective in [review-B-on-A.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B01/reviews/review-B-on-A.md) is overruled, as H3 and Brief B01 §1(c)/§3(2) explicitly mandate analyzing the hybrid rollout objective).
+
+2. **Rubric Scores**:
+   - **Candidate Q**: **88.0 / 100.0** (Exact Mathematical Derivation: `28.0/30`, Stability Under Non-Stationary $\rho$: `21.0/25`, Compatibility with UFO Update Contract: `24.0/25`, Spike Falsifiability: `15.0/20`).
+   - **Candidate P**: **75.0 / 100.0** (Exact Mathematical Derivation: `22.0/30`, Stability Under Non-Stationary $\rho$: `18.0/25`, Compatibility with UFO Update Contract: `21.0/25`, Spike Falsifiability: `14.0/20`).
+
+3. **Principle Claim Adjudication (Appendix B.9)**:
+   - **Candidate P**: `C-B01-CAND-01` → **`tighten-premises`** (stay `Candidate`, fix non-commutative $\Psi_H^\top(M - \Sigma^{-1})z$ expression and directional span premise); `C-B01-CAND-02` → **`downgrade`** (whole-sphere maximization does not imply misidentification over attainable discrete/submanifold embeddings $B(\mathcal{X})$); `C-B01-CAND-03` → **`tighten-premises`** (stay `Candidate` Grade 2, add bounded factorization-residual premise).
+   - **Candidate Q**: `C-B01-CAND-01` → **`tighten-premises`** (stay `Candidate` Grade 1, proof verified; extend finite outcome space to measurable spaces and separate encoding vs value-equivalence premises); `C-B01-CAND-02` → **Stay `Candidate`** (Grade 1, proof verified; ready for human lead signature).
+
+4. **Disposition**:
+   - **Recommend**: **`Q`** (`88.0` vs `75.0`, margin `+13.0` > `5.0` tie threshold).
+   - **Alternate**: **`P`**.
+   - **Mandatory Merge**: Incorporate Candidate P's learned-$B$ mini-FB stage (`S2`), adaptive $\lambda_{\mathrm{orth}}$ dual-ascent comparator (`R2`), multi-step hybrid value-error gate (`G3`), and per-command/per-state leverage diagnostic (with safe 1-step actor fallback rather than unbootstrapped branch dropping), alongside Reviewer A's whitened calibration/residual gate norms from [review-A-on-B.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B01/reviews/review-A-on-B.md).

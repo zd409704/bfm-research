@@ -1,0 +1,28 @@
+The proposal is written to `packets/B01/drafts/A/proposal.md` (444 lines, with all required sections). I checked the main formulas numerically in float64 NumPy at d = 100 and 256 and they hold. That check covers only the algebra, not FB training. PyTorch isn't installed here, so the tracker code in the proposal and the spike protocol have not been run. I stayed out of the other draft directories. Besides the five assigned files, I also read the method's §11.5 and Appendix B (in `pinned/`) to get the claim format right.
+
+**Main findings:**
+
+- **The prompt fix goes the opposite way from intuition.** Under exact FB, the goal readout F^T B(g) is itself exact: it is the best rank-d estimate of the density at g. What goes wrong is which goal a prompt actually points at. Prompting with z = B(g) really aims the policy toward the direction of Σ⁻¹B(g), so it can miss g by an angle of up to arccos(2√κ/(1+κ)). This bound is tight.
+  - "Whitening the prompt" with Σ⁻¹ makes the miss worse (κ effectively becomes κ²).
+  - The consistent correction is to colour the prompt instead: z = proj(Σ̂ B(g)). This needs no matrix inversion, so it can't blow up when Σ̂ is near-singular.
+- **The error formulas come out cleanly.**
+  - Averaged over random z, the error of the raw reward B(y)^T z against the exact one is tr(Σ⁻¹) − d. Relative to the reward's size, that is 1 − (harmonic-mean eigenvalue).
+  - Its worst case is at most ((κ−1)/(κ+1))².
+  - No rescaling of the raw reward can push the worst-direction error below (κ−1)/(κ+1).
+  - Effective rank only predicts the error when the spectrum is nearly uniform (relative error ≈ 2·log(d/erank)). In general it doesn't, and I give counterexamples in both directions. So the gates rely on κ and the harmonic mean, and use erank only to detect collapse.
+- **Why the orthonormalization loss leaves this behind.** With B on the sphere, the second term of the loss has zero gradient, and what remains penalizes tr(Σ²). That penalty charges at most a bounded amount for a fully collapsed direction, while the reward error from that direction is unbounded. This is a testable mechanism for hypothesis H1.
+- **Where whitening goes:**
+
+  | Site | Whiten? |
+  |---|---|
+  | (i) `z_update` relabeling | No |
+  | (ii) expert/near prompts | Never Σ⁻¹; Σ-colouring is an option, off by default and gated |
+  | (iii) actor gradient on F^T z | No (F already contains Σ⁻¹) |
+  | (iv) world-model rewards and n-step targets | Yes, mandatory |
+
+- **Covariance tracker.** It tracks the target network B̄ (the partner of the F̄ tail), using an exponential moving average in float64 that starts at the identity and reuses B̄ outputs the update already computes. The damping is set relative to the largest eigenvalue, which caps the conditioning. Each update uses the inverse computed before the current batch, so it is causal. I also added a guard against the world model being steered into states where the near-null directions get amplified.
+- **Rejected alternatives.**
+  - Whitening inside B's forward pass conflicts with the sphere normalization. It also breaks encoding of single demo frames and shifts the representation every step, which corrupts the TD targets.
+  - Adaptive orthonormalization weighting (dual ascent) controls the wrong quantity and lags behind a drifting replay distribution. It stays only as an ablation arm.
+- **Claims.** C-B01-A-01 (Grade 1) says no rescaled raw reward can match F^T z when κ > 1. C-B01-A-02 (Grade 1) says single-frame prompts only hit their goal when Σ is isotropic, and colouring is the consistent fix. C-B01-A-03 (Grade 2) says any hybrid of world-model rewards plus an F tail must track Σ.
+- **Spike protocol.** It has stages S0–S4 with fixed pass/fail gates G1–G7, an isotropic null control, and an explicit outcome that would show whitening is unnecessary in this regime.

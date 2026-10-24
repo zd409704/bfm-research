@@ -1,0 +1,545 @@
+OpenAI Codex v0.163.0
+--------
+workdir: /srv/claude/research/fb-beyond-imitation-acceleration
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: high
+reasoning summaries: none
+session id: 01a169fb-ed4b-7841-85ad-cc0cd1d0beb0
+--------
+user
+You are Blind Reviewer B on Packet B04 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
+
+Read the following frozen context and candidate files:
+1. `/srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/brief.md`
+3. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/proposals/A.md`
+
+Isolation & Execution Rules:
+- Do NOT read any other file in `reviews/` or `drafts/`.
+- You may also read `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/spikes/B04-SPIKE/VERDICT.json`.
+- Write the output markdown file `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/reviews/review-B-on-A.md` directly without running any bash or python exploratory scripts.
+- Keep your review concise, rigorous, and between 80 and 140 lines, directly keyed to the rubric rows and hard constraints in `brief.md`.
+
+Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/reviews/review-B-on-A.md`:
+1. `# Blind Review B on Proposal A (Packet B04)`
+2. `## 1. Gate & Hard-Constraint Audit`: Check whether Proposal A violates any Hard Constraint in `PROGRAM_CHARTER.md` or `brief.md`.
+3. `## 2. Rubric-Keyed Technical Objections`: Concrete mathematical, physical, or algorithmic defects keyed to each rubric dimension in `brief.md` (labeled `[CRITICAL]`, `[MAJOR]`, or `[MINOR]`).
+4. `## 3. Audit of Rejected Alternative & Necessity Claim`: Evaluate whether the rejected alternative in Proposal A is non-trivial and whether its Principle Claim (`C-B04-A-01`) satisfies Appendix B premises and falsifiability.
+5. `## 4. Spike Protocol Critique`: Identify any missing controls, unmeasured confounds, or threshold flaws in the proposed empirical spike.
+
+codex
+I’ll read the frozen context and Proposal A, then write the rubric-keyed review directly to the requested file without consulting other reviews or drafts.
+
+exec
+/bin/bash -c 'cat /srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/spikes/B04-SPIKE/VERDICT.json' in /srv/claude/research/fb-beyond-imitation-acceleration
+exec
+/bin/bash -c 'cat /srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/proposals/A.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+{
+  "experiment_id": "B04_FOUR_ARM_PATHWISE_VS_FB_ABLATION",
+  "device": "cpu",
+  "elapsed_sec": 3.4781,
+  "verdict": "PASS",
+  "standard_fb_first_action_cosine": -0.00193278887309134,
+  "best_short_horizon_hybrid_cosine": 0.4153684377670288,
+  "h8_whitened_vs_unwhitened_cosine": {
+    "whitened": 0.4153684377670288,
+    "unwhitened": 0.04957137629389763
+  },
+  "horizon_sweep": {
+    "H_0_standard_FB_first_action": {
+      "gradient_cosine_vs_true_physics": -0.00193278887309134,
+      "relative_l2_grad_error": 1.0098018878351087
+    },
+    "H_1": {
+      "horizon": 1,
+      "gradient_cosine_vs_true_physics": 0.020697830244898796,
+      "compounded_state_error_at_H": 0.027182195335626602,
+      "relative_l2_grad_error": 1.0062948514705534
+    },
+    "H_4": {
+      "horizon": 4,
+      "gradient_cosine_vs_true_physics": 0.21342137455940247,
+      "compounded_state_error_at_H": 0.100240558385849,
+      "relative_l2_grad_error": 0.9795423694967718
+    },
+    "H_8": {
+      "horizon": 8,
+      "gradient_cosine_vs_true_physics": 0.4153684377670288,
+      "compounded_state_error_at_H": 0.19513162970542908,
+      "relative_l2_grad_error": 0.9276884788006619
+    },
+    "H_16": {
+      "horizon": 16,
+      "gradient_cosine_vs_true_physics": 0.5197312831878662,
+      "compounded_state_error_at_H": 0.44243913888931274,
+      "relative_l2_grad_error": 0.8545524008731366
+    },
+    "H_32": {
+      "horizon": 32,
+      "gradient_cosine_vs_true_physics": 0.5559719800949097,
+      "compounded_state_error_at_H": 0.9917358160018921,
+      "relative_l2_grad_error": 1.024436569995199
+    }
+  },
+  "batched_wm_steps_per_sec": 651370.5
+}
+ succeeded in 0ms:
+# Proposal A (Packet B04): Differentiable World-Model Rollouts vs. FB Long-Horizon Bootstrapping
+
+- **Author**: Primary Author A. **Inherits**: `D-B01-001` (target-coordinate Gram tracker $W_t=(\widehat\Sigma_t+\ell_t I)^{-1}$, four-site whitening contract, leverage routing).
+- **Arm labels**: this proposal uses the packet-assignment labels (A = 1-step FB, B = $n$-step real FB target, C = model $n$-step FB target, D = pathwise hybrid). They **supersede** the `baseline/03` §6 labels (single-task WM / multi-task WM / ...). §2.4 gives the mapping so adjudicators can compare.
+- **Evidence status (Charter §2.5)**: everything below is derivation plus a pre-registered protocol. The existing `B04-SPIKE/VERDICT.json` is a CPU smoke test (3.5 s). I read it as a contract check, not evidence for H3. The reasons are in §5.0.
+
+## 1. Exact Pathwise Policy Gradient Decomposition and Error Bounds
+
+**Setting.** Deterministic true plant $s_{t+1}=f(s_t,a_t)$, deterministic actor $a_t=\pi_\theta(s_t,z)$, and per-step command reward $r_z(y)=B(y)^\top\Sigma_B^{-1}z$. Termination is a hazard with survival probability $p^\star(s,a)\in[0,1]$, and the alive weight is $c^\star_t=\prod_{j<t}p^\star(s_j,a_j)$. The objective is
+$$J_\infty(\theta,z;s_0)=\textstyle\sum_{t\ge0}\gamma^t c^\star_t\, r_z(s_{t+1}),\qquad Q^\star(s,a)=r_z(f(s,a))+\gamma p^\star(s,a)V^\star(f(s,a)),\quad V^\star(s)=Q^\star(s,\pi_\theta(s,z)).$$
+The reward on the transition into a terminal state counts, and the bootstrap is masked. This matches the FB diagonal pull-up on committed `severe_penetration` rows with $\Phi_{\mathrm{next}}=0$.
+
+**Exact split at any horizon $H\ge0$.** Write $V^\star(s_0)=\sum_{t<H}\gamma^t c^\star_t r_z(s_{t+1})+\gamma^H c^\star_H V^\star(s_H)$ and differentiate. $\theta$ enters through every action $a_t$ and also through the explicit $\theta$ inside $V^\star(\cdot)$:
+$$\nabla_\theta J_\infty=\underbrace{\sum_{t<H}\gamma^t D_\theta\pi_t^{\!\top}\, g^\star_t}_{T_{\mathrm{head}}(H)}\;+\;\gamma^H c^\star_H\underbrace{\sum_{k\ge0}\gamma^k\Big(\textstyle\prod_{i<k}p^\star_{H+i}\Big) D_\theta\pi_{H+k}^{\!\top}\nabla_aQ^\star(s_{H+k},a_{H+k})}_{T_{\mathrm{tail}}(H)\;=\;\partial_\theta V^\star(s)|_{s=s_H}\ \text{(DPG at }s_H)}$$
+Here $D_\theta\pi_t=\partial_\theta\pi_\theta(s_t,z)\in\mathbb R^{d_a\times|\theta|}$, and $g^\star_t=\partial/\partial a_t\,[\sum_{k=t}^{H-1}\gamma^{k-t}c^\star_k r_z(s_{k+1})+\gamma^{H-t}c^\star_H V^\star(s_H)]$ is taken through the closed-loop sensitivities $\partial s_k/\partial a_t=\big(\prod_{i=t+1}^{k-1}A_i\big)\partial_af_t$, with $A_i=\partial_sf_i+\partial_af_i\,\partial_s\pi_i$.
+
+**(a) Standard 1-step FB derivative ($H=0$).** $\hat g_A=D_\theta\pi_0^{\top}\nabla_a\min_kF_k(s_0,a,z)^\top z$. This keeps only the $k=0$ term of $T_{\mathrm{tail}}(0)$, so it drops every future Jacobian $D_\theta\pi_t$ with $t\ge1$:
+$$\nabla J_\infty-\hat g_A=\underbrace{\textstyle\sum_{k\ge1}\gamma^k(\prod_{i<k}p^\star_i)D_\theta\pi_k^\top\nabla_aQ^\star_k}_{\text{per-state truncation},\ \|\cdot\|\le G_\pi Q'_a\gamma/(1-\gamma)}+\underbrace{D_\theta\pi_0^\top(\nabla_aQ^\star_0-\nabla_a\textstyle\min_kF_k^\top z)}_{\le G_\pi\epsilon_F^a}.$$
+The first term is **not** a bias of the actor update *in population*. Averaged over $s_0\sim d^{\pi_z}_\gamma$ it is exactly a rescaling: $\mathbb E_{d^{\pi_z}_\gamma}[\hat g_A]=(1-\gamma)\nabla\mathbb E_{d_0}J_\infty$ (deterministic PG theorem). The real population bias of Arm A is therefore
+$$\mathrm{bias}_A\le G_\pi\big[\epsilon_F^a+Q'_a\,\|\rho-d^{\pi_z}_\gamma\|_{\mathrm{TV}}/(1-\gamma)\big].$$
+The mismatch term is never small for relabeled $z_{\mathrm{update}}$, because replay $\rho$ was produced by `behavior_z`$\ne z_{\mathrm{update}}$ (Charter §2.2). Consequence for evaluation: per-start-state cosine against $\nabla J_\infty(s_0)$ is the wrong yardstick for Arm A. §5 reports both the per-state and the occupancy-aggregated comparison.
+
+**(b) Hybrid $H$-step estimator.** Model rollout $\hat s_{t+1}=\hat s_t+\sigma_\Delta W_\psi(\hat s_t,a_t)+\mu_\Delta$ with $\hat s_0=\mathrm{sg}(s_0)$. Motion features $\hat m_{t+1}=\kappa(\hat s_{t+1})$, where $\kappa$ is the deterministic root-relative kinematics map ($229$/$277$ dims). Soft survival $c_t=\prod_{j<t}\hat p_{\mathrm{surv}}(\hat s_j,a_j)$. Then
+$$\hat J_H=\sum_{t=0}^{H-1}\gamma^t c_t\,\bar B(\hat m_{t+1})^\top W_t z+\gamma^Hc_H\min_k\bar F_k(\hat s_H,\pi_\theta(\hat s_H,z),z)^\top z,\qquad \hat g_D=\nabla_\theta\hat J_H .$$
+$\hat g_D$ equals $T_{\mathrm{head}}(H)$ with every true quantity replaced by its model/critic surrogate, plus the $k=0$ term of $T_{\mathrm{tail}}(H)$ only. Population weighting of DPG terms over $\rho$: true $\sum_{t\ge0}\gamma^tP^t_\pi\rho$ versus hybrid $\sum_{t\le H}\gamma^t\hat P^t_\pi\rho$. The model therefore applies on-policy occupancy correction for exactly $H$ steps, and the residual mismatch shrinks only by the factor $\gamma^{H+1}$.
+
+**Error budget.** Assumptions:
+- Closed-loop Lipschitz constant $\|A_i\|\le L$, $\|\partial_af\|\le K_a$, $\|D_\theta\pi\|\le G_\pi$, $\|\nabla_s r_z\|\le R'$.
+- Model Jacobian error $\|\hat A_i-A_i\|,\|\partial_a\hat f-\partial_af\|\le\epsilon_J^{\mathrm{eff}}(i)=\epsilon_J+\beta\|\hat s_i-s_i\|$, where $\beta$ is the Hessian-Lipschitz constant and $\|\hat s_i-s_i\|\le\epsilon_f\sum_{j<i}L^j$.
+- Survival errors $|\hat p-p^\star|\le\epsilon_c$ and $\|\nabla\log\hat p-\nabla\log p^\star\|\le\epsilon_c'$.
+- Critic errors $\|\nabla_a\bar F^\top z-\nabla_aQ^\star\|\le\epsilon_F^a$ and $\|\nabla_s[\bar F^\top z](s,\pi(s))-\nabla_sV^\star\|\le\epsilon_F^s$.
+- Splice residual $\eta_W=\|\Sigma_B(W_t-\Sigma_B^{-1})\|$ (B01 §1.2.3). Write $u=\gamma L$.
+
+Telescoping $\prod\hat A-\prod A$ gives $\|\partial\hat s_k/\partial a_t-\partial s_k/\partial a_t\|\le(k-t)\,\epsilon_J^{\mathrm{eff}}(L+\epsilon_J^{\mathrm{eff}})^{k-t-1}$, and therefore
+$$\|\hat g_D-\nabla J_\infty\|\le\underbrace{G_\pi\epsilon_J R'\,S_1(H)}_{E_J}+\underbrace{G_\pi(\epsilon_c R_{\max}H+\epsilon_c'V_{\max})\,S_0(H)}_{E_c}+\underbrace{\gamma^H G_\pi\big(\epsilon_F^a+\epsilon_F^s K_a\Lambda_H\big)}_{E_F}+\underbrace{G_\pi Q'_a\tfrac{\gamma^{H+1}}{1-\gamma}}_{E_{\mathrm{trunc}}\ (\text{per-state})}+E_W,$$
+with the following ingredients:
+- $\Lambda_H=\sum_{t<H}L^{H-t-1}$ ($=H$ at $L=1$) and $S_0(H)=\sum_{t<H}\gamma^t\le\min(H,\tfrac1{1-\gamma})$.
+- $S_1(H)=\sum_{t<H}\gamma^t\sum_{n=1}^{H-t}n\,u^{n-1}$, which is $\le S_0(H)/(1-u)^2$ if $u<1$ and $\le\tfrac12H^2(H+1)u^{H-1}$ if $u\ge1$.
+- The terminal state-gradient Jacobian error, $\gamma^HG_\pi Q'_sH\epsilon_J u^{H-1}$, is absorbed into $E_J$.
+- $E_W\le G_\pi R'\eta_W S_1(H)/\min(1,R')$, which vanishes when $W_t=\Sigma_B^{-1}$. Unwhitened rollouts set $W_t=I$, so $\eta_W=\|\Sigma_B-I\|$, which can be $O(1)$ (B01 Kantorovich bound).
+
+**Horizon tradeoff over $H\in\{1,4,8,16,32\}$ (worked at $\gamma=0.99$).**
+
+| $H$ | $\gamma^H$ (critic weight) | $\gamma^HH$ ($E_F^s$ multiplier, $L{=}1$) | $\gamma^{H+1}$ (residual mismatch) | $S_1(H)$, $u{=}1$ | $S_1(H)$, $u{=}1.1$ |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 0.990 | 0.99 | 0.980 | 1 | 1 |
+| 4 | 0.961 | 3.84 | 0.951 | 19.9 | 23.0 |
+| 8 | 0.923 | 7.38 | 0.914 | 118 | 168 |
+| 16 | 0.851 | 13.6 | 0.843 | $\approx 7.9\!\times\!10^2$ | $\approx1.7\!\times\!10^3$ |
+| 32 | 0.725 | 23.2 | 0.718 | $\approx5.5\!\times\!10^3$ | $\approx3.1\!\times\!10^4$ |
+
+What the table implies:
+1. At $\gamma=0.99$, $H=32$ removes only 27.5% of the critic's weight. Over this sweep the hybrid's gain **cannot** come mainly from "trusting $\bar F$ less".
+2. The critic *state*-gradient term $\gamma^HH\epsilon_F^s$ **grows** for every $H<1/|\ln\gamma|\approx99.5$. $\nabla_s\bar F$ is never fit by FB TD, so $\epsilon_F^s$ is plausibly large (claim C-B04-A-01).
+3. $E_J$ grows at least cubically in $H$, and exponentially once contacts make $u>1$.
+
+Whatever accuracy $\hat g_D$ gains has to come from the model-reward head replacing $\epsilon_F^a$ on the first $H$ terms, plus the $H$-step occupancy correction. Both are bounded above by the $1-\gamma^H$ share of the value. The predicted optimum is an interior $H^\star$ where $dE_J/dH$ meets the head gain. With the spike's empirical $\|\hat s_H-s_H\|\approx0.03H$ (the $u\approx1$ regime), that optimum is $H^\star\in[8,16]$. This prior is consistent with H3, but it remains a hypothesis.
+
+## 2. Controlled Four-Arm Experimental Architecture and Stop-Gradient Specification
+
+**2.1 Shared substrate (identical across all arms).** All arms share:
+- the same plant, observation/action contract, `FBReplay`, and $z_{\mathrm{update}}$ 50/50 sampler under two-pass frozen BN;
+- the same $F,B$ widths, Gram tracker, and twin critics $\bar F_{1,2}$;
+- the same world model, $W_\psi:\ (\hat s_t,a_t)\mapsto$ normalized $\Delta s$ plus survival logit $\ell_t$, an MLP `[512,512,256]` with SiLU and LayerNorm. It is **trained in every arm**, including A and B where it is never consumed. This equalizes representation and compute overhead, so that wall-clock differences isolate how the model is *used*.
+
+The model loss on real $K{=}8$-step replay segments, with $\hat s_0=s_0$, autoregressive inputs, and no $m_{t+1..}$ input (zero future leakage), is
+$$\mathcal L_\psi=\tfrac1K\sum_{k<K}\big[\|\hat\Delta_k-\Delta_k\|^2+\lambda_\kappa\|\kappa(\hat s_{k+1})-m_{k+1}\|^2+\lambda_c\,\mathrm{BCE}(\sigma(\ell_k),1-d_k)\big].$$
+The supervision rules are:
+- The target $m_{k+1}$ only *supervises*; it never enters $W_\psi$.
+- Segments stop at the first terminal: steps after $d_k=1$ are masked with the *real* boolean. That is legal here because those booleans are data and carry no gradient.
+- `invalid` rows are never in replay (Charter §2.4).
+
+Reporting: env steps, imagined steps, gradient steps, and GPU-seconds. Arms are matched on GPU-seconds (primary) and on env steps (secondary).
+
+**2.2 Arms.** $n$ and $H$ share the sweep $\{0,1,4,8,16,32\}$. $H{=}0$ is Arm A, and $n{=}1$ reduces B and C to A.
+
+| Arm | $F$ target | Actor objective | Isolates |
+|---|---|---|---|
+| **A** ($H{=}0$) | 1-step FB measure loss | $\max\ \min_k F_k(s,\pi_\theta(s,z),z)^\top z$ | null baseline |
+| **B** ($n$) | $n$-step **real** segment, deterministic trace-cut | as A | faster $F$ propagation, no model |
+| **C** ($n$) | 1 real step, then $n{-}1$ **imagined** on-policy steps under $\pi_\theta(\cdot,z_{\mathrm{update}})$, fully detached | as A | on-policy multi-step targets via model |
+| **D** ($H$) | as A (1-step) | $\max\hat J_H$ (§1b) | pathwise $H$-step actor derivative |
+
+**$n$-step FB measure loss (Arms B and C).** This is the exact generalization of `baseline/01` §2.4 and needs **no** $\Sigma_B^{-1}$. With $x\sim\rho$ independent,
+$$\mathcal L^{(n)}=\mathbb E\big[(F(s,a,z)^\top B(x)-\gamma^n\bar c_n\bar F(s_n,\pi_\theta(s_n,z),z)^\top\bar B(x))^2\big]-2\,\mathbb E\Big[\textstyle\sum_{k<n}\gamma^k\bar c_k\,F(s,a,z)^\top B(s_{k+1})\Big].$$
+Per-arm details:
+- **Arm B** sets $\bar c_k$ to the real alive mask times the trace indicator $\prod_{1\le i\le k}\mathbf 1[\|a_i-\pi_\theta(s_i,z)\|_\infty\le\delta_a]$, with $\delta_a=0.05$. The effective length is $n_{\mathrm{eff}}=$ the first cut. For uniform-sphere $z_{\mathrm{update}}$, $n_{\mathrm{eff}}\to1$ almost surely. This is a predicted failure mode, not a bug, and the mean $n_{\mathrm{eff}}$ is logged per $z$-source. Without the cut, the target would estimate the *behavior* policy's successor measure.
+- **Arm C** sets $\bar c_k=\mathrm{sg}(c_k)$ and $s_{k+1}\leftarrow\mathrm{sg}(\hat s_{k+1})$ for $k\ge1$, with $s_1$ real. The diagonal term on imagined states uses online $B(\kappa(\hat s_{k+1}))$ with its input detached, so $B$ can be trained toward model artefacts only through its weights. This arm gets a dedicated diagnostic: online $B$'s Gram drift under C versus A.
+
+**2.3 Stop-gradient specification (Arm D actor step).**
+
+| Quantity | Weights | Input gradient | Notes |
+|---|---|---|---|
+| $\hat s_0$ (replay) | n/a | **sg** | rollout starts only on non-terminal valid rows |
+| $W_\psi$, $\hat p_{\mathrm{surv}}$ | frozen | **kept** ($\partial/\partial\hat s,\partial/\partial a$) | eval mode |
+| $\pi_\theta(\hat s_t,z)$, $t=0..H$ | **trained** | kept | $a_H$ inside tail also differentiated |
+| $\bar B$ | frozen, eval BN | **kept** through $\kappa$ | site (iv) of B01 |
+| $W_t$, $z$, $\ell_t$ | sg (FP64 Cholesky, cast) | none | $v_z=\mathrm{cholesky\_solve}(z,L_t)$ |
+| $\bar F_{1,2}$ | frozen (target) | kept ($\partial_s,\partial_a$) | $\min_k$ over scalars $\bar F_k^\top z$ |
+
+Gate: if the B01 leverage/split-half gate is closed for a command, that command's loss is routed to the Arm A objective. The routed fraction is logged per $H$.
+
+**Survival chain rule.** Work in log-space, $\log c_t=\sum_{j<t}\log\sigma(\ell_j)$ with $\ell_j=\ell_\psi(\hat s_j,a_j)$:
+$$\frac{\partial c_t}{\partial a_j}=c_t\Big[(1-\hat p_j)\,\partial_a\ell_j+\sum_{i=j+1}^{t-1}(1-\hat p_i)\,\partial_s\ell_i\,\frac{\partial\hat s_i}{\partial a_j}\Big],\quad j<t;\qquad \frac{\partial c_t}{\partial a_j}=0,\ j\ge t.$$
+The factor $(1-\hat p)$ makes the term bounded and self-damping: no $1/p$ blow-up when $p\to0$. Each $a_j$ therefore receives the summed hazard-avoidance signal $\sum_{t>j}\gamma^t(\partial c_t/\partial a_j)[r_t\text{ or tail}]$, which is a pathwise "do not fall later" gradient.
+
+**Why hard boolean masks cannot be multiplied across imagined steps.** Let $\tilde c_t=\prod_{j<t}\mathbf 1[g(\hat s_j,a_j)>0]$, for example $g=0.03-\widehat{\mathrm{pen}}$. Three problems follow:
+1. **Zero pathwise gradient.** $\tilde c_t$ is piecewise constant in $\theta$, so $\partial\tilde c_t/\partial\theta=0$ a.e. Meanwhile $\nabla_\theta\mathbb E_{s_0}[\tilde c_t]=-\sum_{j<t}\oint_{\{g_j=0\}}(\ldots)\,dS\ne0$ is a pure boundary (Dirac) term that the pathwise estimator misses entirely. This is a systematic bias equal to the full hazard-avoidance gradient.
+2. **Crossing at a predicted, not credible, termination.** The product turns a model-predicted crossing into an absorbing event. Under Charter §2.4, only a real simulator penetration with finite tensors is a credible termination, and an imagined crossing is a model error with probability $\ge\epsilon_c$.
+3. **Error compounding.** With per-step false-positive rate $\epsilon_c$, the hard product's truncation error is $1-(1-\epsilon_c)^t\approx t\epsilon_c$, the same as the soft product. The soft product, however, also carries a gradient. Hard masks remain correct only on *real* segments (Arm B, $\mathcal L_\psi$), where no gradient flows through them.
+
+**Contact stiffness rule.** Per step, estimate $\hat\sigma_t=\|\hat A_t v\|/\|v\|$ with one JVP power-iteration step, $v$ warm-started. If $\prod_{i\le t}\hat\sigma_i>\Lambda_{\max}=10$, apply sg to $\hat s_{t+1}$ in the *backward* pass only, while forward values are kept. This truncates the gradient horizon, not the value horizon. The realized gradient horizon $H_{\mathrm{grad}}\le H$ is logged.
+
+**2.4 Mapping to `baseline/03` §6.** b03-Arm A (single-task WM, $H{=}32$) has no FB, so it is excluded by the B04 core question. b03-B and b03-C (multi-task WM, $H\in\{32,1\}$) correspond to Arm D with $\bar F$ replaced by a $z$-conditioned $V_\phi$, so I add them as the D-control "**D-V**". b03-D is Arm D. A factorial note: {B, C targets}$\times${pathwise actor} is left for B05, since I judge it lower priority.
+
+## 3. Serious Alternative Considered and Rejected
+
+**Alternative L: latent backward dynamics** $\hat B_{t+1}=T_{\mathrm{lat}}(B_t,a_t)$, with rewards $\hat B_{t+1}^\top W_tz$. It avoids full-state reconstruction. I reject it for three reasons.
+
+*(L1) It is non-Markov and has an irreducible error floor.* $B_t=B(\kappa(s_t))$ is a function of single-frame kinematics. It excludes velocities' hidden components, contact state, obstacle and ball state (Charter §2.3), and it is not injective on $s$. For any predictor, by the law of total variance,
+$$\mathbb E\|T_{\mathrm{lat}}(B_t,a_t)-B_{t+1}\|^2\ \ge\ \mathbb E\big\|\mathbb E[B_{t+1}\mid s_t,a_t]-\mathbb E[B_{t+1}\mid B_t,a_t]\big\|^2=:\mathcal A>0$$
+whenever two states with equal $B$ but different velocity or contact map to different successors. This happens generically: a crouch descending and a crouch ascending share a frame. A full-state $W_\psi$ has floor $0$ on a deterministic plant. The aliasing also enters the Jacobian, so $\epsilon_J^{\mathrm{lat}}$ does not vanish with data.
+
+*(L2) It breaks the closed loop.* $a_t=\pi_\theta(o_{\mathrm{low},t},z)$ needs $o_{\mathrm{low}}$, and the terminal tail needs $\bar F(\hat s_H,\cdot)$. The latent model must therefore either feed $B$ to the actor, which violates the actor input contract and the 1-step/Arm-A comparability, or decode $s$, which is a full-state model plus an extra error source.
+
+*(L3) It is gauge non-stationary.* For any invertible $A$, $(AB,A^{-\top}F)$ is an equivalent FB solution (`baseline/01` §3.3), and $B_\omega$ drifts through such transforms during joint training. A latent model fit in $B_{\omega_{t-\tau}}$ coordinates incurs error $\|(A_\tau-I)\|\,\|B\|$ after a lag $\tau$, so it must be retrained at the FB update rate. The state model $W_\psi$ is invariant: the reward head re-reads $\bar B_t(\kappa(\hat s))$ with the current target net.
+
+**Alternative U: unbootstrapped $H$-step rollout** (Track 3). I reject it by counterexample. Take a chain with two first actions: "safe", which gives $r=\epsilon$ per step forever, and "commit", which gives $r=0$ for $H$ steps and then $r=1$ forever. The truncated objective prefers safe for every $\epsilon>0$. The true objective prefers commit iff $\gamma^H>\epsilon$; at $\gamma=0.99$, $H=32$ that means $\epsilon<0.72$. The truncated optimum is wrong on an open set. Obstacle commitment and recovery-from-fall have exactly this delayed structure. The bias is $\ge\gamma^H|V_{\min}|$ in value, it does not vanish for any finite $H$, and it is retained only as the "D, no tail" ablation in §5.
+
+## 4. Candidate Necessity Claims (Appendix B)
+
+Grade convention used here: **Grade 1** means deductive from the stated premises. **Grade 2** means it additionally requires an empirical premise, which is then tested.
+
+**C-B04-A-01 (Terminal-critic state-gradient amplification).**
+- *Premises:*
+  - (P1) $\gamma\in(0,1)$, closed-loop $L\ge1$ over the rollout.
+  - (P2) $\bar F$ is trained only by value-level FB TD, so $\epsilon_F^s$ is not controlled by the loss.
+  - (P3, empirical) critic state-gradient errors along $\partial\hat s_H/\partial\theta$ accumulate coherently and do not cancel (Grade-2 premise).
+- *Conclusion shape:* the critic-attributed gradient error $E_F(H)=\gamma^H(\epsilon_F^a+\epsilon_F^sK_a\Lambda_H)$ is nondecreasing on $H\in[1,H_c]$ iff $\epsilon_F^sK_a(1-H|\ln\gamma|)\ge|\ln\gamma|\,\epsilon_F^a$ (at $L{=}1$). At $\gamma=0.99$, $H_c\ge32$ whenever $\epsilon_F^sK_a\ge0.015\,\epsilon_F^a$. Hence any H3 gain over $H\le32$ must be explained by the head terms ($\epsilon_F^a$ replacement and occupancy correction), **not** by reduced critic reliance. *Grade 2.* The bound itself is Grade 1.
+- *Operational test:* oracle substitution (§5.3). Replace $\bar F$ in the tail by the oracle $Q^\star$ (autograd through the true plant) and record $\Delta_F(H)=\mathrm{relL2}(\hat g_D)-\mathrm{relL2}(\hat g_D^{F\to\star})$.
+- *Falsifier:* $\Delta_F(32)<0.8\,\Delta_F(4)$, with the 95% bootstrap CI over 5 seeds excluding $0.8$, on the critic that passes the quality gate.
+
+**C-B04-A-02 (Soft survival is necessary for pathwise hazard avoidance).**
+- *Premises:* termination is a threshold event on $\hat s$, and the actor update is purely pathwise.
+- *Conclusion:* with hard multiplied masks, the survival component of $\hat g_D$ is $0$ a.e. while the true one is nonzero. *Grade 1.*
+- *Operational test:* on states within 2 steps of a penetration crossing, compute $\cos(\hat g_D^{\mathrm{hard}}-\hat g_D^{\mathrm{nosurv}},\,g^\star_{\mathrm{surv}})$.
+- *Falsifier:* a nonzero hard-mask survival component, which would indicate an implementation leak, or soft $\cos\le0.2$.
+
+**C-B04-A-03 (Whitening necessity is $\kappa$-conditional).** This is inherited from B01 site (iv).
+- *Conclusion:* the whitened-minus-unwhitened cosine gap at fixed $H$ is $\approx0$ at $\kappa(\Sigma_B)=1$ and grows with $\kappa$. *Grade 1* in population.
+- *Falsifier:* a gap $>0.05$ at $\kappa=1$. That would mean the spike's whitening effect, 0.415 vs 0.050 at $H{=}8$, is an artefact rather than splice repair.
+
+## 5. Pre-Registered Empirical Spike Protocol
+
+**5.0 Reading of the existing spike.** I treat it as smoke-level only, for four reasons:
+1. $H{=}0$ cosine $=-0.002$ says the spike's critic carried no action-gradient information, which reflects an untrained or uncalibrated $\bar F$, not FB.
+2. relL2 is $\ge0.85$ at every $H$, and $1.024$ at $H{=}32$ despite the highest cosine (0.556), so magnitudes are wrong.
+3. `best_short_horizon_hybrid_cosine` reports the $H{=}8$ value although $H{=}16,32$ scored higher.
+4. Its state error $\approx0.031H$ does usefully fix the $u\approx1$ regime used in §1.
+
+**5.1 Plant (PyTorch, float64, fully differentiable).** A planar 5-DoF hopper-torso:
+- State $s\in\mathbb R^{12}$ (pose, velocities, contact-relevant heights), action $a\in[-1,1]^3$, $dt=0.02$.
+- Soft penalty ground contact $f_n=k\,\mathrm{softplus}(-y/\varepsilon)\varepsilon$ with $k\in\{10^3,10^4\}$ (two stiffness levels set $u$), and smoothed friction $\mu f_n\tanh(v_x/v_0)$.
+- Penetration hazard $p^\star=\sigma((0.03-\mathrm{pen})/\tau)$ with $\tau=0.005$.
+- Motion map $\kappa$: root-relative link kinematics, 24 dims.
+- $B^\star$: frozen random 2-layer MLP, then a linear map with condition number $\kappa(\Sigma_B)\in\{1,30,300\}$ (calibrated on $\rho$ after projection to $\sqrt{d_z}\mathcal S^{d_z-1}$), with $d_z=32$.
+- Policy $\pi_\theta$: fixed, a pretrained mid-quality checkpoint (1/3 of training), $\theta$ frozen during measurement.
+
+**5.2 Learned components (5 seeds).**
+- $\bar F$: trained with 1-step FB on $\rho$ produced by a *different* behavior $z$ mixture. **Critic quality gate**: $R^2(\bar F^\top z,\ \text{MC return})\ge0.8$ on held-out data, else the run is void.
+- $W_\psi$ (§2.1): trained on $\{10^4,10^5,10^6\}$ transitions, so $\epsilon_J$ is varied. $\epsilon_J,\epsilon_c,\epsilon_F^{a},\epsilon_F^{s}$ are *measured* by JVP against the true plant on held-out states.
+
+**5.3 Estimators at fixed $\theta$** ($N=1024$ starts $\times$ 64 commands, half sphere and half $B(m_{\mathrm{demo}})$):
+- (i) $H{=}0$: $\hat g_A$.
+- (ii) $\hat g_D$ for $H\in\{1,4,8,16,32\}$, whitened with $W_t$.
+- (iii) the same, unwhitened ($W_t=I$).
+- (iv) D-no-tail.
+- (v) D with hard masks.
+- (vi) D-V.
+- (vii) oracle substitutions, swapping one at a time $W_\psi\to f$, $\hat p\to p^\star$, $\bar F\to Q^\star$, $W_t\to\Sigma_B^{-1}$, which yields $E_J,E_c,E_F,E_W$ per $H$.
+
+The ground truth $g^\star$ is autograd through the true plant to $T=460$ ($\gamma^T<0.01$) with soft $p^\star$, checked against central finite differences on 16 random $\theta$-directions (rel. dev. $<10^{-4}$).
+
+**5.4 Metrics.** Cosine and relL2 against $g^\star$:
+- **per-state** ($s_0$-wise, then averaged);
+- **occupancy-aggregated** (sum over a batch drawn from $d^{\pi_z}_\gamma$ vs. from $\rho$; this is the fair metric for Arm A, see §1a).
+
+Also reported: $H_{\mathrm{grad}}$, gate-routed fraction, imagined steps/s, and GPU-seconds.
+
+**5.5 Pre-registered decisions (5 seeds, 95% bootstrap CI).**
+- **H3 supported** iff $H^\star=\arg\min_H\mathrm{relL2}_{\mathrm{agg}}\in\{8,16\}$ *and* $\mathrm{relL2}_{\mathrm{agg}}(H^\star)\le0.8\min\{\mathrm{relL2}_{\mathrm{agg}}(\hat g_A),\ \mathrm{relL2}_{\mathrm{agg}}(\text{no-tail},H{=}32)\}$, at both stiffness levels and the median $\epsilon_J$.
+- **H3 refuted** iff $\hat g_A$ is within CI of the best $\hat g_D$ under aggregation, or if $H^\star=32$.
+- Whitening: C-B04-A-03 (gap $\ge0.10$ at $\kappa=300$, $\le0.05$ at $\kappa=1$).
+- Survival: C-B04-A-02.
+- Critic: C-B04-A-01.
+- No result here licenses any claim about obstacle traversal or ball striking (Charter §2.5). A pass only unlocks the full four-arm GPU training protocol of §2, at matched GPU-seconds.
+
+exec
+/bin/bash -c 'cat /srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/brief.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+exec
+/bin/bash -c 'cat /srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Brief B04: Pathwise World-Model Gradients vs First-Action FB Successor Derivatives: Controlled 4-Arm Ablation and Hybrid Horizon Design
+
+**Packet ID**: `B04`
+**Status**: `READY_NOT_STARTED`
+**Baseline References**: `baseline/03-model-based-acceleration-and-fb-hybrid-design.md`, `baseline/01-fb-theoretical-derivation-and-q-readout.md`
+
+---
+
+## 1. Problem Statement
+
+As established in `baseline/03`, standard FB actor updates optimize $\mathcal{L}_\pi(\theta) = -F(s_0, \pi_\theta(s_0, z), z)^\top z$, which differentiates only with respect to the **first action $a_0 = \pi_\theta(s_0, z)$** while treating future policy calls inside $F$ as a stop-gradient TD target. In contrast, differentiable world-model rollouts of horizon $H$ propagate pathwise gradients through all $H$ closed-loop policy evaluations $a_0, \dots, a_{H-1}$ and state transitions $\hat{s}_1, \dots, \hat{s}_H$, achieving large sample-efficiency gains in reference tracking where future reference frames $m_{0:H}$ are known.
+
+However, in **autonomous FB reinforcement learning without future reference hints**, unrolling a learned world model $W_\psi(\hat{s}_t, a_t)$ faces two fundamental challenges:
+1. Without future ground-truth reference frames $m_{t+1}$ as an input hint, contact-rich humanoid dynamics error compounds rapidly over $H=32$ steps.
+2. Evaluating intrinsic rewards along the imagined rollout requires $r_z(\hat{s}_{t+1}) = B(\hat{m}_{t+1})^\top \Sigma_B^{-1} z$ and a terminal bootstrap $\gamma^H F(\hat{s}_H, \pi_\theta(\hat{s}_H, z), z)^\top z$, both of which depend on an evolving backward representation $B_\omega$.
+
+**Core Question**: What is the optimal rollout horizon $H \in \{1, 4, 8, 16, 32\}$ for hybrid **World-Model + FB Terminal Tail** training when no future reference trajectory hint is available, and how much of the acceleration comes from $H > 1$ pathwise gradients vs world-model step throughput?
+
+---
+
+## 2. Hard Constraints & Non-Goals
+
+- The world model $W_\psi(\hat{s}_t, a_t)$ must **never** receive future demonstration frames $m_{t+1..t+H}$ during autonomous task rollouts or FB skill learning.
+- All 4 experimental arms (`Arm A`, `Arm B`, `Arm C`, `Arm D` in `baseline/03` §6) must share the exact same physics plant, observation space, action mapping, and compute measurement protocol (reporting both environment steps and wall-clock GPU seconds).
+
+---
+
+## 3. Deliverables Required from Primary Authors
+
+1. **Bias-Variance & Compounding Error Bound**: Derive the gradient error bound for the hybrid objective:
+   $$
+   J_H(\theta) = \mathbb{E}_{s_0, z}\left[\sum_{t=0}^{H-1} \gamma^t \bar{\phi}(\hat{s}_{t+1})^\top z + \gamma^H \bar{F}(\hat{s}_H, \pi_\theta(\hat{s}_H, z), z)^\top z\right]
+   $$
+   as a function of one-step world-model Jacobian error $\|\nabla W_\psi - \nabla f_{\mathrm{true}}\|$, horizon $H$, and terminal critic action-gradient error $\|\nabla_a \bar{F} - \nabla_a F^\star\|$.
+2. **Adaptive Horizon / Hybrid Architecture Design**: Specify the exact architecture of $W_\psi$, its multi-step state-delta training loss on `FBReplay`, the stop-gradient rules on $(\bar{B}, \bar{F}, \widehat{\Sigma}_B^{-1})$, and how contact discontinuity stiff gradients are handled across $H$ steps.
+3. **Pre-Registered 4-Arm Spike Protocol**: Detail the exact execution plan for Arms A, B, C ($H=1$ vs $H=32$), and D ($H \in \{1, 4, 8, 16\}$) to isolate throughput vs multi-step pathwise differentiation vs representation overhead.
+
+---
+
+## 4. Adjudication Rubric
+
+| Dimension | Weight | Scoring Standard |
+|---|---:|---|
+| Mathematical Rigor of Gradient Decomposition | 30% | Exact chain-rule treatment of first-action vs $H$-step shared-parameter gradients. |
+| Strict Zero-Future-Leakage Guarantee | 25% | World model uses only causal $(s_t, a_t)$ inputs without reference motion lookahead. |
+| Contact Stiffness & Rollout Stability | 25% | Addresses gradient explosion/bias through hybrid contacts and truncation horizon $H$. |
+| 4-Arm Ablation Completeness | 20% | Cleanly separates all three confounding factors (throughput, $H$, multi-task $z$). |
+
+ succeeded in 0ms:
+# Program Charter: Forward-Backward Reinforcement Learning Beyond Imitation Data and Model-Based Training Acceleration
+
+## 1. Mission Statement
+
+Establish rigorous theoretical, algorithmic, and empirical foundations for joint **Forward-Backward (FB) + Low-Level Actor + Task Critic $Q$ + High-Level Planner** reinforcement learning from scratch, enabling legged and humanoid robots to:
+1. Utilize unindexed single-frame demonstrations purely as latent behavioral prompts ($z = B(m)$) rather than rigid trajectory-tracking constraints.
+2. Discover contact-rich recovery, multi-height obstacle traversal, and dynamic ball-striking behaviors that lie outside the state-action support of the demonstration library.
+3. Combine short-horizon differentiable world-model pathwise gradients with long-horizon FB successor representations without violating Bellman consistency or causal observability boundaries.
+
+---
+
+## 2. Hard Technical Constraints & Non-Goals
+
+1. **No Behavioral Cloning or Tracking Penalty Fallbacks**:
+   - The low-level actor $\pi_\theta(o_{\mathrm{low}}, z)$ is updated exclusively by maximizing the conservative FB value $F(o, a, z)^\top z$ (plus optional task-critic gradient in single-step action-$Q$ variants). Adding a supervised action MSE loss $\|a - a_{\mathrm{demo}}\|^2$ or a per-frame pose-tracking task reward to force convergence is strictly forbidden.
+2. **Strict Separation of Rollout Behavior $z$ and FB Update Relabel $z$**:
+   - During rollout collection, behavior $z$ is chosen at macro-step boundaries from the scheduled three-way mixture (`expert`, `near`, `planner`).
+   - During off-policy FB updates, $z_{\mathrm{update}}$ is sampled fresh via the 50/50 mixture (`50%` uniform hypersphere $\mathcal{S}^{d_z-1}(\sqrt{d_z})$, `50%` current online $B$ encoding of permuted replay next-frame motion $m_{t+1}$) under frozen batch-normalization statistics after updating BN once on current $(o_t, m_t)$ and once on next $(o_{t+1}, m_{t+1})$.
+   - `z_update` must never overwrite `behavior_z` in the replay buffer, and the task critic $Q$ must always train on the actual executed macro behavior $z_{\mathrm{actual}}$ (or executed action $a_{\mathrm{applied}}$).
+3. **Single-Frame Motion-Only Backward Input**:
+   - The backward representation network $B(m)$ receives only single-frame root-relative kinematics (`229` dims in obstacle traversal; `277` dims in ball striking). It must not receive obstacle height, terrain scan, ball position, task phase, or demonstration frame indices.
+4. **Strict Separation of Physical Failure vs Numerical Corruption**:
+   - Runtime contact penetration exceeding `0.03` m with finite state/contact tensors, valid schema/timing, and no solver divergence must be recorded as a credible task termination (`severe_penetration`, `terminated=True`, absorption potential $\Phi_{\mathrm{next}}=0$) and committed to replay.
+   - NaN/Inf values, contact buffer overflow with lost contacts, corrupted state/schema/timing, or verified solver divergence must be classified as `invalid`, rejected from replay and normalizer updates, and halt the affected run or evaluation panel for inspection.
+5. **Strict Separation of Verified Evidence vs Unproven Claims**:
+   - Short CPU integration smoke tests prove only contract, gradient flow, and checkpoint/resume mechanics. No document or proposal may claim that obstacle traversal or ball striking has been learned, or that FB beats PPO/AMP/world-model baselines, until full multi-seed GPU training and held-out evaluation panels pass their pre-registered gates.
+
+---
+
+## 3. Falsifiable Hypotheses
+
+- **H1 (Gram Matrix Conditioning & Reward Readout)**: Standard FB orthonormalization loss $\mathcal{L}_{\mathrm{orth}} = \frac{1}{2N(N-1)}\sum_{i\ne j}(B(x_i)^\top B(x_j))^2 - \frac{1}{N}\sum_i \|B(x_i)\|_2^2$ on a changing replay distribution $\rho$ leaves significant off-diagonal covariance in $\Sigma_B$ during early joint training; explicitly whitening via damped $\widehat{\Sigma}_B^{-1}$ in intrinsic state-matching rewards $r_z(y) = B(y)^\top (\widehat{\Sigma}_B + \lambda I)^{-1} z$ reduces value-target variance and improves single-frame goal-reaching accuracy compared to raw dot products $B(y)^\top z$.
+- **H2 (Off-Policy Decoupling Under Non-Stationary $B$)**: In joint training from scratch, storing raw physical motion frames $m_{\mathrm{current}}, m_{\mathrm{next}}$ in FB replay and re-encoding goal latents on the fly with current $B_{\omega}$, while storing executed $(H_{\mathrm{start}}, z_{\mathrm{actual}}, R_{\mathrm{macro}}, H_{\mathrm{final}})$ in a shorter-window task replay with target-planner bootstrap $\min_{i=1,2} Q_{\bar{\phi}_i}(H_{\mathrm{final}}, P_{\bar{\psi}}(H_{\mathrm{final}}))$, bounds value staleness without requiring importance sampling over the low-level trajectory.
+- **H3 (World-Model Horizon vs FB Terminal Bootstrap)**: A hybrid objective combining $H \in \{8, 16\}$ differentiable world-model steps of dense intrinsic/task rewards with an FB terminal value bootstrap $\gamma^H F(s_H, a_H, z)^\top z$ achieves lower policy gradient bias-variance tradeoff than either $H=1$ first-action FB differentiation or $H=32$ pure world-model unrolling without terminal value representation.
+- **H4 (Three-Way Source Schedule & Out-of-Support Exploration)**: Annealing macro-step latent selection from `(0.60 expert, 0.30 near, 0.10 planner)` to `(0.10 expert, 0.20 near, 0.70 planner)` over $S_{\mathrm{ramp}} = 100,000$ control steps enables the task critic $Q$ to experience both structured high-return regions and off-support recovery transitions, unlocking obstacle heights (`0.10..0.70` m) under `100%` planner evaluation where only a single `0.704` m demonstration exists.
+
+---
+
+## 4. Rubric & Verification Gates
+
+Every research brief (`B01`–`B05`) is evaluated under the following pre-agreed rubric before any empirical spike is locked:
+
+| Criterion | Weight | Pass Requirement |
+|---|---:|---|
+| **Mathematical & Causal Rigor** | 25% | Zero circular definitions, exact tensor dimensions, explicit stop-gradient boundaries, and zero future/privileged leakage into deployable modules. |
+| **Contract & Baseline Alignment** | 25% | Full compliance with the frozen baseline specifications (`baseline/01` through `baseline/05`) and zero violation of Hard Constraints (§2). |
+| **Falsifiability & Ablation Design** | 25% | Concrete, compute-matched experimental comparisons that isolate the proposed mechanism against explicit null baselines. |
+| **Failure-Mode & Edge-Case Coverage** | 25% | Explicit handling of degenerate regimes (e.g., singular $\Sigma_B$, `severe_penetration` vs `invalid` physics, short macro truncation $k < K$, RNN prefix burn-in). |
+
+codex
+The main issues are the substituted four-arm design, missing terms in the gradient-error bound, and a necessity claim that treats an upper bound as observed error. I’ll also flag the contract questions that the supplied files leave unresolved, including the unavailable Appendix B.
+
+apply patch
+patch: completed
+/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/reviews/review-B-on-A.md
+diff --git a/packets/B04/reviews/review-B-on-A.md b/packets/B04/reviews/review-B-on-A.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..ffad889f6a69cc14ac80dd79480dfbf5242a4a4e
+--- /dev/null
++++ b/packets/B04/reviews/review-B-on-A.md
+@@ -0,0 +1,128 @@
++# Blind Review B on Proposal A (Packet B04)
++
++## 1. Gate & Hard-Constraint Audit
++
++**Recommendation: major revision; do not lock the spike or accept C-B04-A-01.**
++Scope: Charter, B04 brief, Proposal A, and the explicitly permitted VERDICT.json only.
++Appendix B and the referenced baseline/B01 documents were not supplied in this review scope; compliance with their unseen provisions is unverified.
++
++- **Charter §2.1 — conditional conflict [MAJOR].** No cloning or pose-tracking reward is proposed.
++  The kinematic reconstruction loss trains the model, so it is not itself a prohibited actor tracking loss.
++  However, D directly maximizes imagined intrinsic rewards, beyond the Charter's literal exclusive conservative-FB actor objective.
++  The brief expressly requests this hybrid: resolve that governing-text tension explicitly rather than claiming unconditional Charter compliance.
++- **Charter §2.2 — partial pass [MAJOR].** The shared substrate states the fresh 50/50 relabel sampler and frozen BN.
++  It does not explicitly preserve replay behavior_z, specify actual executed task-Q labels, or restate the scheduled rollout mixture.
++  These are omissions, not demonstrated overwrites; make inherited invariants executable contracts.
++  The spike's half B(m_demo) commands differ from the mandated current-B encoding of permuted replay next frames.
++  A separate diagnostic panel may use those commands, but must not silently replace the compliant training/evaluation panel.
++- **Charter §2.3 — intended pass, toy exception unresolved [MAJOR].** Production B receives only kappa(s), with the prescribed 229/277 dimensions.
++  The spike instead uses 24-dimensional motion and frozen random B; label this a toy mechanism test with limited contract coverage.
++- **Charter §2.4 — incomplete [MAJOR].** Real terminal segments are masked and invalid replay rows excluded.
++  The spike substitutes a sigmoid hazard for the mandated credible severe_penetration threshold.
++  Separate the smooth surrogate from real collection: finite, valid penetration >0.03 m must terminate, enter replay, and have zero absorption potential.
++  Explicitly reject numerical corruption from normalizers too, and halt the affected run/panel; replay exclusion alone is insufficient.
++- **Charter §2.5 — pass with qualification [MINOR].** A correctly disclaims learned robot performance and treats the CPU verdict as smoke evidence.
++  Its later inference that observed state error establishes u approximately 1 is nevertheless unsupported.
++- **Brief §2, no future inputs — intended pass.** Future motion appears as supervised targets, not model inputs.
++  The deployable state/observation contract is insufficiently specified to certify zero privileged leakage.
++- **Brief §2, common substrate/accounting — partial pass [MAJOR].** Identical plant and GPU-second/environment-step reporting are promised.
++  Replacing the requested four arms prevents the required comparison, even if all replacement arms share that substrate.
++
++## 2. Rubric-Keyed Technical Objections
++
++**Mathematical Rigor of Gradient Decomposition — 30%.**
++
++- **[CRITICAL] The advertised gradient-error bound is incomplete (§1).**
++  The assumptions introduce state error epsilon_f and epsilon_J_eff, but the final E_J uses only epsilon_J.
++  Equal model/plant Jacobians with a constant transition offset can still change reward gradients and terminal gradients at visited states.
++  Bound reward-gradient variation, policy-derivative variation, and off-trajectory critic error; retain epsilon_f and effective Jacobian errors.
++  The sensitivity-product bound also drops K_a factors unless an unstated normalization bounds action Jacobians by one.
++- **[MAJOR] The terminal model-Jacobian term cannot simply be “absorbed” into E_J.**
++  It depends on Q'_s, whereas the displayed E_J coefficient contains only R'; no domination assumption connects them.
++  Its stated gamma^H times u^(H-1) also inserts extra discounting relative to a terminal sensitivity proportional to gamma^H L^(H-1).
++  Provide the actual telescoping constants and a valid bound for both model and true closed-loop products.
++- **[MAJOR] Occupancy arguments overstate what follows from DPG (§1a–b).**
++  The population identity needs an exact critic and a defined, normalized discounted occupancy, including termination/absorption conventions.
++  Relabeling alone does not prove replay mismatch is “never small”; different commands can induce identical occupancies.
++  A finite imagined rollout adds occupancy terms, but is not an unbiased occupancy correction for arbitrary replay starts.
++  Normalize the compared gradients consistently; otherwise relL2 rewards horizon-dependent scale rather than directional accuracy.
++- **[MAJOR] Value weights do not bound gradient importance.**
++  Neither a 27.5% terminal discount reduction nor the head's 1-gamma^H value share bounds its share of policy-gradient error.
++  For gamma L<1, the displayed S_1 is bounded; “at least cubically” is not a general growth law.
++  No variance term is derived despite the required bias-variance deliverable.
++- **[CRITICAL] Arm B's trace-cut target drops legitimate continuation (§2.2).**
++  Setting c_n=0 after an action mismatch removes the tail while retaining the prefix, treating a policy mismatch like termination.
++  Bootstrap at the last valid prefix state with gamma^n_eff and a target-policy action; physical termination alone removes continuation.
++  A nonzero action tolerance also gives approximate, not exact, off-policy validity.
++- **[MAJOR] The survival chain rule omits future policy dependence (§2.3).**
++  For i>j, the logit's state sensitivity is partial_s ell_i + partial_a ell_i partial_s pi_i.
++  The written expression retains only partial_s ell_i; it is incomplete unless explicitly defined as a closed-loop total derivative.
++  The factor 1-p bounds the sigmoid contribution, not logit/state Jacobians or the accumulated rollout gradient.
++
++**Strict Zero-Future-Leakage Guarantee — 25%.**
++
++- **[MAJOR] “State s” is not a causal deployment specification (§2.1, §5.1).**
++  Enumerate observable state coordinates, action mapping, kappa, normalization inputs, and any hidden simulator/contact variables.
++  Explain how imagined actor inputs are reconstructed without privileged state or future information.
++  State exact model input/output widths and the toy 12-state/5-DoF coordinate layout.
++- **[MINOR] Target-only supervision is a sound design choice, but needs a leakage check.**
++  Perturb/shuffle future target frames with fixed current inputs and verify predictions remain unchanged before optimization.
++  Freeze normalization and target networks per actor rollout; clarify the overloaded ell_t symbol for damping versus survival logit.
++
++**Contact Stiffness & Rollout Stability — 25%.**
++
++- **[CRITICAL] One warm-started JVP is not an upper bound on operator norm (§2.3).**
++  It can miss an expanding direction, especially for non-normal matrices; multiplying these estimates cannot certify stability.
++  Use a defensible conservative bound or report the heuristic's false-negative rate against explicit toy Jacobians.
++- **[MAJOR] Backward-only state detachment changes the estimator being bounded.**
++  The §1 derivation is for the unmodified pathwise derivative; detachment discards selected earlier action sensitivities.
++  It leaves later actor parameter contributions intact, so a single H_grad does not fully describe the resulting gradient.
++  Bound or measure this truncation bias and report per-time sensitivity survival plus clipped/unclipped controls.
++- **[MAJOR] Smooth contacts and hazards evade the discontinuity central to the brief.**
++  The log-survival assumptions fail at deterministic p=0; threshold events require boundary terms or a separately justified surrogate.
++  Test smoothing-temperature dependence and real threshold termination; do not equate surrogate autograd with the hard-contact policy gradient.
++
++**4-Arm Ablation Completeness — 20%.**
++
++- **[CRITICAL] A explicitly supersedes the required baseline arms (§2.4).**
++  It removes single-task WM and adds real/model FB-target variants; D-V cannot replace the missing single-task versus multi-task comparison.
++  Restore the brief's baseline-indexed four-arm matrix and required C/D horizons; treat the new target variants as additional controls.
++- **[MAJOR] Training an unused world model in every arm hides representation overhead.**
++  Retain that control for model-use attribution, but also report the native FB baseline without dummy model training.
++  C versus D changes both critic-target construction and actor differentiation; add detached versus differentiated versions of the same rollout/objective.
++  Fixed-policy gradient measurements alone cannot establish training acceleration, sample efficiency, or throughput attribution.
++
++## 3. Audit of Rejected Alternative & Necessity Claim
++
++- **[MAJOR] Alternative L is substantive, but its impossibility argument is narrower than claimed (§3).**
++  Non-injectivity of B does not imply positive conditional variance of successor B; aliased states must have different successor embeddings on positive-probability support.
++  The ascending/descending example assumes velocities are absent, which the supplied motion-only contract does not establish.
++  The state-decoding/actor-input objection is credible for T_lat(B,a), but does not eliminate causal recurrent or task-conditioned latent models.
++  Gauge drift is a real concern; the stated expression is not a general lower bound without specifying coordinate transport and latent-model equivariance.
++- **[MINOR] Alternative U gives a valid delayed-reward counterexample, not a universal necessity proof.**
++  It establishes failure for a task family, not every finite-horizon problem; the asserted universal value-bias lower bound is unjustified.
++- **[CRITICAL] C-B04-A-01 confuses a growing error envelope with growing realized error (§4).**
++  At L=1, the derivative condition for gamma^H(a+bH) is correct for fixed nonnegative a,b; its 0.015 threshold is approximately consistent.
++  But P2 supplies no positive lower bound, and P3's “coherence” supplies neither alignment magnitudes nor horizon-invariant errors.
++  Thus the necessity conclusion about all H3 gains does not follow, even conditionally from the listed premises.
++  Oracle substitution changes interactions among model, critic, and truncation errors; a difference of relL2 norms is not an additive critic error component.
++- **[MAJOR] Appendix B compliance remains unverified; falsifiability is only partial.**
++  The claim has identifiable premises and a numerical rejection rule, but no supplied Appendix B permits checking its prescribed grades or format.
++  Define a measurable coherence premise, horizon-specific critic-gradient errors, and a paired critic-only gradient contrast.
++  Delta_F can be negative or near zero, making its multiplicative 0.8 test misleading; specify an absolute effect and uncertainty procedure.
++
++## 4. Spike Protocol Critique
++
++- **[MAJOR] Oracle horizon:** gamma^460<0.01 bounds a discount factor, not the gradient tail when sensitivities grow.
++  Demonstrate convergence at longer horizons; finite differences validate the same truncated objective, not its infinite-horizon accuracy.
++- **[MAJOR] Calibration:** held-out value R^2>=0.8 does not certify action/state derivatives or remove shared target bias.
++  Report derivative errors separately, gate-failure counts, the oracle-tail construction, and fixed train/validation splits across all arms.
++- **[MAJOR] Confounds:** frozen B removes representation drift; transition-count sweeps do not isolate Jacobian error from coverage and fit quality.
++  Add a controlled drifting-B panel, paired replay/data budgets, model-error interventions, and joint oracle substitutions to measure interactions.
++- **[MAJOR] Thresholds:** specify seed-level paired inference and selection correction over horizons, stiffnesses, condition numbers, and model budgets.
++  “Within CI” is not an equivalence test; H3 support/refutation rules need disjoint outcomes and an explicit inconclusive category.
++  Condition number one means Sigma=cI, not necessarily I; equal whitening cosine with a fixed tail requires scale/splice normalization too.
++- **[MAJOR] Reproducibility:** specify dynamics/integrator, friction sign, checkpoints, fitting budgets, D-V training, and hardware/timing boundaries.
++  Include model fitting, normalizer/Gram updates, synchronization, and routing overhead in GPU seconds; report the required arms in the spike itself.
++- **[MINOR] Existing verdict:** its metrics support no causal inference about L, critic training quality, or the optimum horizon.
++  It lacks controls and uncertainty; the scalar PASS cannot repair the omitted arm matrix or validate the necessity claim.
+
+exec
+/bin/bash -c 'wc -l /srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/reviews/review-B-on-A.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+128 /srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/reviews/review-B-on-A.md
+
+codex
+Wrote the 128-line review to [review-B-on-A.md](/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/reviews/review-B-on-A.md).
+
+Recommendation: major revision. All four required sections are included; no other reviews or drafts were read.
+tokens used
+23,761
+Wrote the 128-line review to [review-B-on-A.md](/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/reviews/review-B-on-A.md).
+
+Recommendation: major revision. All four required sections are included; no other reviews or drafts were read.
