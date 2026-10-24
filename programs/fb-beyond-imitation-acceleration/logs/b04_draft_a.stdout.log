@@ -1,0 +1,19 @@
+I've written the proposal to `packets/B04/drafts/A/proposal.md`. It is 196 lines and has the five required sections. Per the firewall, I read only the five context files and the spike verdict, and I ran no scripts. I hand-checked the table numbers in §1 and corrected several while doing so.
+
+The main points, including some that cut against the program's current framing:
+
+1. **Arm A's real weakness is mismatch, not dropped terms.** Arm A (the 1-step FB derivative) drops every future policy Jacobian, but averaged over the policy's own state distribution that is just a rescaling, not an error. Its real error comes from the critic's action-gradient and from the gap between the replay state distribution and the one the current policy would visit. That gap is always present for freshly sampled `z_update` commands. So comparing gradients one start state at a time is unfair to Arm A, and the protocol reports both per-state and aggregated comparisons.
+
+2. **Longer horizons don't reduce reliance on the critic much at γ=0.99.** The terminal critic still carries γ^H of the weight, which is 72.5% at H=32. The error from the critic's *state* gradient scales like γ^H·H, which keeps growing until H≈99. This becomes the main claim, C-B04-A-01 (Grade 2), with an oracle-substitution test and a stated falsifier. If H3 holds, the gain must come from the model-reward head and the H-step correction of the state distribution.
+
+3. **World-model error bound.** Errors from the model's Jacobian grow at least cubically in H, and exponentially once contacts push the closed-loop gain above 1. The spike's state error (about 0.03·H) puts us near the boundary, which gives a prior optimum of H in [8, 16]. That prior agrees with H3 but is labelled a hypothesis.
+
+4. **Soft survival is required.** I derived the log-space chain rule for the soft survival product. Multiplying hard boolean masks across imagined steps has zero gradient almost everywhere, so it misses the whole hazard-avoidance gradient (claim C-B04-A-02, Grade 1). It also treats a model-predicted crossing as a credible termination, which Charter §2.4 forbids.
+
+5. **Arm B degenerates for random commands.** With the trace cut needed for relabeled commands, the effective n falls to about 1, so Arm B behaves like Arm A. The proposal logs this rather than hiding it. The n-step FB loss is written as a measure loss, which needs no Σ_B⁻¹.
+
+6. **Alternatives rejected.** The latent-B dynamics model has an irreducible error floor because B is not a Markov state. It also breaks the closed loop and drifts as B's coordinates change. Unbootstrapped rollouts are refuted by a delayed-reward counterexample.
+
+**Two things to flag:**
+- **Arm labels conflict.** Your assignment's Arm A–D definitions differ from `baseline/03` §6. I followed yours, said so at the top, and added a mapping in §2.4. That includes a "D-V" control covering baseline/03's multi-task world-model arms.
+- **The existing spike verdict is not evidence for H3.** The H=0 cosine of −0.002 means its critic carried no action-gradient signal. Relative L2 error is at least 0.85 at every horizon. Its `best_short_horizon_hybrid_cosine` field reports H=8, even though H=16 and H=32 scored higher. The new protocol adds a critic quality gate (R² ≥ 0.8), aggregated metrics, oracle substitution, and a whitening negative control at κ=1.

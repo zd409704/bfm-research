@@ -1,0 +1,18 @@
+I've written the review to `packets/B05/reviews/review-A-on-B.md`, about 105 lines with all five required sections. My recommendation is **revise and resubmit**: the problems are minor to moderate. Proposal B's core design holds up. Its rule for which outcome wins within a 0.02 s step (penetration over success, invalid over everything) is correct, and so is the deferred-commit transaction. I re-derived the 4096-row quota vectors, and they match `VERDICT.json`. The Wilson cutoff of 79/100 is right, and the proposal claims no unproven results.
+
+Main findings:
+
+- **Hard-constraint issue (O1):** B marks a step `invalid` when contact count reaches capacity, when a joint exceeds 100 rad/s, or when a body moves more than 0.50 m in one substep. These go beyond the charter's definition, which requires overflow *with lost contacts* or *verified* solver divergence. A valid hard fall could therefore halt a run. My fix is to make these "suspect" flags that trigger a re-simulation check rather than an immediate `invalid`.
+- **Commit gap (O2):** B halts the whole run on one invalid step but never says what happens to the 4095 valid rows from the other environments in the same batched step.
+- **Missing gradient rule (O6):** B doesn't say whether the backward-network half of the update latent is detached from the gradient. The 50/50 split method, the permutation scope and the batch-norm mode during encoding are also unstated. Without these, "exact match to `sample_mixed_z`" can't be judged.
+- **Forgetting loophole (O8):** low-height reference rates reset at each unlock, so forgetting can add up across stages, 9.9 points at a time, without ever triggering a hold. Whether the 79/100 floor also applies to the low heights is ambiguous.
+- **Rejected alternative:** the discard-penetration analysis is mathematically correct but weak, because the charter already forbids that option. B skips the real competitors: halt-on-penetration (the old behaviour), and treating penetration as a penalty without ending the episode.
+- **Necessity claim `C-B05-B-01`:** close to true by definition. Its falsifier contradicts its own premises. Its example (committing at substep 2) is empty, because the next observation doesn't exist until substep 4. The meaningful case is committing after substep 4 but before the final check.
+- **Spike protocol, five gaps that need fixing:**
+  - no scripted real collision is set up to guarantee a penetration case;
+  - no test that valid violent falls do *not* trigger `invalid`;
+  - the full grid of penetration and fault timings isn't enumerated;
+  - there is no test fixture for the latent sampling and batch-norm order;
+  - the 32-step resume check is too short to cross macro, quota-epoch or evaluation boundaries.
+
+I couldn't check alignment with `baseline/05` or the B01 synthesis, since both were outside my allowed reading. The review marks those points UNVERIFIED rather than assuming they pass.

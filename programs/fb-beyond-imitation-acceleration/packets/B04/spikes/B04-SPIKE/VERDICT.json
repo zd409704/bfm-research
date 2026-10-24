@@ -1,0 +1,49 @@
+{
+  "experiment_id": "B04_FOUR_ARM_PATHWISE_VS_FB_ABLATION",
+  "device": "cpu",
+  "elapsed_sec": 3.4781,
+  "verdict": "PASS",
+  "standard_fb_first_action_cosine": -0.00193278887309134,
+  "best_short_horizon_hybrid_cosine": 0.4153684377670288,
+  "h8_whitened_vs_unwhitened_cosine": {
+    "whitened": 0.4153684377670288,
+    "unwhitened": 0.04957137629389763
+  },
+  "horizon_sweep": {
+    "H_0_standard_FB_first_action": {
+      "gradient_cosine_vs_true_physics": -0.00193278887309134,
+      "relative_l2_grad_error": 1.0098018878351087
+    },
+    "H_1": {
+      "horizon": 1,
+      "gradient_cosine_vs_true_physics": 0.020697830244898796,
+      "compounded_state_error_at_H": 0.027182195335626602,
+      "relative_l2_grad_error": 1.0062948514705534
+    },
+    "H_4": {
+      "horizon": 4,
+      "gradient_cosine_vs_true_physics": 0.21342137455940247,
+      "compounded_state_error_at_H": 0.100240558385849,
+      "relative_l2_grad_error": 0.9795423694967718
+    },
+    "H_8": {
+      "horizon": 8,
+      "gradient_cosine_vs_true_physics": 0.4153684377670288,
+      "compounded_state_error_at_H": 0.19513162970542908,
+      "relative_l2_grad_error": 0.9276884788006619
+    },
+    "H_16": {
+      "horizon": 16,
+      "gradient_cosine_vs_true_physics": 0.5197312831878662,
+      "compounded_state_error_at_H": 0.44243913888931274,
+      "relative_l2_grad_error": 0.8545524008731366
+    },
+    "H_32": {
+      "horizon": 32,
+      "gradient_cosine_vs_true_physics": 0.5559719800949097,
+      "compounded_state_error_at_H": 0.9917358160018921,
+      "relative_l2_grad_error": 1.024436569995199
+    }
+  },
+  "batched_wm_steps_per_sec": 651370.5
+}

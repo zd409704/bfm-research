@@ -1,0 +1,31 @@
+You are Primary Author A on Packet B05 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
+
+Read the following frozen context files before writing your proposal:
+1. `/srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/fb-beyond-imitation-acceleration/synthesis/B01-synthesis.md`
+3. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/brief.md`
+4. `/srv/claude/research/fb-beyond-imitation-acceleration/baseline/02-fb-paradigm-beyond-imitation-and-exploration.md`
+5. `/srv/claude/research/fb-beyond-imitation-acceleration/baseline/03-model-based-acceleration-and-fb-hybrid-design.md`
+6. `/srv/claude/research/fb-beyond-imitation-acceleration/baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md`
+
+Isolation & Firewall Rules:
+- Do NOT read or list any directory under `packets/B05/drafts/` other than your own directory `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/drafts/A/`.
+- Write your complete proposal to `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/drafts/A/proposal.md`.
+- You may also read `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/spikes/B05-SPIKE/VERDICT.json`.
+- Write the output markdown file `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/drafts/A/proposal.md` directly without running any bash or python exploratory scripts.
+- Keep your proposal focused, mathematically dense, and between 150 and 250 lines.
+
+Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/drafts/A/proposal.md`:
+1. `# Proposal A (Packet B05): Falsifiable Verification Protocols for Beyond-Imitation Competence and Training Acceleration`
+2. `## 1. Exact Substep Terminal-Boundary State Machine and Data Quarantine Specification`:
+   - Formalize the 4-substep (`4 x 0.005 s = 0.02 s`) MuJoCo control step state machine over terminal states `{running, success, timeout, severe_penetration, invalid}` with strict dominance: any substep `NaN`/`Inf` in `(qpos, qvel, qacc, cfrc_ext)`, body displacement jump $> 0.50$ m, joint velocity $> 100$ rad/s, or contact buffer overflow (`ncon >= nconmax`) transitions immediately and irreversibly to `invalid` (`valid_sample=False`, run/panel halt), overriding any prior substep `severe_penetration` ($> 0.03$ m) or `success`.
+   - Specify why credible `severe_penetration` rows (`valid_sample=True`, `terminated=True`, $c=0$) must be committed to both FB and task replay buffers as negative physical boundary evidence.
+3. `## 2. Exact 4096-Environment Pool Quota Accounting and Multi-Seed Statistical Gates`:
+   - Specify the exact remainder-preserving integer allocation across `num_envs = 4096` parallel environments for Stages 0, 1, 2, and 3 (`[0.10..0.80]` m obstacle pool) with zero environment drop or overflow.
+   - Formalize the 95% Wilson score lower-bound gate (`>= 0.70` at $n=100$ per height requiring $\ge 79/100$ successes, with zero `invalid` steps and zero `severe_penetration` on successful episodes) and the three-intervention acceleration & four-dimensional compute accounting ledger (real env steps, imagined rollout steps, peak VRAM, total GPU wall-clock time).
+4. `## 3. Serious Alternative Considered and Rejected`:
+   - Per method v1.0 §11.5, analyze at least one non-trivial alternative approach (e.g., silent discard of all penetration > 0.03 m frames from replay, or soft penalty shaping for numerical `NaN`/contact overflow without halting, or evaluating competence via demonstration pose-tracking RMSE) and prove why it was rejected.
+5. `## 4. Candidate Necessity Claims (Appendix B)`:
+   - Formulate at least one falsifiable Principle Claim (`C-B05-A-01`) with explicit premises, conclusion shape, necessity grade (Grade 1 or Grade 2), operational test, and falsifier.
+6. `## 5. Pre-Registered Empirical Spike Protocol`:
+   - Define the 3-part MuJoCo 3.17 verification suite testing: (1) Test 1 credible `severe_penetration` commit (`valid_sample=True, terminated=True`), (2) Test 2 post-penetration substep `NaN` and `ncon >= nconmax` overflow overriding `severe_penetration` with `invalid` (`valid_sample=False`), and (3) Test 3 exact `4096`-environment quota sum across 2, 5, and 7 active heights plus Wilson lower-bound gating.

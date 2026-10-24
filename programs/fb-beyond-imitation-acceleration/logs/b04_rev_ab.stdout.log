@@ -1,0 +1,33 @@
+I wrote the review to `packets/B04/reviews/review-A-on-B.md`, with the four required sections in roughly 95 lines. My recommendation is **major revision**. Nothing in Proposal B forces outright rejection, but the four arms don't match what the brief requires.
+
+As instructed, I read only the charter, the brief, Proposal B and `VERDICT.json`, and ran no scripts. So everything I say about `baseline/03` §6 is based on how the brief quotes it.
+
+**1. Hard constraints.** All five charter constraints pass.
+- **Brief HC2 fails on the contract.** Proposal B replaces the `baseline/03` §6 arms with "the user's four-arm definitions", which aren't in the frozen context. Its Arms B and C are critic-target arms whose actor never unrolls the model ($H{=}0$), not the $H{=}1$ vs $H{=}32$ comparison the brief asks for.
+- **Note on charter HC1.** Arm D's actor optimizes the model rollout plus FB tail, not only $F^\top z$. The brief asks for this, but the proposal should say explicitly that the brief overrides HC1 here.
+
+**2. Rubric objections.** The gradient algebra is correct; I checked the main equations. The problems:
+- **[CRITICAL] Ablation design.** Two of the three confounds aren't separated:
+  - The representation / multi-task $z$ networks are kept in every arm.
+  - Model throughput isn't separated from pathwise gradient depth. The missing control is the same rollout with gradients stopped between steps.
+- **[MAJOR] Ablation design, continued.**
+  - Arm B effectively becomes Arm A: with a deterministic continuous policy, replay segments almost never match the current policy, so the multi-step target is nearly always one step.
+  - The pure $H{=}32$ world-model arm without a terminal value (charter H3) isn't an arm in the online follow-up.
+- **[MAJOR] The reference gradient favours longer horizons by construction.** Errors are measured against the fixed-start full gradient, so even a perfect critic looks worse at small $H$. A replay-weighted reference is also needed.
+- **[MAJOR] The error bound is uninformative where it matters.** It blows up when the Gram matrix is near-singular and during stiff contact.
+- **[MAJOR] Rollout stability gaps.**
+  - No concrete contact-handling mechanism, and no adaptive horizon (the brief asks for one).
+  - No penalty for the actor exploiting model errors.
+  - The model is trained on 8-step unrolls but used at $H$ = 16 and 32.
+
+**3. Rejected alternative and necessity claim.**
+- **The rejected alternative is a strawman.** The impossibility argument for a latent model built only on $B$ just restates HC3. The serious option, a latent model that also takes terrain or belief inputs, is conceded but never tested.
+- **C-B04-B-01 is circular.** Its extra premise is its own conclusion. Its falsifier tests whether autodiff is implemented correctly, not anything about the world, and its $10^{-6}$ tolerance is tighter than the $10^{-4}$ reference-convergence tolerance.
+
+**4. Spike critique.**
+- The 20% gate has no correction for testing three horizons.
+- Cosine and MSE rank horizons differently, and no primary metric is named.
+- The online follow-up has no success threshold.
+- The $A{=}I$ "isotropic" control is actually ill-conditioned.
+- A changing $B$ is never tested.
+- `VERDICT.json` doesn't follow Proposal B's protocol, so its `PASS` can't be traced to the proposal's gate. Taking its point estimates at face value, $H{=}16$ would pass and $H{=}8$ would fail.

@@ -1,0 +1,25 @@
+I've written the proposal to `packets/B05/drafts/A/proposal.md`. Per your instructions I didn't run any scripts, so the line count is my estimate (about 200 lines, inside the 150–250 target). All five required sections are there, plus a short header.
+
+**The spike result is logic-only.** `VERDICT.json` says PASS, but `elapsed_sec = 0.009` is far too short for MuJoCo to have actually stepped. The proposal counts it as evidence for the classifier, quota and Wilson logic only. It is not evidence about the physics, so §5 sets up a real MuJoCo 3.17 re-run and flags any run under 1 s as `logic-only`.
+
+- **§1 Terminal state machine.**
+  - **Predicates:** checks on every substep for NaN/Inf, body jumps over 0.50 m, joint speed over 100 rad/s, contact buffer full (`ncon ≥ nconmax` or the contact-full warning), solver divergence, and penetration over 0.03 m.
+  - **Proposition 1:** shows the 4-substep machine gives the same answer whatever the substep order, with the ranking invalid > severe_penetration > success > timeout > running.
+  - **Batch handling:** one `invalid` env throws away all 4096 rows from that step and leaves replays, normalizers, the Gram tracker, the step counter and the curriculum ledger unchanged.
+  - **Why penetrations must be kept:** dropping them makes the task critic overestimate by p·(Q_cont − Q_fail) ≥ 0, where p is the chance of failing, and the planner then prefers exactly the riskiest latents.
+- **§2 Quotas and gates.**
+  - **Quotas:** a pure-integer split of the 4096 envs, giving 50% to the top height, 20% to the 0.10/0.20 pair and 30% to the heights in between. The table covers 2 to 8 active heights and matches the spike's 2-, 5- and 7-height vectors exactly.
+  - **No deadlock:** a deficit ledger always sums to zero and every env always has a height, so the curriculum can't stall in a "paused" state.
+  - **Unlock gate:** 79/100 successes per panel on two consecutive panels. A panel containing any `invalid` step is "void": it is re-run on the same seeds and never shrinks the denominator.
+  - **Seeds and ledger:** claims require at least 7 of 8 seeds to pass. The three speed-up interventions are each judged on a four-part ledger (real steps, imagined steps, peak VRAM, GPU hours), with GPU hours as the main measure.
+- **§3 Rejected alternatives.** Silently discarding penetration frames (the main one, rejected through the overestimation result above), soft penalties for NaN or contact overflow, and pose-tracking error against the demo.
+- **§4 Claims.** C-B05-A-01 (keeping credible failures is necessary for an unbiased task value; Grade 1, with an 8-seed keep-vs-drop test and a falsifier) and C-B05-A-02 (rejecting NaN rows before any normalizer update is necessary; Grade 1).
+- **§5 Spike protocol.** Three tests:
+  - **Test 1:** a credible penetration is committed to both buffers.
+  - **Test 2:** NaN, contact overflow or a velocity jump after a penetration turns the step `invalid`. It also checks all 2048 combinations of the substep flags against the closed form.
+  - **Test 3:** the quota sums, the two Wilson boundary values, the panel sequences, and that state matches after `--resume`.
+
+**Choices you may want to revisit:**
+- **Three active heights:** with only 0.10–0.30 active there are no in-between heights, so I gave their 30% to the 0.10/0.20 pair (1024/1024/2048). The baseline doesn't specify this case.
+- **Stage 3 (heights up to 0.80 m):** I made it a separately labelled extension arm. Training at 0.80 m means 0.80 can no longer count as an out-of-distribution test height, and 0.75 becomes an in-between one. That arm can only claim out-of-distribution results at 0.05 m and the changed box depths.
+- **Which three interventions:** I took the "three-intervention acceleration" to mean Gram-whitened intrinsic reward, n-step real-trajectory FB targets, and the H ∈ {8, 16} world-model hybrid.

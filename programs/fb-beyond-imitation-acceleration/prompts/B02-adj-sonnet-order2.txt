@@ -1,0 +1,20 @@
+You are the Order-Swapped Adjudicator (Presentation Order 2: P and Q reversed) on Packet B02 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration` executing under Methodology v1.0 (§4 Step 4 & Appendix B.9).
+
+Read the following files:
+1. `/srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/brief.md`
+3. Candidate P (Order 2): `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/anonymized/order2_P.md`
+4. Candidate Q (Order 2): `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/anonymized/order2_Q.md`
+5. Blind critique on Candidate P (Order 2): `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-A-on-B.md`
+6. Blind critique on Candidate Q (Order 2): `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-B-on-A.md`
+
+Execution Rules:
+- Do NOT read `adjudication-agy-order1.md`.
+- You may also read `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/spikes/B02-SPIKE/VERDICT.json`.
+- Write the output markdown file `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/adjudication-sonnet-order2.md` directly without running any bash or python exploratory scripts, keeping the report focused and between 80 and 140 lines.
+
+Write your complete order-swapped adjudication report to `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/adjudication-sonnet-order2.md` containing:
+1. Eligibility Gate Check (Hard Constraints & Appendix B.5 gates) for Candidate P (Order 2) and Candidate Q (Order 2).
+2. Exact numerical scores (out of 100, weighted by the rubric in `brief.md`) for Candidate P (Order 2) and Candidate Q (Order 2) with specific technical justification for every row.
+3. Principle Claim Adjudication (Appendix B.9) on both candidates' proposed necessity claims.
+4. Disposition: `Recommend` (`P` or `Q` or `Tie`), `Alternate`, Mandatory Merge items, and `Confounds` paragraph.

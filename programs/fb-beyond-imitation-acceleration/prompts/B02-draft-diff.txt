@@ -1,0 +1,32 @@
+--- B02-draft-A.txt
++++ B02-draft-B.txt
+@@ -1,4 +1,4 @@
+-You are Primary Author A on Packet B02 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
++You are Primary Author B on Packet B02 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
+ 
+ Read the following frozen context files before writing your proposal:
+ 1. `/srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md`
+@@ -9,11 +9,11 @@
+ 6. `/srv/claude/research/fb-beyond-imitation-acceleration/baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md`
+ 
+ Isolation & Firewall Rules:
+-- Do NOT read or list any directory under `packets/B02/drafts/` other than your own directory `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/drafts/A/`.
+-- Write your complete proposal to `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/drafts/A/proposal.md`.
++- Do NOT read or list any directory under `packets/B02/drafts/` other than your own directory `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/drafts/B/`.
++- Write your complete proposal to `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/drafts/B/proposal.md`.
+ 
+-Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/drafts/A/proposal.md`:
+-1. `# Proposal A (Packet B02): Breaking Imitation Ceilings via Unindexed Single-Frame Prompts, Relabeling, and Joint Training Non-Stationarity`
++Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/drafts/B/proposal.md`:
++1. `# Proposal B (Packet B02): Breaking Imitation Ceilings via Unindexed Single-Frame Prompts, Relabeling, and Joint Training Non-Stationarity`
+ 2. `## 1. Exact Mathematical Analysis of Joint Training Non-Stationarity and Prompt Drift`:
+    - Quantify the non-stationarity bias introduced into macro-step task critic targets $y = r_{\mathrm{task}} + \gamma_{\mathrm{task}}^k \min_{j=1,2} Q_{\bar{\phi}_j}(h_{t+k}, P_\psi(h_{t+k}))$ when historical replay transitions store `behavior_z` executed under older $(\omega_{t-\Delta}, \theta_{t-\Delta})$ while the low-level mapping $(B_\omega, \pi_\theta)$ evolves.
+    - Derive the exact distribution shift and variance error caused by violating the single-pass BatchNorm update contract (e.g., double-updating running statistics on `m_next`, updating BN during expert prompt queries, or updating BN during `z_update` relabeling).
+@@ -23,6 +23,6 @@
+ 4. `## 3. Serious Alternative Considered and Rejected`:
+    - Per method v1.0 §11.5, analyze at least one non-trivial alternative approach (e.g., retrofitting historical replay `behavior_z` by re-encoding stored motion trajectories through the current online $B_\omega$, or freezing a pre-trained imitation $B_\omega/\pi_\theta$ before task training) and prove why it was rejected under the program constraints.
+ 5. `## 4. Candidate Necessity Claims (Appendix B)`:
+-   - Formulate at least one falsifiable Principle Claim (`C-B02-A-01`) with explicit premises, conclusion shape, necessity grade (Grade 1 or Grade 2), operational test, and falsifier.
++   - Formulate at least one falsifiable Principle Claim (`C-B02-B-01`) with explicit premises, conclusion shape, necessity grade (Grade 1 or Grade 2), operational test, and falsifier.
+ 6. `## 5. Pre-Registered Empirical Spike Protocol`:
+    - Define a concrete PyTorch verification experiment testing: (a) single-pass BN freeze invariance vs double-update drift, (b) `behavior_z` immutability vs `z_update` overwrite corruption, (c) online $(\Delta_B, \Delta_\pi)$ drift tracking, and (d) full-prefix zero-hidden RNN burn-in exactness vs stale cached hidden states.

@@ -1,0 +1,31 @@
+You are Primary Author A on Packet B03 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
+
+Read the following frozen context files before writing your proposal:
+1. `/srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/fb-beyond-imitation-acceleration/synthesis/B01-synthesis.md`
+3. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/brief.md`
+4. `/srv/claude/research/fb-beyond-imitation-acceleration/baseline/02-fb-paradigm-beyond-imitation-and-exploration.md`
+5. `/srv/claude/research/fb-beyond-imitation-acceleration/baseline/04-joint-fb-ball-striking-v2-architecture.md`
+6. `/srv/claude/research/fb-beyond-imitation-acceleration/baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md`
+
+Isolation & Firewall Rules:
+- Do NOT read or list any directory under `packets/B03/drafts/` other than your own directory `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/A/`.
+- Write your complete proposal to `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/A/proposal.md`.
+- You may also read `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/spikes/B03-SPIKE/VERDICT.json`.
+- Write the output markdown file `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/A/proposal.md` directly without running any bash or python exploratory scripts.
+- Keep your proposal focused, mathematically dense, and between 150 and 250 lines.
+
+Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/drafts/A/proposal.md`:
+1. `# Proposal A (Packet B03): Hierarchical Task Coupling Under Partial Observability and Contact Dynamics`
+2. `## 1. Formal Information-Theoretic and Observability Analysis of Kinematic-Only B(m)`:
+   - Prove the exact aliasing boundary of single-frame root-relative motion descriptors $m \in \mathbb{R}^D$ ($D \in \{229, 277\}$): identical kinematic frames across free-air flight, compliant box support (`0.40` m), and rigid impact (`0.60` m) map to identical $B(m)$ vectors (`0.0` $B$-space separation).
+   - Characterize precisely when perceptive context in the low-level actor $\pi_\theta(o_{\mathrm{low}}, z)$ resolves kinematic aliasing vs. the irreducible **isokinematic multi-force bottleneck** (where the same kinematic posture at the same terrain geometry requires distinct contact wrenches/joint torques).
+3. `## 2. Comparative Architecture Analysis: Macro-Step Latent Value vs Action-Level Task Value`:
+   - Compare and unify Design 1 (R2.1 Obstacle Traversal: macro-step $K=10$, recurrent planner $z_t = P_\psi(h_t)$, recurrent twin critic $Q_\phi(h_t, z_{\mathrm{actual}})$ with variable $k \le K$ discount $\gamma_{\mathrm{task}}^k$) and Design 2 (v2 Ball Striking: every-step planner $z_t = P_\psi(o_{\mathrm{task}})$, action-level critic $Q_\phi(o_{\mathrm{task}}, a)$ with chain-rule gradient $\nabla_\psi Q_\phi(o_{\mathrm{task}}, \pi_\theta(o_{\mathrm{low}}, P_\psi(o_{\mathrm{task}})))$ through frozen-weight $\pi_\theta$).
+   - Specify when and how to bridge the two regimes without leaking task/obstacle/ball features into $B(m)$.
+4. `## 3. Serious Alternative Considered and Rejected`:
+   - Per method v1.0 §11.5, analyze at least one non-trivial alternative approach (e.g., augmenting $B(m)$ directly with obstacle heightfields, contact forces, or ball coordinates, or replacing the low-level FB actor with an end-to-end monolithic task RL policy) and prove why it was rejected.
+5. `## 4. Candidate Necessity Claims (Appendix B)`:
+   - Formulate at least one falsifiable Principle Claim (`C-B03-A-01`) with explicit premises, conclusion shape, necessity grade (Grade 1 or Grade 2), operational test, and falsifier.
+6. `## 5. Pre-Registered Empirical Spike Protocol`:
+   - Define a concrete PyTorch verification experiment testing: (a) kinematic-only $B(m)$ contact aliasing across distinct contact regimes, (b) perceptive context disambiguation in $\pi_\theta(o_{\mathrm{low}}, z)$, and (c) the isokinematic multi-force bottleneck lower bound.

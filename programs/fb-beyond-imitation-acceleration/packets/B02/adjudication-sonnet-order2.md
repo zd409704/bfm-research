@@ -1,0 +1,79 @@
+# Packet B02: Order-Swapped Adjudication (Presentation Order 2)
+
+**Adjudicator:** Sonnet 5.5 (order-swapped). **Date:** 2026-10-23. **Method:** v1.0 §4 Step 4, Appendix B.9.
+**Mapping in this order:** P = `order2_P.md`, critiqued by `review-A-on-B.md`. Q = `order2_Q.md`, critiqued by `review-B-on-A.md`.
+**Inputs read:** charter, `brief.md`, both Order-2 candidates, both blind critiques, `spikes/B02-SPIKE/VERDICT.json`. I did not read `adjudication-agy-order1.md`. I did not run any scripts. I did not read the method text or Appendix B directly, so I apply B.3/B.5/B.9 as the candidates and reviewers describe them.
+**Rubric used:** `brief.md` §4 (30 / 25 / 20 / 25). The charter rubric (25 ×4) is not used for scoring.
+
+## 1. Eligibility Gate Check
+
+| Gate | P | Q |
+|---|---|---|
+| Charter §2.1 no BC/tracking | Pass. The actor loss is the scalar conservative FB value. The weight W is detached. | Pass. |
+| §2.2 and brief: BN order, 50/50 `z_update`, no `behavior_z` overwrite, Q on `z_actual` | Pass. The update order is exact, with clone-at-storage checks. | Conditional pass. The main method complies. The Stage G shadow critic N trains on re-encoded labels. It must be labeled an isolated deliberate violation control. |
+| §2.3 single-frame motion-only B | Pass. | Pass. `prompt_frame_id` is logging-only with a schema test. |
+| §2.4 `severe_penetration` vs `invalid` | Pass. P also withholds the macro target when `invalid` interrupts it. | Conditional pass. Episode discard is stated. Run halt and exclusion from normalizer updates are not explicit (review-B). |
+| §2.5 evidence vs claims | Pass. Explicitly no result is claimed. | Pass. Dry-run numbers are labeled author-side. They are unverified, and this is flagged in Confounds. |
+| Brief: no pretraining or freezing | Conditional pass. G-1: the gate can skip task updates indefinitely, which produces an undeclared FB-only phase. | Pass. Gate floors exist, but starvation behavior is undefined. |
+| Brief: full-prefix zero-hidden burn-in | Pass. Per-role reconstruction, with a boundary-detached gradient reference. | Pass in principle. The LSTM input is not reconciled (135 dims vs 256-dim previous z). Prefix retention under FIFO eviction is not stated. |
+| Appendix B.5-type gates (explicit premises, falsifier, not score-derived, Candidate state only) | Met formally. CAND-01's falsifier is vacuous (§3). | Met formally. CAND-01(c) is refuted as stated (§3). |
+
+Neither candidate has a hard-constraint violation. Both are eligible. P carries one MAJOR gate item (G-1). Q carries the shadow-critic designation item and the `invalid` halt gap.
+
+## 2. Scores (brief.md rubric, /100)
+
+### Candidate P (Order 2): **77 / 100**
+
+| Row (weight) | Score | Justification |
+|---|---:|---|
+| Exactness of Off-Policy Semantics (30) | 26 | P separates transition-level a-critic from macro z-critic cleanly. It gives the exact path-law bias (3), the importance-weight identity (4), the variance identity (5), and the TV/KL bounds (6)–(7). P also states that the unit distinction between fixed-z kernel drift and encoder drift (9) matters, that clipped-action Gaussian densities are wrong, and that the exponent error for wrong-k targets is (γ^K−γ^k)V (correct sign). Review A independently re-checked the derivations and found them correct. Deductions: S-1, where the gate uses post-tanh Euclidean RMS 0.05 while the bound is in pre-squash Mahalanobis units, so at σ≈0.1 the gate admits generations whose bound is vacuous. S-2, where correction-mode variance has no ESS floor. S-3, which is planner-side extrapolation. |
+| Compliance with R2.1 & v2 Contracts (25) | 22 | The update order, `no_grad` vs `eval` distinction, storage cloning, EMA target for ball action-Q, and refusal to silently resolve the 93/107 and 256/100 schema conflicts are all exemplary. Deductions: G-1 (a gate that can produce a de facto FB pretraining phase), the unspecified planner-delay counter when updates are skipped, and the unlogged contract extensions (hard-copied target buffers, new log-density fields). |
+| Computational Overhead (20) | 10 | P proposes measurement only. Gate-only and correction mode are timed separately, with a bootstrap CI on toy CPU modules. It gives no analytic FLOP or forward-count estimate at production widths, and it admits that toy timing is not a production certificate. It correctly notes that correction mode needs up to K actor forwards per macro. Review A's O-1 stands. The lack of any a-priori evidence for a 20% row justifies the low score. |
+| Spike Falsifiability (25) | 19 | Tests A–E are deterministic and FP64, with closed-form constants (μ*=0.2, μdup=0.38, 0.9^6 vs 0.8^6), negative controls for every violation, and an `UNSUPPORTED` case for missing support. The spike lacks any bootstrapped TD-learning test of value stability under lag. This is the brief's deliverable 3, and P-2 stands. Test D contradicts the §2.3 contiguous-suffix rule (P-1). The alert thresholds are not calibrated for false-alarm rate (P-3). Several report-only items have no registered criterion. |
+
+### Candidate Q (Order 2): **72 / 100**
+
+| Row (weight) | Score | Justification |
+|---|---:|---|
+| Exactness of Off-Policy Semantics (30) | 22 | The regime split is correct. Proposition 1.2 (B-drift invariance for a fixed executed z) and Proposition 1.4 (O(d_z) gauge symmetry) are real insights that P lacks. The χ² and Pinsker bounds are useful. Deductions: the "certificate" `KL̄ ≤ 0.02 ⇒ |b| ≤ 0.2 sd(y)` does not follow from a 32-row bucket mean (review-B CRITICAL). The 10× fixed-point amplification conflates a fixed-target regression with a Bellman contraction. §1.6 has the sign of the γ^K substitution error reversed. I confirmed the reversal: the wrong-minus-correct difference is (γ^K−γ^k)V̄, not (γ^k−γ^K)V̄. "Zero action-Q age bias" assumes policy-independent filtering without the required premises. |
+| Compliance with R2.1 & v2 Contracts (25) | 19 | Q's contract coverage is good: D1 guard hashes, write-once columns, per-role separate unrolls, and shared-prefix deduplication. Deductions: fp16 storage of `behavior_mu`/`a_raw` is incompatible with the stated 1e-6 drift-equality and likelihood ratios; the shadow critic N; the unspecified `invalid` halt; the unreconciled LSTM input width; prefix retention under FIFO; and the gate-edge precedence (floors vs monotone cutoff vs newest-bucket-fails). |
+| Computational Overhead (20) | 14 | Q gives an a-priori breakdown: D2 ≈0.3%, D3+D4 ≈0.2%, M3 ≈1–2%, with D5 reported separately. This is better evidence than P's, but the estimate omits prefix reconstruction over six recurrent networks, cloning, hashing, SVD, and snapshot upkeep, and D5 is excluded by assertion. It is unverified. |
+| Spike Falsifiability (25) | 17 | Q uses real dimensions and registers PLAN-1/2/3 alongside [A+] items. The runner-visible VERDICT.json (PASS: BN drift 0.0, `behavior_z` diff 0.0, burn-in error 4.8e-7, stale error 0.277) matches those PLAN items. Deductions: every drift/bias check is optional [A+], so PASS can occur with all of them failing (review-B CRITICAL). Stage G uses pseudoreplicated Wilcoxon, and three seed pairs cannot reach p<0.05. The outcome between 1–14% improvement is undefined. D5 cannot certify uncontrollability. There are no matched-capacity FIFO controls. |
+
+## 3. Principle Claim Adjudication (Appendix B.9)
+
+None can be locked. A lock needs independent proof verification and a human signature, and a spike PASS does not supply either. All are retained as Candidates only.
+
+| Claim | Adjudication |
+|---|---|
+| **P C-B02-CAND-01** (path-law equality iff universal unbiasedness) | **Retain as Candidate, Grade 1; do not lock.** The proof is correct and the premises are explicit. I agree with review A (N-1) that it is a restatement of measure equality, so the falsifier is vacuous (the stated counterexample is impossible). It cannot prune routes such as age-only replay or gating, because the program has one reward and one V_n. The "consequently, relabeling alone supplies neither" clause is stronger than the iff and conflicts with P's own §3.1 conjugacy remark (N-2). **Required:** restate it as the minimax form sup_f |E_g f−E_n f| = 2M·TV, so that no unweighted estimator certifies worst-case bias below εM without TV ≤ ε/2. Delete the "consequently" clause or log it as scope-narrowing event #1. |
+| **P C-B02-CAND-02** (query-independent normalization state) | **Retain as Candidate, Grade 1.** It is scoped correctly to EMA with nonconstant downstream probes. The falsifier names which premise violations do not count. Eq. (11) and the constructive witness support it. It is modest, but its operational test (Test A) is exact. The note that `eval()` is not a universal necessity (only frozen or restored state is) is correct. |
+| **Q C-B02-CAND-01** (macro-label invariance and executed-label obligation) | **Narrow before Candidate status; part (c) fails as stated.** Parts (a) and (b) (independence from ω, the KL/χ² bounds) are defensible once premises are added (common sufficient history, finite span or variance, support for the KL direction). Part (c), "any relabeling map ζ=f(ω_t, stored data) is biased", is refuted by review-B's counterexample. I checked it: with command middle p=½ and relabel high iff u<¼+r/2, E[r|high]=¾ and E[r|low]=¼ match their true operators exactly, while the executed command's value is ½. Restrict (c) to outcome-independent, unweighted replacement at the original (H,z). The falsifier clause "any counterexample must violate a premise" prejudges the result. B.3.4 allows a counterexample to invalidate the conclusion itself. Log narrowing event #1. |
+| **Q C-B02-CAND-02** (single-pass normalizer invariant) | **Retain as Candidate, Grade 1.** The (C)/(E) stationary formulas are checkable. Part (a), bitwise invariance, is an implementation property and not a necessity. Part (c) is an asymptotic normalized MSE and should not be read as 19% latent error (review-B minor). |
+| **Q C-B02-CAND-03** (zero controllability makes the planner gradient critic error) | **Retain as Candidate; low force.** It follows trivially from its premise. The D5 proxy cannot establish the distribution-independence premise, because contact or ball outcomes can be invisible in m. Its operational test needs paired-noise interventions and task outcomes. |
+| **Q C-B02-CAND-04** (O(d_z) gauge symmetry) | **Retain as Candidate, Grade 1; the strongest new idea in either packet.** It is an invariance, not a necessity. The premise check (no per-coordinate operation on z before the first linear layer) is real and testable. The diffusion conjecture is rightly not claimed. |
+
+## 4. Disposition
+
+**Recommend: P.** The margin is 5 points (77 vs 72). It is real but modest, and it rests on exactness of the off-policy mathematics and spike discipline more than on overhead. P's mathematics is verified, contract compliance is stronger, and it introduces fewer unsupported guarantees. Q has more insight (gauge, B-drift invariance, snapshot-free diagnostics) and the only a-priori overhead estimate, but its headline certificate does not follow, its spike can PASS while its drift checks fail, and one of its claims is refuted.
+
+**Alternate: Q.** Use it as the source of the merge items below. If P's gate fails G-1 on review, Q becomes the base.
+
+**Mandatory Merge items (into the recommended design):**
+1. **From Q to P:** the gauge/Procrustes split (Δ_B^def vs Δ_B^gauge) as a secondary diagnostic, plus Proposition 1.2, stated as a premise-qualified result. Also Q's snapshot-free stored-behavior columns, kept at fp32 or with a derived quantization bound and an fp16 round-trip test. Also Q's shared-prefix deduplicated burn-in, tested for equality with per-slice burn-in.
+2. **From Q to P:** an a-priori production-width overhead estimate (forward counts for D2/D3/D4/M3) in addition to P's end-to-end timing. This closes O-1. D5/diagnostic-simulator cost must be counted, not excluded by assertion.
+3. **From Q to P:** Q's registered PLAN-1/2/3 items and real dimensions as the minimal pass set in P's spike, so that PASS cannot occur without BN, `behavior_z`, and burn-in checks. Promote the drift/bias checks (c2/c3) to a required distinct B02 mechanism verdict.
+4. **From P to the merged design (fix G-1):** register a skip-rate ceiling for task updates (for example, a cap per 10k-update window). Breaching it is a gate FAIL that falls back to the FIFO/age null, which is already P's admissible null. Define the planner-delay counter under skipped updates. Specify gate precedence and starvation behavior.
+5. **Gate-unit alignment (S-1):** log pre-squash Mahalanobis drift and per-step Gaussian KL as gate quantities, and state what 0.05 RMS means in bias units at deployed σ. Treat Q's M1 KL threshold as a heuristic, not a certificate, unless an upper confidence bound under explicit tail assumptions is supplied.
+6. **Spike additions:** a small tabular or linear macro-MDP with TD learning, a known drift schedule, and an exactly computable ‖Q−Q^π_n‖ across FIFO / age / gate / correction arms with registered bands (P-2, fixes the brief's deliverable 3). Fix the Test D contiguity contradiction (P-1). Add matched-capacity FIFO controls. Calibrate alarm thresholds against compliant noise. Add the direction missing in Q: mutate `behavior_z` and require identical `z_update`. Add an ESS/N floor for correction mode (S-2). Stage G needs seed-level aggregation, enough seeds for a valid test, and explicit success / failure / inconclusive bands.
+7. **Claim repairs:** restate P CAND-01 as the minimax TV bound. Restrict Q CAND-01(c) as in §3. Fix Q's sign error in §1.6. Resolve Q's fixed-target vs fixed-point conflation. Designate the shadow critic N as an isolated deliberate violation control. Make `invalid` halt and normalizer exclusion explicit in the merged design. Reconcile the LSTM input width.
+
+**Confounds.**
+- This is Order 2 (labels swapped), and I did not read the Order-1 adjudication, so any agreement or divergence with it is not known to me.
+- `packets/B02/brief.md` is reported missing by all four authors and reviewers. Both authors and both reviewers used `briefs/B02-…md`, and I was given `brief.md`. I assume the rubric text is the same but did not confirm it.
+- P discloses unrestricted filesystem permissions, which is an isolation risk. The orchestrator should audit it.
+- Q read `spikes/B02-SPIKE/PLAN.md`; P did not read it. Q's alignment to the registered PLAN is therefore partly informational advantage and not only quality, so I did not give it extra rubric credit for it.
+- P is the longer document and has far more closed-form content. I tried not to reward length, and I deducted for the same items the reviews flagged.
+- Q's dry-run figures (e.g. 0.20844 vs 0.20825, χ² bound tables) are author-reported and unverified. I did not rerun them.
+- `VERDICT.json` is the orchestrator's B02-SPIKE (PASS: clean BN update calls 2, frozen-query drift 0.0, `behavior_z` diff 0.0, burn-in error 4.8e-7, stale hidden error 0.277). It is not a run of either candidate's protocol. It confirms only contract mechanics, and its drift trace shows nonzero Δ_B and Δ_π but does not test any bias bound. It is not evidence for or against either proposed mitigation (Charter §2.5).
+- Each candidate had one blind reviewer, and the reviewers differ in severity and style (review-B marks two CRITICAL items on Q; review-A marks one CRITICAL on P's claim and none on its protocol). I checked the key reviewer assertions myself where feasible: the counterexample to Q(c), the sign error in Q §1.6, and the P-1 contradiction. I did not recheck the full math. Scores are my own judgment and could shift by a few points under another reasonable weighting, but not enough to reverse a 5-point gap without also changing the overhead row.

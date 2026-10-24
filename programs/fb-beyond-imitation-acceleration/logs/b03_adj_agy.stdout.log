@@ -1,0 +1,17 @@
+The Independent Cross-Family Adjudication report for Packet `B03` (Order 1) has been written to [adjudication-agy-order1.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/adjudication-agy-order1.md) (94 lines).
+
+### Adjudication Summary
+
+1. **Eligibility Gate Check**: Both [order1_P.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/anonymized/order1_P.md) (**Candidate P**) and [order1_Q.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/anonymized/order1_Q.md) (**Candidate Q**) pass all Hard Constraints in [PROGRAM_CHARTER.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md) (§2.1–§2.5), [brief.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/brief.md) (§2), and Methodology v1.0 Appendix B.5 gates.
+2. **Weighted Rubric Scores**:
+   - **Candidate P**: **82 / 100** (`26/30` NPZ Compatibility, `21/25` Aliasing Rigor, `19/25` Diagnostic Precision, `16/20` Spike Falsifiability)
+   - **Candidate Q**: **75 / 100** (`24/30` NPZ Compatibility, `20/25` Aliasing Rigor, `18/25` Diagnostic Precision, `13/20` Spike Falsifiability)
+3. **Principle Claim Adjudication (Appendix B.9)**:
+   - `C-B03-CAND-01` (P, Grade 1): **Tighten-Premises** (restrict P3 to the torque-projected feasible nullspace $\mathcal{N}_\tau$ over multi-step equal-occupancy horizons; condition P4's Bayes floor on full actor input $U_t = (o_{\mathrm{low}}, z_t)$).
+   - `C-B03-CAND-02` (P, Grade 2): **Tighten-Premises** (include the 4th contact-oracle reference arm, paired seed-level CI on the $\le 10$ pp gap, and simulator-branched $D_P$).
+   - `C-B03-CAND-03` (P, Grade 1): **Stay** (`Candidate`, Grade 1).
+   - `C-B03-CAND-01` (Q, Grade 1): **Tighten-Premises** (retitle to causal information separation in $U_t = (o_t^{\mathrm{low}}, z_t)$ and merge into P's `CAND-01`).
+   - `C-B03-CAND-02` (Q, Grade 1): **Downgrade** (reclassify from Necessity Claim to a §1 Representability Proposition).
+4. **Disposition**:
+   - **Recommend**: **`P`** (**82 / 100**)
+   - **Alternate**: **`Q`** (**75 / 100**), with four mandatory merge items from Candidate Q and blind critiques [review-B-on-A.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/reviews/review-B-on-A.md) and [review-A-on-B.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/reviews/review-A-on-B.md).
