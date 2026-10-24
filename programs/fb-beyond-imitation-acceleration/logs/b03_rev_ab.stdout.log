@@ -1,0 +1,28 @@
+I've written the review to `packets/B03/reviews/review-A-on-B.md` with the four required sections; it should be about 120 lines, but I didn't run a line count because the rules ruled out bash. My recommendation is **revise before the spike is locked**. I found no CRITICAL problems and no hard-constraint violations. I only read the files you listed, so I couldn't check the proposal's claims about the baseline 04 schema, or the wording of the method's Appendix B.
+
+**Gate audit:** Proposal B passes every charter and brief constraint:
+- No behavioural cloning.
+- The rollout `z` and the update `z` stay separate.
+- `B` stays motion-only.
+- Severe penetration and invalid physics are handled separately.
+- Claims stay within the evidence.
+- Demo files without force data still work, and the rejected admission pipeline is not brought back.
+
+Minor notes: spell out the order of the two normalization (BN) passes, and state that the critic's history contains everything the planner's history does. The ball-striking schema mismatch the proposal raises (fields summing to 278/107 rather than 277/93) should be logged as an open blocker.
+
+**MAJOR technical objections:**
+- **Learned aliasing is understated for ball striking.** A continuous map from 277 dimensions onto a 99-dimensional sphere (`d_z = 100`) can never be one-to-one. So many different frames are forced to share a `B` value, which matters more than the exact-equal-frame case the proposal analyses.
+- **Single-frame and value-level aliasing are mixed up.** `F` sums `B` over future frames, and contact regimes make those futures differ. Only the case where future `B` values are identical is a true `B` bottleneck, and the proposal never estimates how often that happens.
+- **`F` gets no observability argument.** The necessity case is made only for the low-level actor, not for `F`, the planner or the critic.
+- **No direct diagnostic for cause (c), "`B` lacks contact features".** It is inferred only by ruling out the other causes. The 128-latent search bank is also underspecified: no sampling distribution, success threshold or branch count.
+
+**Rejected alternative and claim C-B03-B-01:**
+- Alternative A (feeding scene, force and ball data into `B`) is already forbidden by the charter, so rejecting it proves nothing. The real competing alternative is adding kinematic-only features to `B`, such as acceleration from finite-differenced `qvel`, which the brief itself points to. The proposal never examines it.
+- The claim's title says routing context into modules other than `B` is *necessary*, but the conclusion only shows that *some* distinguishing information is necessary.
+- Its falsifier can't trigger. The bound is just the variance of a balanced binary target, so a violation would only reveal a coding bug.
+
+**Spike critique:**
+- Parts (a)–(c) pass by construction: (a) only checks that a frozen network is deterministic, and (b) and (c) are hand-built cases with known answers.
+- The review proposes a learned 2×2 test instead: motion-only `B` versus `B` with added acceleration features, crossed with context in `F` and the actor versus context masked during training.
+- The existing verdict's 0.895 multi-force error should be re-derived before the spike is locked. With exactly paired inputs and the summed error convention it would be impossible, since the floor is 1.
+- It also lists confounds (masking only at evaluation time, unshared simulator randomness), the lack of pass/fail lines in the simulator extension, and missing null baselines.

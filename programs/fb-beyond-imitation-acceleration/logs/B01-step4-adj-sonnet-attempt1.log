@@ -1,0 +1,21 @@
+I wrote the order-2 adjudication to `packets/B01/adjudication-sonnet-order2.md`. It recommends **P**, 83 to 74, a 9-point margin against the 5-point tie margin. I did not read `adjudication-agy-order1.md`.
+
+- **Gates:** both P and Q pass the hard-constraint and Appendix B gates, so both go to ranking. Both are Provisional under §11.1 because neither has isolation-enforcement evidence.
+- **Scores:**
+
+  | Row | P | Q |
+  |---|---:|---:|
+  | Math | 27 | 22 |
+  | Stability | 19 | 18 |
+  | UFO contract | 23 | 20 |
+  | Spike | 14 | 14 |
+  | **Total** | **83** | **74** |
+
+- **Why P leads:** P's derivations held up when I re-checked them, and Q's did not. At κ=28.3, Q reports a bound of 0.188 and an overshoot of 5.32. The correct values are 0.363 and 2.75. Q also states the hybrid-bias formula wrongly in its first claim. Its second claim fails on a simple counterexample: an identity-transition case where isotropy is not needed for self-identification.
+- **Claims:** all are Candidate and none can veto. P's two claims are small but correct. I accepted Q's first claim only in its basic form. I held Q's second and third claims as narrowed, with the third resting on the faulty formula.
+- **Alternate:** Q, because its spike is the only one that tests whether orthonormalization actually leaves the Gram matrix anisotropic early in training (the H1 premise). The Mandatory Merge list has 16 items, mainly adding that test and a value-error gate to P, and fixing P's stability gates.
+- **Confounds:**
+  - Both candidates make the same placement choice and reject the same alternatives. The brief frames that choice, so I recorded it as framed agreement and did not count it as independent evidence.
+  - I overrode Review B's CRITICAL finding on the hybrid actor update. The charter authorizes the hybrid design, and both candidates use it.
+  - I did not read the baseline files, so some baseline claims in both candidates are unverified.
+  - I re-derived the contested algebra by hand but did not run any code.

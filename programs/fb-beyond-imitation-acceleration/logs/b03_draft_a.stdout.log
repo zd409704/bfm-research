@@ -1,0 +1,26 @@
+I've written the proposal to `packets/B03/drafts/A/proposal.md`. It is 193 lines and contains all five required sections. I only read the frozen context files, the spike `VERDICT.json` and my own draft directory, and I ran no scripts.
+
+**Main argument.** It doesn't matter for control that the current frame looks identical in $B$-space. What matters is whether two contact intents lead to different future body motion. On that basis the proposal splits contact aliasing into three cases:
+- **Case R (geometry-resolved):** the terrain scan or ball state fixes the contact regime. This is resolved only if that perception goes into **both** the low-level actor $\pi_\theta$ and the forward network $F$. If $F$ lacks it, the actor is trained on a gradient averaged across regimes.
+- **Case K (different future motion):** for example, hand push-off versus swing-over from the same posture. The planner can pick these apart through its choice of $z$.
+- **Case I (same motion, different forces):** this is the only irreducible bottleneck. Its exact boundary is a rank condition on the contact Jacobian: $\dim\mathcal{N} \ge n_c - 6$.
+  - It is empty in free flight and on single-foot support.
+  - It has at least 6 dimensions in double support and at least 9 with feet plus a hand on the box.
+  - Ball striking only approximately falls into this case.
+
+**Section by section:**
+- **§1 Aliasing:** I prove exact zero separation using the transformations the motion descriptor ignores.
+  - The two descriptors differ here. The 229-dim one ignores vertical translation, so flight, the 0.40 m box and the 0.60 m box all collapse. The 277-dim one includes `base_height`, so its aliasing is over ball state and contact forces instead.
+  - The result also gives an information bound: on the constructed three-regime fibres, any decoder of contact regime from $z$ errs at least 2/3 of the time.
+- **§2 Architectures:** Design 2 (ball striking) is Design 1 (obstacle traversal) with a one-step hold and the critic expressed through the action.
+  - In both designs the planner can only reach actions the low-level actor already produces for some $z$. FB training gives that actor no signal in force-only directions.
+  - So the only allowed way to shape those directions is the Charter's optional task-critic gradient, which exists only in single-step action-critic variants.
+  - The bridge I propose is an "Action-Anchored Macro Critic": the macro critic also receives the macro's first action. It needs one new field in the task replay (the first applied action), has an explicit no-leakage contract, and includes a rule for when to switch between one-step and 10-step holds.
+- **§3 Rejected alternative:** adding contact or scene inputs to $B$. Demo files have no contact or scene data, so any demo-compatible version of that encoder reduces to a function of the kinematic frame alone and has the same aliasing. Adding obstacle height also wastes $B$-space capacity on things the robot can't control, and with uniform sampling over the 7 training heights it makes about 85.7% of relabelled goals unreachable. The end-to-end monolithic RL policy is kept only as a null baseline.
+- **§4 Claims:**
+  - C-B03-A-01 (Grade 1): FB-only training is blind to force-only differences.
+  - C-B03-A-02 (Grade 2): perception in $\pi_\theta$ and $F$ is sufficient for geometry-resolved aliasing.
+  - C-B03-A-03 (Grade 1): demo prompts cannot carry contact information.
+- **§5 Spike protocol:** a CPU PyTorch spike with five seeds and closed-form floors. Each test has positive controls so it cannot pass vacuously; a control that fails to fire makes the verdict inconclusive. It also defines three diagnostics for attributing GPU-run failures to the planner, to unused perception, or to $B$ aliasing.
+
+The existing spike's isokinematic result (MSE 0.895) can't be interpreted without its theoretical minimum. My protocol requires reporting that minimum alongside the measured value. The proposal also states that the spike shows mechanism only, not learned behaviour, per the Charter's evidence rule.

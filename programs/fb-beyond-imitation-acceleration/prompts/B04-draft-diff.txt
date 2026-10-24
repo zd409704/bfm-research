@@ -1,0 +1,36 @@
+--- B04-draft-A.txt
++++ B04-draft-B.txt
+@@ -1,4 +1,4 @@
+-You are Primary Author A on Packet B04 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
++You are Primary Author B on Packet B04 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
+ 
+ Read the following frozen context files before writing your proposal:
+ 1. `/srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md`
+@@ -8,14 +8,14 @@
+ 5. `/srv/claude/research/fb-beyond-imitation-acceleration/baseline/03-model-based-acceleration-and-fb-hybrid-design.md`
+ 
+ Isolation & Firewall Rules:
+-- Do NOT read or list any directory under `packets/B04/drafts/` other than your own directory `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/drafts/A/`.
+-- Write your complete proposal to `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/drafts/A/proposal.md`.
++- Do NOT read or list any directory under `packets/B04/drafts/` other than your own directory `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/drafts/B/`.
++- Write your complete proposal to `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/drafts/B/proposal.md`.
+ - You may also read `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/spikes/B04-SPIKE/VERDICT.json`.
+-- Write the output markdown file `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/drafts/A/proposal.md` directly without running any bash or python exploratory scripts.
++- Write the output markdown file `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/drafts/B/proposal.md` directly without running any bash or python exploratory scripts.
+ - Keep your proposal focused, mathematically dense, and between 150 and 250 lines.
+ 
+-Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/drafts/A/proposal.md`:
+-1. `# Proposal A (Packet B04): Differentiable World-Model Rollouts vs. FB Long-Horizon Bootstrapping`
++Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B04/drafts/B/proposal.md`:
++1. `# Proposal B (Packet B04): Differentiable World-Model Rollouts vs. FB Long-Horizon Bootstrapping`
+ 2. `## 1. Exact Pathwise Policy Gradient Decomposition and Error Bounds`:
+    - Compare the exact long-horizon policy gradient $\nabla_\theta J_\infty(\theta, z)$ against: (a) the standard 1-step FB action derivative $\nabla_a \min_k F_k(s_0, a_0, z)^\top z \, \nabla_\theta \pi_\theta(s_0, z)$ (which drops future policy action Jacobians $\partial \pi_\theta(s_t, z)/\partial \theta$ for $t \ge 1$), and (b) the $H$-step differentiable world-model rollout with whitened intrinsic rewards $r_z(\hat{s}_{t+1}) = \bar{B}(\hat{m}_{t+1})^\top W_t z$, soft survival weights $c_t = \prod_{j=0}^{t-1} \hat{p}_{\mathrm{surv}}(\hat{s}_j, a_j)$, and terminal FB bootstrap $\gamma^H c_H \min_k \bar{F}_k(\hat{s}_H, \pi_\theta(\hat{s}_H, z), z)^\top z$.
+    - Derive the bias-variance and horizon tradeoff as a function of rollout horizon $H \in \{1, 4, 8, 16, 32\}$, world-model Jacobian error $\epsilon_J$, survival calibration error $\epsilon_c$, and critic approximation residual $\epsilon_F$.
+@@ -25,6 +25,6 @@
+ 4. `## 3. Serious Alternative Considered and Rejected`:
+    - Per method v1.0 §11.5, analyze at least one non-trivial alternative approach (e.g., latent-space dynamics world model $\hat{B}_{t+1} = T_{\mathrm{lat}}(B_t, a_t)$ predicting $B$ directly without full state reconstruction, or unbootstrapped $H$-step world-model rollout without an FB terminal tail) and prove why it was rejected.
+ 5. `## 4. Candidate Necessity Claims (Appendix B)`:
+-   - Formulate at least one falsifiable Principle Claim (`C-B04-A-01`) with explicit premises, conclusion shape, necessity grade (Grade 1 or Grade 2), operational test, and falsifier.
++   - Formulate at least one falsifiable Principle Claim (`C-B04-B-01`) with explicit premises, conclusion shape, necessity grade (Grade 1 or Grade 2), operational test, and falsifier.
+ 6. `## 5. Pre-Registered Empirical Spike Protocol`:
+    - Define a concrete PyTorch verification experiment on a differentiable contact dynamics plant comparing $H=0$ (1-step FB derivative), $H \in \{1, 4, 8, 16, 32\}$ whitened hybrid rollouts, and unwhitened rollouts against ground-truth long-horizon policy gradients.

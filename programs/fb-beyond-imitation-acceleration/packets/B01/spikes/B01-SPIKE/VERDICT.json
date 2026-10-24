@@ -1,0 +1,50 @@
+{
+  "experiment_id": "B01_GRAM_CONDITIONING_AND_WHITENING",
+  "device": "cpu",
+  "elapsed_sec": 0.0831,
+  "verdict": "PASS",
+  "results": {
+    "dz_100_m_277": {
+      "d_z": 100,
+      "motion_dim": 277,
+      "sphere_norm_mean": 10.0,
+      "spectral": {
+        "lambda_max": 5.320490837097168,
+        "lambda_min": 0.021381307393312454,
+        "condition_number": 248.83842410690406,
+        "effective_rank": 47.85445785522461,
+        "trace": 99.99999237060547,
+        "off_diag_frobenius": 1.4462417364120483
+      },
+      "linear_reward_readout_cancellation_max_error": 5.7220458984375e-06,
+      "intrinsic_reward_mse_unwhitened": 780.8455200195312,
+      "intrinsic_reward_mse_whitened": 45.319637298583984,
+      "intrinsic_reward_mse_reduction_ratio": 17.229738951241096,
+      "intrinsic_reward_cosine_unwhitened": 0.2874446511268616,
+      "intrinsic_reward_cosine_whitened": 0.9878392815589905,
+      "goal_gradient_cosine_unwhitened": 0.3450455069541931,
+      "goal_gradient_cosine_whitened": 0.988474428653717
+    },
+    "dz_256_m_229": {
+      "d_z": 256,
+      "motion_dim": 229,
+      "sphere_norm_mean": 16.0,
+      "spectral": {
+        "lambda_max": 5.7663068771362305,
+        "lambda_min": 0.01885179989039898,
+        "condition_number": 305.87566761054734,
+        "effective_rank": 119.99960327148438,
+        "trace": 256.0,
+        "off_diag_frobenius": 3.9004154205322266
+      },
+      "linear_reward_readout_cancellation_max_error": 1.52587890625e-05,
+      "intrinsic_reward_mse_unwhitened": 2007.10205078125,
+      "intrinsic_reward_mse_whitened": 176.97915649414062,
+      "intrinsic_reward_mse_reduction_ratio": 11.340895111835955,
+      "intrinsic_reward_cosine_unwhitened": 0.2693088948726654,
+      "intrinsic_reward_cosine_whitened": 0.9744805097579956,
+      "goal_gradient_cosine_unwhitened": 0.33438539505004883,
+      "goal_gradient_cosine_whitened": 0.9815391898155212
+    }
+  }
+}

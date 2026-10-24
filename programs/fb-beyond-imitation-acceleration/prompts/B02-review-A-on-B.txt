@@ -1,0 +1,18 @@
+You are Blind Reviewer A on Packet B02 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
+
+Read the following frozen context and candidate files:
+1. `/srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/brief.md`
+3. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/proposals/B.md`
+
+Isolation Rules:
+- Do NOT read any other file in `reviews/` or `drafts/`.
+- Write your complete blind review to `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-A-on-B.md`.
+- Keep your review concise, rigorous, and directly keyed to the rubric rows and hard constraints in `brief.md`.
+
+Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-A-on-B.md`:
+1. `# Blind Review A on Proposal B (Packet B02)`
+2. `## 1. Gate & Hard-Constraint Audit`: Check whether Proposal B violates any Hard Constraint in `PROGRAM_CHARTER.md` or `brief.md`.
+3. `## 2. Rubric-Keyed Technical Objections`: Concrete mathematical, physical, or algorithmic defects keyed to each rubric dimension in `brief.md` (labeled `[CRITICAL]`, `[MAJOR]`, or `[MINOR]`).
+4. `## 3. Audit of Rejected Alternative & Necessity Claim`: Evaluate whether the rejected alternative in Proposal B is non-trivial and whether its Principle Claim (`C-B02-B-01`) satisfies Appendix B premises and falsifiability.
+5. `## 4. Spike Protocol Critique`: Identify any missing controls, unmeasured confounds, or threshold flaws in the proposed empirical spike.

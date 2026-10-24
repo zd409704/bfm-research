@@ -1,0 +1,200 @@
+{
+  "program": "fb-beyond-imitation-acceleration",
+  "timestamp_utc": 1792776573,
+  "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+  "torch_version": "2.11.0+cu130",
+  "cuda_available": true,
+  "device_name": "NVIDIA L4",
+  "total_elapsed_sec": 13.3822,
+  "all_passed": true,
+  "suites": {
+    "B01_GRAM_CONDITIONING_AND_WHITENING": {
+      "experiment_id": "B01_GRAM_CONDITIONING_AND_WHITENING",
+      "device": "cuda",
+      "elapsed_sec": 1.1949,
+      "verdict": "PASS",
+      "results": {
+        "dz_100_m_277": {
+          "d_z": 100,
+          "motion_dim": 277,
+          "sphere_norm_mean": 10.0,
+          "spectral": {
+            "lambda_max": 5.549025535583496,
+            "lambda_min": 0.020526262000203133,
+            "condition_number": 270.3378498982709,
+            "effective_rank": 47.7549934387207,
+            "trace": 100.00086975097656,
+            "off_diag_frobenius": 1.5150021314620972
+          },
+          "linear_reward_readout_cancellation_max_error": 5.7220458984375e-06,
+          "intrinsic_reward_mse_unwhitened": 792.92724609375,
+          "intrinsic_reward_mse_whitened": 42.71400451660156,
+          "intrinsic_reward_mse_reduction_ratio": 18.56363633116077,
+          "intrinsic_reward_cosine_unwhitened": 0.2747936546802521,
+          "intrinsic_reward_cosine_whitened": 0.9897899627685547,
+          "goal_gradient_cosine_unwhitened": 0.3445586562156677,
+          "goal_gradient_cosine_whitened": 0.9886831045150757
+        },
+        "dz_256_m_229": {
+          "d_z": 256,
+          "motion_dim": 229,
+          "sphere_norm_mean": 16.0,
+          "spectral": {
+            "lambda_max": 5.6797661781311035,
+            "lambda_min": 0.019024614244699478,
+            "condition_number": 298.54829670007973,
+            "effective_rank": 120.48656463623047,
+            "trace": 256.0086669921875,
+            "off_diag_frobenius": 3.9554831981658936
+          },
+          "linear_reward_readout_cancellation_max_error": 1.1444091796875e-05,
+          "intrinsic_reward_mse_unwhitened": 2027.744384765625,
+          "intrinsic_reward_mse_whitened": 165.34860229492188,
+          "intrinsic_reward_mse_reduction_ratio": 12.263450410961838,
+          "intrinsic_reward_cosine_unwhitened": 0.346576988697052,
+          "intrinsic_reward_cosine_whitened": 0.9774494171142578,
+          "goal_gradient_cosine_unwhitened": 0.33510977029800415,
+          "goal_gradient_cosine_whitened": 0.9812213778495789
+        }
+      }
+    },
+    "B02_NONSTATIONARITY_BN_AND_CREDIT_ASSIGNMENT": {
+      "experiment_id": "B02_NONSTATIONARITY_BN_AND_CREDIT_ASSIGNMENT",
+      "device": "cuda",
+      "elapsed_sec": 6.6519,
+      "verdict": "PASS",
+      "bn_clean_update_calls": 2,
+      "bn_drift_under_frozen_queries": 0.0,
+      "behavior_z_mutation_max_diff": 0.0,
+      "buggy_double_update_and_expert_mean_bias": 10.433076858520508,
+      "representation_drift_trace": [
+        {
+          "step": 5,
+          "delta_B_cosine": 0.5761022567749023,
+          "delta_pi_l2": 2.0344157218933105
+        },
+        {
+          "step": 10,
+          "delta_B_cosine": 0.6404353976249695,
+          "delta_pi_l2": 1.9309370517730713
+        },
+        {
+          "step": 20,
+          "delta_B_cosine": 0.6854891777038574,
+          "delta_pi_l2": 1.8335764408111572
+        }
+      ],
+      "rnn_burnin_vs_exact_max_error": 0.0,
+      "rnn_stale_cached_hidden_max_error": 0.3829808533191681
+    },
+    "B03_CONTACT_ALIASING_AND_PERCEPTIVE_COMPENSATION": {
+      "experiment_id": "B03_CONTACT_ALIASING_AND_PERCEPTIVE_COMPENSATION",
+      "device": "cuda",
+      "elapsed_sec": 0.3292,
+      "verdict": "PASS",
+      "b_space_kinematic_aliasing_max_diff": 0.0,
+      "perceptive_context_disambiguation_action_mse": 0.0006795621011406183,
+      "irreducible_isokinematic_multi_force_mse": 0.9104992151260376
+    },
+    "B04_FOUR_ARM_PATHWISE_VS_FB_ABLATION": {
+      "experiment_id": "B04_FOUR_ARM_PATHWISE_VS_FB_ABLATION",
+      "device": "cuda",
+      "elapsed_sec": 5.1584,
+      "verdict": "PASS",
+      "standard_fb_first_action_cosine": -0.033818066120147705,
+      "best_short_horizon_hybrid_cosine": 0.3191423714160919,
+      "h8_whitened_vs_unwhitened_cosine": {
+        "whitened": 0.3191423714160919,
+        "unwhitened": 0.04324859380722046
+      },
+      "horizon_sweep": {
+        "H_0_standard_FB_first_action": {
+          "gradient_cosine_vs_true_physics": -0.033818066120147705,
+          "relative_l2_grad_error": 1.0120005066367599
+        },
+        "H_1": {
+          "horizon": 1,
+          "gradient_cosine_vs_true_physics": -0.0037156499456614256,
+          "compounded_state_error_at_H": 0.02717456966638565,
+          "relative_l2_grad_error": 1.0076563783921144
+        },
+        "H_4": {
+          "horizon": 4,
+          "gradient_cosine_vs_true_physics": 0.1649312973022461,
+          "compounded_state_error_at_H": 0.09947721660137177,
+          "relative_l2_grad_error": 0.9870529515980975
+        },
+        "H_8": {
+          "horizon": 8,
+          "gradient_cosine_vs_true_physics": 0.3191423714160919,
+          "compounded_state_error_at_H": 0.19332273304462433,
+          "relative_l2_grad_error": 0.9508174715812326
+        },
+        "H_16": {
+          "horizon": 16,
+          "gradient_cosine_vs_true_physics": 0.387137234210968,
+          "compounded_state_error_at_H": 0.46362847089767456,
+          "relative_l2_grad_error": 0.9490628637175537
+        },
+        "H_32": {
+          "horizon": 32,
+          "gradient_cosine_vs_true_physics": 0.43796998262405396,
+          "compounded_state_error_at_H": 1.1319074630737305,
+          "relative_l2_grad_error": 1.2302317855159448
+        }
+      },
+      "batched_wm_steps_per_sec": 414771.3
+    },
+    "B05_R21_TERMINAL_BOUNDARY_AND_CURRICULUM_SUITE": {
+      "experiment_id": "B05_R21_TERMINAL_BOUNDARY_AND_CURRICULUM_SUITE",
+      "elapsed_sec": 0.0048,
+      "verdict": "PASS",
+      "motion_descriptor_shape": [
+        229
+      ],
+      "test1_credible_penetration": {
+        "status": "severe_penetration",
+        "terminated": true,
+        "commit_to_replay": true,
+        "phi_next": 0.0,
+        "substeps_checked": 4
+      },
+      "test2_post_penetration_nan_override": {
+        "status": "invalid",
+        "commit_to_replay": false,
+        "update_normalizers": false,
+        "step_counter_unchanged": true,
+        "offending_substep": 3
+      },
+      "test2b_post_penetration_buffer_overflow_override": {
+        "status": "invalid",
+        "offending_substep": 4
+      },
+      "test3_curriculum_and_quota": {
+        "wilson_lb95_78_of_100": 0.689296,
+        "wilson_lb95_79_of_100": 0.7002,
+        "min_successes_of_100_for_lb70": 79,
+        "quota_2_heights": {
+          "0.10": 2048,
+          "0.20": 2048
+        },
+        "quota_5_heights": {
+          "0.10": 409,
+          "0.20": 410,
+          "0.30": 614,
+          "0.40": 615,
+          "0.50": 2048
+        },
+        "quota_7_heights": {
+          "0.10": 409,
+          "0.20": 410,
+          "0.30": 307,
+          "0.40": 307,
+          "0.50": 307,
+          "0.60": 308,
+          "0.70": 2048
+        }
+      }
+    }
+  }
+}

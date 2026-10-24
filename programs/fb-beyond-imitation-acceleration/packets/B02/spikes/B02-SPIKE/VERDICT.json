@@ -1,0 +1,29 @@
+{
+  "experiment_id": "B02_NONSTATIONARITY_BN_AND_CREDIT_ASSIGNMENT",
+  "device": "cpu",
+  "elapsed_sec": 1.0509,
+  "verdict": "PASS",
+  "bn_clean_update_calls": 2,
+  "bn_drift_under_frozen_queries": 0.0,
+  "behavior_z_mutation_max_diff": 0.0,
+  "buggy_double_update_and_expert_mean_bias": 10.261609077453613,
+  "representation_drift_trace": [
+    {
+      "step": 5,
+      "delta_B_cosine": 0.5605677366256714,
+      "delta_pi_l2": 2.003641128540039
+    },
+    {
+      "step": 10,
+      "delta_B_cosine": 0.6298332214355469,
+      "delta_pi_l2": 1.8448512554168701
+    },
+    {
+      "step": 20,
+      "delta_B_cosine": 0.6663823127746582,
+      "delta_pi_l2": 1.696810007095337
+    }
+  ],
+  "rnn_burnin_vs_exact_max_error": 4.76837158203125e-07,
+  "rnn_stale_cached_hidden_max_error": 0.2773054242134094
+}

@@ -1,0 +1,34 @@
+I wrote the adjudication to `packets/B02/adjudication-sonnet-order2.md`. I did not check its length against the 80–140 line target, so it may be over. I did not open `adjudication-agy-order1.md` or run any scripts.
+
+**Disposition:** I recommend P, with Q as the alternate.
+
+- **Eligibility:** Neither candidate violates a hard constraint, so both are eligible. P has one major gate concern: its drift gate can skip task updates indefinitely, which would amount to an undeclared FB-only phase. Q's shadow critic trains on re-encoded labels, so it must be labelled an isolated violation control. Q also leaves the `invalid` halt unspecified.
+- **Scores:** P gets 77/100 and Q gets 72/100 on the four rows of `brief.md`.
+
+| Row (weight) | P | Q |
+|---|---:|---:|
+| Off-policy semantics (30) | 26 | 22 |
+| R2.1 and v2 contract compliance (25) | 22 | 19 |
+| Computational overhead (20) | 10 | 14 |
+| Spike falsifiability (25) | 19 | 17 |
+
+- **Claims:** None can be locked, and all stay at Candidate status.
+  - **P's CAND-01** is essentially the definition of equal measures. It needs restating as a minimax total-variation bound.
+  - **Q's CAND-01(c)** is refuted as written. I checked review-B's counterexample by hand and it holds. I also confirmed the sign error in Q's §1.6.
+  - **Q's CAND-04** (the O(d_z) gauge symmetry) is the strongest new idea in either packet.
+- **Mandatory merge items:** There are seven.
+  - A skip-rate ceiling with a fallback to the FIFO or age-weighted null.
+  - Aligning the gate's units with the bias bound.
+  - A required drift and bias verdict in the spike.
+  - A small TD-learning stability test under lag.
+  - Q's gauge split, fp32 stored columns, and an a-priori overhead estimate.
+  - Repairs to both candidates' claims.
+  - Making the `invalid` halt explicit.
+- **Confounds:** The report lists these:
+  - This is Order 2 only.
+  - `packets/B02/brief.md` is missing, and everyone used the `briefs/B02-…md` version.
+  - P discloses unrestricted filesystem permissions.
+  - Q read the spike plan and P did not.
+  - Q's dry-run numbers are unverified.
+  - `VERDICT.json` is the orchestrator's spike and says nothing for or against either mitigation.
+  - I applied Appendix B as the candidates and reviewers describe it, because I did not read the method text.

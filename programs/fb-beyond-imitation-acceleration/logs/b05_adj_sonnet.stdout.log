@@ -1,0 +1,21 @@
+I wrote the order-swapped adjudication to `packets/B05/adjudication-sonnet-order2.md`. I did not count the lines against the 80–140 target, and I ran no scripts.
+
+**Recommendation:** P, with Q as the alternate. In this ordering P is Primary Author B's text and Q is Primary Author A's.
+
+**Scores (out of 100):** P scores 80 and Q scores 63.
+
+| Rubric row | P | Q |
+|---|---:|---:|
+| Substep priority and replay isolation (35) | 28 | 29 |
+| UFO relabel and BN order fidelity (25) | 20 | 12 |
+| Curriculum and quota completeness (20) | 16 | 12 |
+| Verification suite executability (20) | 16 | 10 |
+
+- **Where P wins:** P specifies the UFO relabel and BN update order, while Q gives only the normalizer update order. P also covers all three R2.1 §7 tests and the credit-reservation controller. Q is missing the panel-continuation test and has a weaker hold-on-regression rule.
+- **Where Q leads:** Q edges P by one point on substep priority. It uses the MuJoCo warning counters as verified-divergence witnesses and states whole-batch rejection explicitly.
+- **Eligibility:** Both candidates add heuristic "invalid" triggers beyond the charter's definition (jump above 0.5 m, joint speed above 100 rad/s, `ncon ≥ nconmax`). Both are conditionally eligible. Q is also missing the UFO algorithm and its hold rule can unlock despite regression.
+- **Claims:** P's three claims are accepted. CAND-01 (deferred commit) needs its witness reworded, since a commit at j=2 is vacuous. Q's CAND-01 is downgraded to Grade 2, or restricted to a fixed-policy case. Q's CAND-02 is accepted in narrowed form: only rejection before any statistic is necessary, not whole-batch rejection.
+- **Merge items:** The report lists eight, including Q's warning-counter witnesses and batch-commit statement merged into P. It also lists P's gaps to fix: a stop-gradient contract, a false-halt control, resume points before a macro boundary, an epoch replenishment, and an evaluation split.
+- **Confounds:** The confounds paragraph covers order effects, review asymmetry, length bias, scope creep, and the logic-only spike (0.009 s).
+
+I did not read the Appendix B text, so the claim grades are provisional. I did not read the order-1 adjudication, the baselines or the synthesis files.

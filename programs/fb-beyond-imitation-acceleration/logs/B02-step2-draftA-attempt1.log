@@ -1,0 +1,23 @@
+I've written the proposal to `packets/B02/drafts/A/proposal.md`, with the title and all five required sections. I stayed inside my own draft directory and didn't look at any other drafts.
+
+**Path discrepancies:**
+- `packets/B02/brief.md` doesn't exist. I used `briefs/B02-nonstationarity-and-off-policy-credit-assignment-in-joint-fb-task-training.md`.
+- The baseline filenames are `02-fb-paradigm-…`, `04-joint-fb-ball-striking-v2-…` and `05-autonomous-obstacle-traversal-…`.
+- I also read the spike's `PLAN.md` and the method doc's §11.5 and Appendix B, because the deliverables depend on them.
+
+**Main positions:**
+- **Two critic regimes behave differently.** In ball striking, where the critic sees the executed physical action, old replay rows add no target bias. In obstacle traversal, where the critic sees a held 10-step command `z`, old rows are biased. So the mitigation applies only to obstacle traversal.
+- **The bias comes from the actor changing, not from the encoder `B` changing.** For a stored executed `z`, the target doesn't depend on `B` at all. I bound the bias with two exact inequalities, one based on KL divergence and one on χ² divergence. Both can be computed from two new write-once replay columns (`behavior_mu`, `a_raw`) without storing old network weights.
+- **Encoder drift can't certify staleness.** The joint objective is unchanged if the whole latent space is rotated, so `B` can drift a lot with no change in behaviour. The diagnostics split drift into a pure-rotation part and a genuine deformation part.
+- **Mitigation:** drop old replay "generations" once their measured drift passes a threshold. Gating whole generations rather than single rows avoids a selection bias. On top of that: the exact discount for short macros, rebuilding the recurrent hidden state from step 0 (sharing work across slices from the same episode), and an optional importance-weighting variant to compare against. `behavior_z` is never overwritten.
+- **Normalizer violations:** I give closed-form biases for each way of breaking the single-pass update rule. The serious case is encoding expert frames with live batch statistics, which gives roughly 3/(2·batch size) relative input error: about 19% for a batch of 8.
+- **Rejected alternatives:** re-encoding stored `z` through the current `B` (shown to add bias even when the actor hasn't changed), and freezing a pre-trained `B`/actor (barred by the brief). A rotation-aligned critic input is set aside because it would need a charter amendment.
+- **Claims:** C-B02-A-01 to A-04, all Grade 1 Candidates, each with premises, an operational test and a falsifier.
+
+**Dry run:** I checked the closed forms and the spike's pass/fail logic with a small CPU script, `spike_sketch.py`; output is in `spike_sketch_output.json` and all 16 checks passed. This is not the registered B02-SPIKE run and doesn't show anything was learned. What it found:
+- Both bias bounds held, but even the tighter χ² bound was 3–10× above the bias actually observed.
+- Importance weighting fell apart once KL went above about 1.
+- Re-encoding stored `z` produced a bias about 3.7 standard errors from zero, while keeping the executed `z` produced exactly zero.
+- Rebuilding the hidden state from step 0 gave zero error; a stale cached hidden state was off by about 1.1.
+
+Two extra spike checks are specified in the proposal but not in my script, so the runner has to implement them: the latent-rotation invariance test against `fb_core.py`, and the shared-prefix equality check. The under-5% overhead figures are estimates until the GPU stage measures them.

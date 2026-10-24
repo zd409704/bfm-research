@@ -1,0 +1,19 @@
+The independent cross-family adjudication report for Packet `B05` (Order 1) has been written to [adjudication-agy-order1.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/adjudication-agy-order1.md) (88 lines).
+
+### Adjudication Summary
+
+1. **Eligibility Gate Check**:
+   - Both [order1_P.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/anonymized/order1_P.md) (**Candidate P**) and [order1_Q.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/anonymized/order1_Q.md) (**Candidate Q**) pass structural eligibility under [PROGRAM_CHARTER.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md) §2 and [brief.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/brief.md) §2, though Candidate P exhibits a major specification defect under Charter §2.2 by omitting the off-policy UFO `sample_mixed_z` and network BatchNorm update ordering.
+
+2. **Rubric Scores**:
+   - **Candidate Q**: **86 / 100** (`31/35` Substep Priority & Replay Isolation, `20/25` UFO Relabel & BN Order Fidelity, `18/20` Curriculum & Quota State Completeness, `17/20` Verification Suite Executability).
+   - **Candidate P**: **63 / 100** (`30/35` Substep Priority & Replay Isolation, `9/25` UFO Relabel & BN Order Fidelity, `11/20` Curriculum & Quota State Completeness, `13/20` Verification Suite Executability).
+
+3. **Principle Claim Adjudication (Appendix B.9)**:
+   - **Candidate P**: `C-B05-CAND-01` $\rightarrow$ **Tighten-Premises** (`Candidate` Grade 1); `C-B05-CAND-02` $\rightarrow$ **Tighten-Premises** (`Candidate` Grade 1).
+   - **Candidate Q**: `C-B05-CAND-01` $\rightarrow$ **Tighten-Premises** (`Candidate` Grade 1, replacing the vacuous $j=2$ commit witness with eager commit at $j=4$ prior to final audit $e_{\mathrm{final}}$); `C-B05-CAND-02` $\rightarrow$ **Stay** (`Candidate` Grade 1); `C-B05-CAND-03` $\rightarrow$ **Stay** (`Candidate` Grade 2).
+
+4. **Disposition**:
+   - **Recommend**: **Candidate Q** ([order1_Q.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/anonymized/order1_Q.md))
+   - **Alternate**: **Candidate P** ([order1_P.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/anonymized/order1_P.md))
+   - **Mandatory Merge Items & Confounds**: Detailed in §4 of [adjudication-agy-order1.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/adjudication-agy-order1.md#L70-L88).

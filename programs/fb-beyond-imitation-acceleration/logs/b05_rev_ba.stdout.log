@@ -1,0 +1,616 @@
+OpenAI Codex v0.163.0
+--------
+workdir: /srv/claude/research/fb-beyond-imitation-acceleration
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: high
+reasoning summaries: none
+session id: 01a169fc-0ac0-76e0-a26b-3f3f19f9648e
+--------
+user
+You are Blind Reviewer B on Packet B05 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
+
+Read the following frozen context and candidate files:
+1. `/srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/brief.md`
+3. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/proposals/A.md`
+
+Isolation & Execution Rules:
+- Do NOT read any other file in `reviews/` or `drafts/`.
+- You may also read `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/spikes/B05-SPIKE/VERDICT.json`.
+- Write the output markdown file `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/reviews/review-B-on-A.md` directly without running any bash or python exploratory scripts.
+- Keep your review concise, rigorous, and between 80 and 140 lines, directly keyed to the rubric rows and hard constraints in `brief.md`.
+
+Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/reviews/review-B-on-A.md`:
+1. `# Blind Review B on Proposal A (Packet B05)`
+2. `## 1. Gate & Hard-Constraint Audit`: Check whether Proposal A violates any Hard Constraint in `PROGRAM_CHARTER.md` or `brief.md`.
+3. `## 2. Rubric-Keyed Technical Objections`: Concrete mathematical, physical, or algorithmic defects keyed to each rubric dimension in `brief.md` (labeled `[CRITICAL]`, `[MAJOR]`, or `[MINOR]`).
+4. `## 3. Audit of Rejected Alternative & Necessity Claim`: Evaluate whether the rejected alternative in Proposal A is non-trivial and whether its Principle Claim (`C-B05-A-01`) satisfies Appendix B premises and falsifiability.
+5. `## 4. Spike Protocol Critique`: Identify any missing controls, unmeasured confounds, or threshold flaws in the proposed empirical spike.
+
+codex
+I’ll read the frozen context and Proposal A, then write the review against the hard constraints and rubric without opening other reviews or drafts.
+
+exec
+/bin/bash -lc pwd in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+/home/box/.srv-claude/research/fb-beyond-imitation-acceleration
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Program Charter: Forward-Backward Reinforcement Learning Beyond Imitation Data and Model-Based Training Acceleration
+
+## 1. Mission Statement
+
+Establish rigorous theoretical, algorithmic, and empirical foundations for joint **Forward-Backward (FB) + Low-Level Actor + Task Critic $Q$ + High-Level Planner** reinforcement learning from scratch, enabling legged and humanoid robots to:
+1. Utilize unindexed single-frame demonstrations purely as latent behavioral prompts ($z = B(m)$) rather than rigid trajectory-tracking constraints.
+2. Discover contact-rich recovery, multi-height obstacle traversal, and dynamic ball-striking behaviors that lie outside the state-action support of the demonstration library.
+3. Combine short-horizon differentiable world-model pathwise gradients with long-horizon FB successor representations without violating Bellman consistency or causal observability boundaries.
+
+---
+
+## 2. Hard Technical Constraints & Non-Goals
+
+1. **No Behavioral Cloning or Tracking Penalty Fallbacks**:
+   - The low-level actor $\pi_\theta(o_{\mathrm{low}}, z)$ is updated exclusively by maximizing the conservative FB value $F(o, a, z)^\top z$ (plus optional task-critic gradient in single-step action-$Q$ variants). Adding a supervised action MSE loss $\|a - a_{\mathrm{demo}}\|^2$ or a per-frame pose-tracking task reward to force convergence is strictly forbidden.
+2. **Strict Separation of Rollout Behavior $z$ and FB Update Relabel $z$**:
+   - During rollout collection, behavior $z$ is chosen at macro-step boundaries from the scheduled three-way mixture (`expert`, `near`, `planner`).
+   - During off-policy FB updates, $z_{\mathrm{update}}$ is sampled fresh via the 50/50 mixture (`50%` uniform hypersphere $\mathcal{S}^{d_z-1}(\sqrt{d_z})$, `50%` current online $B$ encoding of permuted replay next-frame motion $m_{t+1}$) under frozen batch-normalization statistics after updating BN once on current $(o_t, m_t)$ and once on next $(o_{t+1}, m_{t+1})$.
+   - `z_update` must never overwrite `behavior_z` in the replay buffer, and the task critic $Q$ must always train on the actual executed macro behavior $z_{\mathrm{actual}}$ (or executed action $a_{\mathrm{applied}}$).
+3. **Single-Frame Motion-Only Backward Input**:
+   - The backward representation network $B(m)$ receives only single-frame root-relative kinematics (`229` dims in obstacle traversal; `277` dims in ball striking). It must not receive obstacle height, terrain scan, ball position, task phase, or demonstration frame indices.
+4. **Strict Separation of Physical Failure vs Numerical Corruption**:
+   - Runtime contact penetration exceeding `0.03` m with finite state/contact tensors, valid schema/timing, and no solver divergence must be recorded as a credible task termination (`severe_penetration`, `terminated=True`, absorption potential $\Phi_{\mathrm{next}}=0$) and committed to replay.
+   - NaN/Inf values, contact buffer overflow with lost contacts, corrupted state/schema/timing, or verified solver divergence must be classified as `invalid`, rejected from replay and normalizer updates, and halt the affected run or evaluation panel for inspection.
+5. **Strict Separation of Verified Evidence vs Unproven Claims**:
+   - Short CPU integration smoke tests prove only contract, gradient flow, and checkpoint/resume mechanics. No document or proposal may claim that obstacle traversal or ball striking has been learned, or that FB beats PPO/AMP/world-model baselines, until full multi-seed GPU training and held-out evaluation panels pass their pre-registered gates.
+
+---
+
+## 3. Falsifiable Hypotheses
+
+- **H1 (Gram Matrix Conditioning & Reward Readout)**: Standard FB orthonormalization loss $\mathcal{L}_{\mathrm{orth}} = \frac{1}{2N(N-1)}\sum_{i\ne j}(B(x_i)^\top B(x_j))^2 - \frac{1}{N}\sum_i \|B(x_i)\|_2^2$ on a changing replay distribution $\rho$ leaves significant off-diagonal covariance in $\Sigma_B$ during early joint training; explicitly whitening via damped $\widehat{\Sigma}_B^{-1}$ in intrinsic state-matching rewards $r_z(y) = B(y)^\top (\widehat{\Sigma}_B + \lambda I)^{-1} z$ reduces value-target variance and improves single-frame goal-reaching accuracy compared to raw dot products $B(y)^\top z$.
+- **H2 (Off-Policy Decoupling Under Non-Stationary $B$)**: In joint training from scratch, storing raw physical motion frames $m_{\mathrm{current}}, m_{\mathrm{next}}$ in FB replay and re-encoding goal latents on the fly with current $B_{\omega}$, while storing executed $(H_{\mathrm{start}}, z_{\mathrm{actual}}, R_{\mathrm{macro}}, H_{\mathrm{final}})$ in a shorter-window task replay with target-planner bootstrap $\min_{i=1,2} Q_{\bar{\phi}_i}(H_{\mathrm{final}}, P_{\bar{\psi}}(H_{\mathrm{final}}))$, bounds value staleness without requiring importance sampling over the low-level trajectory.
+- **H3 (World-Model Horizon vs FB Terminal Bootstrap)**: A hybrid objective combining $H \in \{8, 16\}$ differentiable world-model steps of dense intrinsic/task rewards with an FB terminal value bootstrap $\gamma^H F(s_H, a_H, z)^\top z$ achieves lower policy gradient bias-variance tradeoff than either $H=1$ first-action FB differentiation or $H=32$ pure world-model unrolling without terminal value representation.
+- **H4 (Three-Way Source Schedule & Out-of-Support Exploration)**: Annealing macro-step latent selection from `(0.60 expert, 0.30 near, 0.10 planner)` to `(0.10 expert, 0.20 near, 0.70 planner)` over $S_{\mathrm{ramp}} = 100,000$ control steps enables the task critic $Q$ to experience both structured high-return regions and off-support recovery transitions, unlocking obstacle heights (`0.10..0.70` m) under `100%` planner evaluation where only a single `0.704` m demonstration exists.
+
+---
+
+## 4. Rubric & Verification Gates
+
+Every research brief (`B01`–`B05`) is evaluated under the following pre-agreed rubric before any empirical spike is locked:
+
+| Criterion | Weight | Pass Requirement |
+|---|---:|---|
+| **Mathematical & Causal Rigor** | 25% | Zero circular definitions, exact tensor dimensions, explicit stop-gradient boundaries, and zero future/privileged leakage into deployable modules. |
+| **Contract & Baseline Alignment** | 25% | Full compliance with the frozen baseline specifications (`baseline/01` through `baseline/05`) and zero violation of Hard Constraints (§2). |
+| **Falsifiability & Ablation Design** | 25% | Concrete, compute-matched experimental comparisons that isolate the proposed mechanism against explicit null baselines. |
+| **Failure-Mode & Edge-Case Coverage** | 25% | Explicit handling of degenerate regimes (e.g., singular $\Sigma_B$, `severe_penetration` vs `invalid` physics, short macro truncation $k < K$, RNN prefix burn-in). |
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/proposals/A.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Proposal A (Packet B05): Falsifiable Verification Protocols for Beyond-Imitation Competence and Training Acceleration
+
+- **Author**: Primary Author A · **Packet**: `B05`
+- **Frozen inputs**: Charter §2–§4; `baseline/02` §5–§6; `baseline/03` §2.2, §5; `baseline/05` §5.2, §6; `synthesis/B01` §1–§2.1.
+- **Scope**: (i) a closed-form, order-independent terminal classifier for one `0.02 s` control step; (ii) transactional replay/normalizer quarantine; (iii) exact integer quota accounting over `num_envs = 4096`; (iv) pre-registered Wilson, multi-seed and four-dimensional compute gates.
+- **Non-claim**: nothing here asserts that traversal is learned or that FB beats any baseline (Charter §2.5).
+- **Evidence status**: `spikes/B05-SPIKE/VERDICT.json` = `PASS` in `elapsed_sec = 0.009`.
+  - That runtime is consistent only with deterministic logic fixtures, not MuJoCo stepping.
+  - It is treated as evidence for the classifier, quota and Wilson logic, **not** for real-backend physics. §5 pre-registers the real-backend re-run.
+
+---
+
+## 1. Exact Substep Terminal-Boundary State Machine and Data Quarantine Specification
+
+**1.1 Predicates.** One control step at $t$ runs substeps $j\in\{1,2,3,4\}$ (`mj_step`, $\Delta t_{\mathrm{phys}}=0.005$ s), then a post-step check $j=F$.
+Let $x_b^{(j)}$ be the world position of body $b$ after substep $j$ ($x_b^{(0)}$ = committed state at $t$), and let $d_c^{(j)}$ be the signed distance of contact $c$.
+
+| Predicate | Definition | Category |
+|---|---|---|
+| $N_j$ | any NaN/Inf in `qpos`, `qvel`, `qacc`, `cfrc_ext`, $d^{(j)}_{1:\texttt{ncon}}$ | corruption |
+| $J_j$ | $\max_b\|x_b^{(j)}-x_b^{(j-1)}\|_2>0.50$ m (implies $\ge100$ m/s in 5 ms) | corruption |
+| $V_j$ | $\max_i|\dot q_i^{(j)}|>100$ rad/s over the 29 joints | corruption |
+| $O_j$ | $\texttt{ncon}_j\ge\texttt{nconmax}$ or the `mjWARN_CONTACTFULL` counter increments | corruption (contacts possibly dropped) |
+| $D_j$ | the `mjWARN_BADQACC` counter increments | corruption (solver divergence) |
+| $P_j$ | $\max_c(-d_c^{(j)})>0.03$ m | credible failure candidate |
+
+- $\mathrm{Bad}_j := N_j\lor J_j\lor V_j\lor O_j\lor D_j$.
+- The equality $\texttt{ncon}=\texttt{nconmax}$ counts as overflow, because a full buffer cannot be told apart from a truncated one.
+- $\mathrm{Bad}_F$ adds: $m_{t+1}\notin\mathbb{R}^{229}$ or a wrong observation schema or index; $|\texttt{time}_F-\texttt{time}_0-0.02|>10^{-9}$; a missing pre-reset final state.
+
+**1.2 Transition table.** Latch $\lambda_0=\textsf{running}$. For $j=1..4$:
+
+| $\lambda_{j-1}$ | $\mathrm{Bad}_j$ | $P_j$ | Action | $\lambda_j$ |
+|---|---|---|---|---|
+| any | 1 | any | stop stepping; log `offending_substep=j`, all predicates and an `mjData` dump; raise halt | $\textsf{invalid}$ (absorbing) |
+| `running` | 0 | 1 | latch `failure_reason=severe_penetration` with $j^\star=j$; **keep stepping** | $\textsf{severe\_penetration}$ |
+| `severe_penetration` | 0 | any | keep stepping; the latch never clears | $\textsf{severe\_penetration}$ |
+| `running` | 0 | 0 | continue | $\textsf{running}$ |
+
+At $F$, rules are applied in order:
+
+1. $\mathrm{Bad}_F\Rightarrow\textsf{invalid}$.
+2. Otherwise, $\lambda_4=\textsf{severe\_penetration}\Rightarrow\textsf{severe\_penetration}$.
+3. Otherwise, the ordered event chain (baseline/05 §5.1) reports success $\Rightarrow\textsf{success}$.
+4. Otherwise, $t+0.02\ge12.0$ s $\Rightarrow\textsf{timeout}$.
+5. Otherwise $\textsf{running}$.
+
+Other §5.1 failures (standing on the box, crawling, bypass) are handled like $\textsf{severe\_penetration}$ but rank below it.
+
+**Proposition 1 (closed form and strict dominance).** Let $\mathcal B=\bigvee_{j\in\{1..4,F\}}\mathrm{Bad}_j$ and $\mathcal P=\bigvee_{j\le4}P_j$, taken over the substeps actually executed. Then
+$$
+\ell^\star=\begin{cases}\textsf{invalid}&\mathcal B\\ \textsf{severe\_penetration}&\neg\mathcal B\land\mathcal P\\ \textsf{success}&\neg\mathcal B\land\neg\mathcal P\land\mathrm{succ}_F\\ \textsf{timeout}&\neg\mathcal B\land\neg\mathcal P\land\neg\mathrm{succ}_F\land t_F\ge12\\ \textsf{running}&\text{otherwise,}\end{cases}
+\qquad \textsf{invalid}\succ\textsf{severe\_penetration}\succ\textsf{success}\succ\textsf{timeout}\succ\textsf{running}.
+$$
+
+*Proof.* Induction on $j$ with the invariant
+$$
+\bigl(\lambda_j=\textsf{invalid}\iff\textstyle\bigvee_{i\le j}\mathrm{Bad}_i\bigr)\ \land\ \bigl(\neg\textstyle\bigvee_{i\le j}\mathrm{Bad}_i\Rightarrow(\lambda_j=\textsf{severe\_penetration}\iff\textstyle\bigvee_{i\le j}P_i)\bigr).
+$$
+- *Base case:* holds trivially for $\lambda_0$.
+- *Row 1* makes $\textsf{invalid}$ absorbing, which preserves the first conjunct.
+- *Rows 2–4* OR-accumulate $P$ and never return to $\textsf{running}$, which preserves the second.
+- *Early stopping* after $\mathrm{Bad}_j$ cannot change $\ell^\star$, because $\mathcal B$ is already true.
+- *Rule $F$* applies the stated lexicographic order. ∎
+
+*Corollaries.*
+
+- **C1 (order independence).** Penetration at $j^\star=1$ followed by NaN at $j=3$ gives $\textsf{invalid}$, exactly as NaN at $j=1$ does.
+- **C2 (penetration beats success).** Success and penetration in the same step give $\textsf{severe\_penetration}$, so no committed success can contain a penetration.
+- **C3 (success beats timeout).** A success event at the 12 s boundary is labelled $\textsf{success}$.
+
+**1.3 Transactional quarantine.** Substeps write only into a per-env uncommitted transaction $\tau_e$. The batched step $\{\tau_e\}_{e<4096}$ is **all-or-nothing**.
+
+- **Reject.** If any $\ell^\star_e=\textsf{invalid}$, discard all 4096 transactions. The following remain bitwise unchanged:
+  - `FBReplay` and `TaskReplay`;
+  - `obs_normalizer` and `motion_normalizer`;
+  - the target-$\bar B$ Gram tracker $\widehat\Sigma_t$ (B01 §2.1);
+  - the committed counter $S$ and the curriculum ledgers.
+
+  Set `valid_sample=False`, write diagnostics and halt the run or panel. Resume is allowed only from the last checkpoint at a committed $S$. A single corrupt env implies possible global solver corruption, so its siblings are not trusted either.
+- **Commit.** Otherwise, each env appends $(o_t,a_t^{\mathrm{applied}},o_{t+1}^{\mathrm{pre}},m_t,m_{t+1}^{\mathrm{pre}},\texttt{behavior\_z},r_t,\texttt{terminated},\texttt{truncated},\texttt{failure\_reason},\texttt{valid\_sample}{=}\text{True})$, and then $S\leftarrow S+1$.
+  - `pre` = the real state before reset. The reset observation feeds only the next policy call and is never stored.
+  - Normalizers update once on $(o_t,m_t)$ and once on $(o^{\mathrm{pre}}_{t+1},m^{\mathrm{pre}}_{t+1})$, per baseline/05 §4.
+- **Failure rows.** `severe_penetration` rows carry `terminated=True`, `truncated=False`, $c:=1-\texttt{terminated}=0$, $\Phi_{t+1}=0$, and $r_t=\alpha(0-\Phi_t)-c_{\mathrm{ctrl}}$.
+  - FB target: $\bar B(m^{\mathrm{pre}}_{t+1})+\gamma\,c\,\bar F(o^{\mathrm{pre}}_{t+1},\pi_\theta(o^{\mathrm{pre}}_{t+1},z_{\mathrm{update}}),z_{\mathrm{update}})$. The failure frame stays in the successor measure and the bootstrap stops.
+  - Task macro (truncated at $k<K=10$): $(H_{\mathrm{start}},c^{\mathrm{geom}},z_{\mathrm{actual}},R_{\mathrm{macro}}=\sum_{i<k}\gamma_{\mathrm{task}}^ir_{t+i},H_{\mathrm{final}},k,\texttt{terminated}=1)$, with target $R_{\mathrm{macro}}+\gamma^k_{\mathrm{task}}\cdot0$.
+  - Timeout rows keep $c=1$ and the true $\Phi_{t+1}$.
+
+**1.4 Why credible penetrations must enter both buffers.**
+
+- A row with $\neg\mathcal B$ is a resolved MuJoCo soft-contact transition: a hard impact of the simulated plant. It belongs to the MDP the deployable policy faces; it is not an artefact.
+- Let $p(H,z)$ be the probability of a credible failure inside a macro, $Q_{\mathrm{fail}}$ the expected target on failing macros, and $Q_{\mathrm{cont}}$ the expected target on the rest. Then $Q^\star=(1-p)Q_{\mathrm{cont}}+pQ_{\mathrm{fail}}$.
+- Censoring failing rows makes the regression converge to $\tilde Q=Q_{\mathrm{cont}}$, so
+$$
+\tilde Q-Q^\star=p\,(Q_{\mathrm{cont}}-Q_{\mathrm{fail}})\ \ge\ 0,
+$$
+  which is largest on the highest-hazard latents. $P_\psi$ maximises $\tilde Q$ and is therefore pushed towards them (optimism under censoring).
+- FB side: censoring removes failure frames from $\rho$. Then $\Sigma_B=\mathbb E_\rho[BB^\top]$ (B01 §1) never spans them, $z_{\mathrm{goal}}$ relabels never point at them, and $F^\top z$ extrapolates with no anchor at the boundary the actor must avoid.
+- Early in training, an untrained actor collides often (baseline/02 §5), so censoring would discard a large share of the Stage-0 data.
+
+## 2. Exact 4096-Environment Pool Quota Accounting and Multi-Seed Statistical Gates
+
+**2.1 Allocation (pure integers, $N=4096$).**
+
+- *Notation.* Active heights are $h_1<\dots<h_k$: frontier $h_k$, low pair $\{h_1,h_2\}=\{0.10,0.20\}$, intermediates $\mathcal I=\{h_3..h_{k-1}\}$.
+- *Split rule.* The remainder goes to the higher heights:
+$$
+\mathrm{Split}(M,n)_i=\lfloor M/n\rfloor+\mathbf 1\!\left[i>n-(M\bmod n)\right],\qquad \textstyle\sum_{i=1}^n\mathrm{Split}(M,n)_i=n\lfloor M/n\rfloor+(M\bmod n)=M.
+$$
+- *Case $k=2$:* $q=\mathrm{Split}(N,2)$.
+- *Case $k\ge3$:*
+  - frontier $q_k=N\gg1=2048$ (50%);
+  - low pair $L=\lfloor2N/10\rfloor=819$ (20%) if $\mathcal I\neq\emptyset$, otherwise $L=N-2048$;
+  - intermediates $I=N-2048-L=1229$ (30%), with $q_{\mathcal I}=\mathrm{Split}(1229,|\mathcal I|)$ and $q_{1,2}=\mathrm{Split}(L,2)$.
+- *Pre-registered choice:* when $\mathcal I=\emptyset$, the 30% share goes to the low pair as an anti-forgetting reserve.
+- *Exactness:* $\sum_hq_h=2048+L+(N-2048-L)=N$ identically, and $\min_hq_h\ge245>0$. No floating-point rounding is involved.
+
+| Stage | Active pool (m) | $k$ | Quota $q$ (ascending $h$; **frontier** bold) | $\sum$ |
+|---|---|---:|---|---:|
+| 0 | {0.10, 0.20} | 2 | 2048, 2048 | 4096 |
+| 1 | {0.10..0.30} | 3 | 1024, 1024, **2048** | 4096 |
+| 1 | {0.10..0.40} | 4 | 409, 410, 1229, **2048** | 4096 |
+| 1 | {0.10..0.50} | 5 | 409, 410, 614, 615, **2048** | 4096 |
+| 2 | {0.10..0.60} | 6 | 409, 410, 409, 410, 410, **2048** | 4096 |
+| 2 | {0.10..0.70} | 7 | 409, 410, 307, 307, 307, 308, **2048** | 4096 |
+| 3 | {0.10..0.80} | 8 | 409, 410, 245, 246, 246, 246, 246, **2048** | 4096 |
+
+- **Spike match.** The $k=2,5,7$ rows match `VERDICT.json` exactly.
+- **Stage 3 is a separately labelled extension arm only.** Training on 0.80 m moves 0.80 out of the baseline/05 §6.2 OOD panel and turns 0.75 into an interpolation height. That arm may claim OOD only at $h=0.05$ and $D\in\{0.25,0.45\}$.
+- **Env mapping.** With prefix sums $Q_i=\sum_{j\le i}q_j$ ($Q_0=0$, $Q_k=4096$), env $e$ targets $h_i$ iff $Q_{i-1}\le e<Q_i$. This is a bijection onto $[0,4096)$: no env is dropped and none overflows.
+
+**2.2 `PoolQuotaSchedule` credit state.**
+
+- *Quota epoch.* One epoch is `quota_epoch_control_rows = 4096` committed rows, i.e. one fully valid batched step, so $\sum_hr_h=4096$.
+- *Deficit ledger.* $D_h\leftarrow D_h+q_h-r_h$. Since $\sum q=\sum r$, the invariant $\sum_hD_h\equiv0$ holds.
+- *Height choice at reset.* Height is fixed per episode, so stage changes apply at each env's next reset. A resetting env takes $h=\arg\max_hD_h/q_h$, with ties going to the higher $h$. Every env always holds a height, so **no `paused` state exists** and no quota starvation is possible.
+- *Rejected batches.* `invalid` batches never touch $D$.
+- *Resume hash.* SHA-256 over canonical JSON of $(k,\text{stage},q,D,\texttt{pass\_streak},\texttt{hold},\text{panel history},S,\text{RNG states})$. It must be identical before save and after `--resume`.
+
+**2.3 Wilson unlock gate.** Panels use 100 independent ground starts per height, 100% planner, frozen weights and BN, and zero replay writes. With $z=1.959964$:
+$$
+\mathrm{LB}(s,n)=\frac{\hat p+\frac{z^2}{2n}-z\sqrt{\frac{\hat p(1-\hat p)}{n}+\frac{z^2}{4n^2}}}{1+z^2/n},\qquad \mathrm{LB}(78,100)=0.689296<0.70\le\mathrm{LB}(79,100)=0.700200.
+$$
+- *Integer check.* $\mathrm{LB}$ is monotone in $s$, so the gate is implemented as $s\ge79$, with no float comparison.
+- *Panel = void* if it contains any `invalid` step. The panel halts, is neither pass nor fail, and is re-run on **the same seeds**, so the denominator never shrinks.
+- *Panel = pass* iff all three hold: $s_{h_k}\ge79$; zero `severe_penetration` on success episodes (asserted, Cor. C2); no confirmed forgetting.
+- *Confirmed forgetting:* $\hat p_h<\hat p_h^{\mathrm{ref}}-0.10$ for some $h\in\{0.10,0.20\}$ on two consecutive panels, where the reference is the panel at the last unlock. It sets `hold=1`, which freezes unlocking with quotas unchanged. `hold` clears after one panel without such a drop.
+- *Unlock* iff `pass_streak = 2` over non-overlapping panels every 100,000 committed steps. A fail resets the streak to 0; a void panel leaves it unchanged.
+
+**2.4 Multi-seed competence gate.** Use $S_{\mathrm{seed}}=8$ independent seeds.
+
+- *Competence at $h$:*
+  - per-seed final ID panel $s_h\ge79/100$ on $\ge7/8$ seeds (one-sided exact sign test against a 0.5 per-seed pass rate: $p=9/256=0.035$);
+  - zero `invalid` steps in every panel.
+- *Beyond imitation at $h$:*
+  - competence at $h$, plus $|h-0.7045|\ge0.20$ m, under 100% planner control;
+  - the pooled planner-minus-`expert`-source success difference (same seeds; `expert` arm evaluated with $p_{\mathrm{expert}}=1$) has a Newcombe 95% CI lower bound $>0$.
+- *Reported but not gating:* interpolation and OOD panels.
+
+**2.5 Three-intervention acceleration and four-dimensional ledger.** Arms:
+
+- $\mathrm I_0$: R2.1 FB.
+- $\mathrm I_1$: Gram-whitened intrinsic reward (B01 §2).
+- $\mathrm I_2$: $n$-step real-trajectory FB (baseline/03 Track 1).
+- $\mathrm I_3$: $H\in\{8,16\}$ world-model hybrid with FB tail (Track 2).
+
+| Ledger dim | Definition | Rule |
+|---|---|---|
+| $E$ real env steps | committed control rows; rejected rows $E_{\mathrm{rej}}$ logged separately | a run is valid only if $E_{\mathrm{rej}}=0$ |
+| $M$ imagined steps | $\sum\text{batch}\times H$, including detached critic-target rollouts | $E{+}M$ ratio must be $\ge1$ |
+| $V$ peak VRAM | max over processes of `max_memory_allocated` (GiB) | $\le$ pre-declared device cap |
+| $T$ GPU wall-clock | GPU-hours summed over devices, incl. world-model fitting and panels | primary acceleration metric |
+
+- *Time to gate.* $\tau_x(h)$ is the value of ledger coordinate $x$ at the first two-panel unlock of $h$. Seeds that never unlock are censored at the common budget $T_{\max}$.
+- *Acceleration.* $\mathrm I_i$ accelerates at $h$ iff all three hold:
+  - $\tau_T^{(0)}/\tau_T^{(i)}>1$ on $\ge7/8$ seed-paired runs;
+  - the $E{+}M$ ratio is $\ge1$ (no relabelling of imagined cost as "sample efficiency");
+  - $V\le$ cap, and $\mathrm I_i$ still passes §2.4 at the end of training.
+- *Reporting.* All four coordinates are reported for every arm. Omitting any of them voids the arm.
+
+## 3. Serious Alternative Considered and Rejected
+
+**A1 (primary). Silently discard every frame with penetration $>0.03$ m, keep running, never halt.** This is attractive: it removes the `R2_FINAL` step-9 halts and keeps $\rho$ "clean". It is rejected for three reasons:
+
+1. *Censoring bias.* By §1.4, $\tilde Q-Q^\star=p(Q_{\mathrm{cont}}-Q_{\mathrm{fail}})\ge0$. The bias is maximal on high-hazard latents, which $P_\psi$ then prefers.
+2. *Missing terminal.* The pre-impact TD target at $t-1$ bootstraps through $F(s_t,\pi(s_t),z)$ with the penetrating action, and no row anywhere contradicts it.
+3. *Contract violations.*
+   - The logs cannot tell discarding apart from the `invalid` path, violating Charter §2.4 (credible failure must be recorded as a termination).
+   - Evaluation must either drop penetrating episodes from the denominator (forbidden by brief §2) or count failures that never appeared in training.
+
+**A2. Soft penalty for NaN/Inf or `ncon ≥ nconmax` without halting.**
+
+- An EMA normalizer $\mu\leftarrow(1-\beta)\mu+\beta x$ with a single non-finite $x$ stays non-finite forever. The same holds for $\widehat\Sigma_t$. Rejection must therefore precede every statistic, and zero-fill imputation fabricates states (brief §2).
+- Overflow drops contacts, so $s_{t+1}$ comes from a different dynamics. A penalty would put value on a simulator artefact that correlates with contact count, which trains against multi-contact hand-on-box support, the very beyond-imitation mode of baseline/02 §6.2.
+
+**A3. Competence measured by demonstration pose-tracking RMSE.**
+
+- *Not sufficient.* Two rollouts within link RMSE $\epsilon\ge0.03$ m of the demo can differ in contact depth by more than the penetration threshold, so RMSE cannot certify contact feasibility.
+- *Not necessary.* The only demo is at $h=0.7045$. A correct step-over at $h=0.10$ needs no 0.70 m clearance and scores badly.
+- *Requires a phase index.* RMSE needs a frame alignment, which the unindexed single-frame $B$ deliberately lacks.
+- *Rewards the forbidden.* Its optimum is pure imitation, which Charter §2.1 forbids and which makes "beyond imitation" self-refuting.
+- *Permitted use:* RMSE and nearest-demo distance may be reported as novelty diagnostics only.
+
+## 4. Candidate Necessity Claims (Appendix B)
+
+**C-B05-A-01: committing credible failures is necessary for unbiased task value.**
+
+- *Necessity grade:* **Grade 1** (analytic, given the premises).
+- *Premises:*
+  - (P1) Rows with $\neg\mathcal B$ are transitions of the simulated MDP.
+  - (P2) The macro-critic and FB targets apply the mask $(1-\texttt{terminated})$.
+  - (P3) A set of $(H,z)$ of positive measure has hazard $p>0$ and $Q_{\mathrm{fail}}<Q_{\mathrm{cont}}$.
+- *Conclusion shape:* every replay filter that removes credible `severe_penetration` rows has a critic fixed point with pointwise bias $p(Q_{\mathrm{cont}}-Q_{\mathrm{fail}})>0$ on that set. Committing to **both** buffers is necessary for unbiased $Q$ and for $\rho$ to support the failure boundary.
+- *Operational test:*
+  - commit vs. drop arms, 8 seeds, $2\times10^6$ committed steps on Stages 0–1;
+  - on held-out planner rollouts, bin histories by Monte-Carlo hazard $\hat p$;
+  - measure $\hat Q_1(H,z_{\mathrm{actual}})-G^{\mathrm{MC}}$ per bin.
+- *Falsifier (either suffices):*
+  - in the drop arm, the 95% CI of the bias in bin $\hat p\ge0.2$ contains 0 on $\ge7/8$ seeds;
+  - the drop arm's planner penetration rate is not higher than the commit arm's (Newcombe lower bound $\le0$).
+
+**C-B05-A-02: pre-statistic rejection with strict `invalid` dominance is necessary.**
+
+- *Necessity grade:* **Grade 1**.
+- *Premises:* (P1) EMA statistics are updated before any downstream filter; (P2) IEEE-754 arithmetic.
+- *Conclusion:* any policy that lets a non-finite row reach a normalizer leaves it permanently non-finite. The Prop. 1 classifier with atomic batch rejection is therefore necessary.
+- *Falsifier:* under alternative A2, an injected-NaN fixture leaves the normalizer finite after $10^3$ further updates.
+
+## 5. Pre-Registered Empirical Spike Protocol
+
+**Backend and logging.**
+
+- MuJoCo **3.17** Python bindings, CPU, `float64`, with an instrumented 4-substep `mj_step` loop.
+- Each test logs its predicate vectors and SHA-256 of both replays, both normalizers, $\widehat\Sigma$ and the schedule state.
+- Any single assertion deviation fails the whole suite.
+- `elapsed_sec` is mandatory, and a run under 1 s is labelled `logic-only`.
+
+**Test 1: credible `severe_penetration` commit.**
+
+- *Fixture:* the 29-DoF plant (fallback: a free capsule) driven at $-8$ m/s into a fixed box with soft `solref`, so that $P_{j^\star}$ is true at some $j^\star\le3$ while all $\neg\mathrm{Bad}_j$ conditions hold and $\texttt{ncon}<\texttt{nconmax}$.
+- *Assert:* `status=severe_penetration`, `terminated=True`, `truncated=False`, `valid_sample=True`, `commit_to_replay=True`, $\Phi_{\mathrm{next}}=0$, `substeps_checked=4`.
+- *Assert:* FBReplay and TaskReplay each grow by exactly 1, the normalizer counts by 1, and $S$ by 1.
+- *Assert:* the stored $o_{t+1}$ is bitwise equal to the pre-reset state, the env resets afterwards, and the macro row has $k<10$ with target mask 0.
+
+**Test 2: post-penetration corruption overrides `severe_penetration`.**
+
+- *Fixture (2a):* reuse the Test 1 fixture so that $P$ latches at $j^\star\in\{1,2\}$, then a post-step hook sets `qvel[0]=NaN` after substep 3.
+- *Fixture (2b):* compile with a reduced `nconmax` (or enforce a harness cap) so that $O_4$ fires after the latch.
+- *Fixture (2c):* inject a 0.6 m body jump or a 150 rad/s joint velocity after the latch.
+- *Assert:* `status=invalid`, `valid_sample=False`, `commit_to_replay=False`, `update_normalizers=False`, and `offending_substep` equal to the injected substep (3 or 4).
+- *Assert:* the halt flag is raised, no reset observation is fabricated, all state hashes are bitwise unchanged, and $S$ is unchanged.
+- *Exhaustive logic check:* all $2^4(P_{1..4})\times2^5(\mathrm{Bad}_{1..4,F})\times2(\mathrm{succ})\times2(\text{timeout})=2048$ predicate patterns must equal the closed form of Prop. 1.
+
+**Test 3: exact 4096 quota and Wilson gating.**
+
+- *Quotas:* for $k\in\{2,\dots,8\}$, assert $\sum q=4096$, $\min q>0$, and an exact match to the §2.1 table, including the spike's 2-, 5- and 7-height vectors.
+- *Ledger:* over $10^4$ synthetic epochs with random resets and stage changes, assert $\sum_hD_h=0$ and that no env is ever left without a height.
+- *Wilson:* assert $\mathrm{LB}(78,100)=0.689296\pm10^{-6}$ (fail) and $\mathrm{LB}(79,100)=0.700200\pm10^{-6}$ (pass).
+- *Panel sequences:*
+  - (pass, pass) unlocks;
+  - (pass, fail, pass) does not;
+  - (pass, void, pass) unlocks only after a same-seed re-run of the void panel;
+  - a two-panel low-height drop $>10$ pp sets `hold`.
+- *Resume parity:* schedule hash and 6-optimizer state hashes are equal across save and `--resume`.
+
+**Decision rule.**
+
+- The suite passes iff Tests 1–3 pass on the real backend.
+- The existing `logic-only` VERDICT upgrades no §4 claim.
+- A pass licenses only §1–§2 contract conformance. It never licenses claims of learning, competence or acceleration (Charter §2.5).
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/brief.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+# Brief B05: Autonomous 3D Obstacle Traversal R2.1 Terminal Boundary (`severe_penetration` vs `invalid`) and Multi-Height Curriculum Verification
+
+**Packet ID**: `B05`
+**Status**: `READY_NOT_STARTED`
+**Baseline References**: `baseline/05-autonomous-obstacle-traversal-v3-and-r2-plan.md`
+
+---
+
+## 1. Problem Statement
+
+The R2.1 obstacle-traversal implementation plan (`baseline/05`) identifies two critical engineering and algorithmic requirements before full-scale GPU joint training can proceed:
+1. **Terminal-Boundary Disambiguation (`severe_penetration` vs `invalid`)**: In earlier runs (`R2_FINAL`), runtime contact penetration depth $> 0.03\text{ m}$ was treated as an unrecoverable `InvalidPhysicsError`, halting evaluation panels at step 9 during exploratory falls/collisions without logging whether the event was a physically valid hard impact or numerical solver divergence. R2.1 mandates separating **credible task failure (`severe_penetration`)** from **data corruption (`invalid`)** across all 4 physics substeps (`4 x 0.005 s = 0.02 s`).
+2. **Formal Runner Unification & Active Curriculum Unlock**: The production entry point (`train.py -> runner.run -> Trainer`) must wire the unfiltered `[T, 229]` `CandidateProvider`, the restored UFO `sample_mixed_z` update (`m_current`/`m_next` BN ordering), and the active multi-height curriculum controller (`PoolQuotaSchedule` credit replenishment + `95%` Wilson lower bound $\ge 0.70$ unlock across two consecutive `100%`-planner panels without $> 10$ percentage point low-height forgetting).
+
+**Core Question**: How do we formally verify the state-machine invariants, substep priority rules, replay/normalizer isolation, and curriculum credit state transitions of the R2.1 specification so that neither silent numerical corruption nor false training halts can occur during long-horizon GPU runs?
+
+---
+
+## 2. Hard Constraints & Non-Goals
+
+- Must not relax the $0.03\text{ m}$ penetration threshold, delete failure seeds, or shrink evaluation panel denominators.
+- Must not stop checking remaining substeps when a substep exceeds $0.03\text{ m}$: if a subsequent substep or final state in the same $0.02\text{ s}$ control step exhibits `NaN`/`Inf`, contact buffer overflow, or solver divergence, `invalid` must strictly override `severe_penetration` and reject the entire uncommitted transition.
+- Must not fabricate zero-filled terminal observations or advance committed step counters on `invalid` transitions.
+
+---
+
+## 3. Deliverables Required from Primary Authors
+
+1. **Formal Substep State-Machine & Priority Proof**: Specify the exact transition table over substeps $j \in \{1, 2, 3, 4\}$ and post-step `final` check mapping `(penetration_depth, finite_mask, contact_count < nconmax, solver_status, schema_ok)` to `{continue, terminal(severe_penetration), reject(invalid)}`, proving that `invalid` strictly dominates `severe_penetration` and `severe_penetration` strictly dominates `success` and `timeout`.
+2. **Curriculum Quota & Anti-Forgetting Controller Specification**: Formalize the exact state transitions of `PoolQuotaSchedule` across `quota_epoch_control_rows = 4096` and `eval_interval_control_steps = 100,000`, including integer rounding remainder accounting, hold-on-regression when low-height success drops by $> 10$ percentage points, and resume hash verification.
+3. **Three-Part Verification & Smoke Suite**: Specify the exact deterministic test fixtures and bounded real-backend CPU closed-loop checks required by R2.1 §7 (credible failure commit test, injected post-penetration corruption rejection test, panel continuation denominator test, and 6-optimizer update + `--resume` parity check).
+
+---
+
+## 4. Adjudication Rubric
+
+| Dimension | Weight | Scoring Standard |
+|---|---:|---|
+| Substep Priority & Replay Isolation Rigor | 35% | Zero possibility of corrupted data entering replay/BN or valid falls halting runs. |
+| UFO Relabel & BN Order Fidelity | 25% | Exact match to `sample_mixed_z` and single-pass `(obs, m_current)` / `(next_obs, m_next)` BN updates. |
+| Curriculum & Quota State Completeness | 20% | Prevents quota starvation (`paused` deadlock) and enforces two-panel Wilson gate. |
+| Verification Suite Executability | 20% | Covers all three R2.1 §7 targeted tests plus `--resume` state equivalence. |
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/spikes/B05-SPIKE/VERDICT.json' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+{
+  "experiment_id": "B05_R21_TERMINAL_BOUNDARY_AND_CURRICULUM_SUITE",
+  "elapsed_sec": 0.009,
+  "verdict": "PASS",
+  "motion_descriptor_shape": [
+    229
+  ],
+  "test1_credible_penetration": {
+    "status": "severe_penetration",
+    "terminated": true,
+    "commit_to_replay": true,
+    "phi_next": 0.0,
+    "substeps_checked": 4
+  },
+  "test2_post_penetration_nan_override": {
+    "status": "invalid",
+    "commit_to_replay": false,
+    "update_normalizers": false,
+    "step_counter_unchanged": true,
+    "offending_substep": 3
+  },
+  "test2b_post_penetration_buffer_overflow_override": {
+    "status": "invalid",
+    "offending_substep": 4
+  },
+  "test3_curriculum_and_quota": {
+    "wilson_lb95_78_of_100": 0.689296,
+    "wilson_lb95_79_of_100": 0.7002,
+    "min_successes_of_100_for_lb70": 79,
+    "quota_2_heights": {
+      "0.10": 2048,
+      "0.20": 2048
+    },
+    "quota_5_heights": {
+      "0.10": 409,
+      "0.20": 410,
+      "0.30": 614,
+      "0.40": 615,
+      "0.50": 2048
+    },
+    "quota_7_heights": {
+      "0.10": 409,
+      "0.20": 410,
+      "0.30": 307,
+      "0.40": 307,
+      "0.50": 307,
+      "0.60": 308,
+      "0.70": 2048
+    }
+  }
+}
+codex
+The penetration latch preserves the required priority, but Proposal A omits the UFO relabel procedure, leaves quota and counter semantics inconsistent, and weakens the anti-forgetting gate. I’ll also distinguish what the supplied logic-only verdict supports from the production checks still missing.
+
+apply patch
+patch: completed
+/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/reviews/review-B-on-A.md
+diff --git a/packets/B05/reviews/review-B-on-A.md b/packets/B05/reviews/review-B-on-A.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..90df22846c18d4c0c6951efd99cbee0218603356
+--- /dev/null
++++ b/packets/B05/reviews/review-B-on-A.md
+@@ -0,0 +1,123 @@
++# Blind Review B on Proposal A (Packet B05)
++
++## 1. Gate & Hard-Constraint Audit
++
++**Recommendation: do not pass B05; require revision and executable production-path evidence.**
++Scope: Charter, B05 brief, Proposal A, and the permitted spike VERDICT only.
++The referenced baselines and Appendix B were not supplied in the authorized context; their full requirements cannot be independently certified.
++The verdict reports selected logic outcomes, not implementation inspection or real-backend conformance.
++
++- **Charter §2.1 — conditional pass:** no BC or tracking loss is proposed for the selected method.
++  The actor objective is not specified, so exclusive conservative-FB optimization remains unverified.
++- **Charter §2.2 — [CRITICAL], unfulfilled:** fresh 50/50 UFO relabel sampling and frozen-BN encoding are absent.
++  Preserving `behavior_z` and using `z_actual` in the macro tuple are correct but insufficient.
++- **Charter §2.3 — incomplete:** the 229-dimensional frame is named; motion-only inputs to B are not explicitly enforced.
++  A dimension check cannot exclude terrain, phase, or frame-index substitution.
++- **Charter §2.4 — [CRITICAL], potential violation:** finite jumps/speeds are declared corruption without proving solver divergence.
++  A finite, schema-valid penetration with such a speed can therefore halt instead of being committed as credible failure.
++  The selected method otherwise preserves termination, absorption potential, rejection, and pre-reset observations.
++- **Charter §2.5 — pass:** A expressly limits its evidence and makes no learned-competence claim.
++- **Brief §2 — mostly satisfied in the classifier:** 0.03 m is retained, later substeps continue after penetration,
++  subsequent invalidity dominates, zero-filled terminal states are forbidden, and invalid batches do not increment S.
++  Same-seed panel reruns preserve stated denominators, but the required continuation test is missing.
++- **Brief §1/§3 — [MAJOR], unfulfilled:** hold-on-regression is delayed by a second bad panel;
++  required runner integration, quota-credit transitions, and six-optimizer update smoke are not specified adequately.
++
++## 2. Rubric-Keyed Technical Objections
++
++### Substep Priority & Replay Isolation Rigor — 35%
++
++- **[CRITICAL] Corruption predicates exceed their justification (A §1.1).**
++  J and V are heuristic thresholds, not certificates of numerical corruption under the supplied charter.
++  Supply an independent divergence criterion, or treat finite threshold exceedances as diagnostics pending classification.
++- **[MAJOR] The final-check domain is incomplete (A §1.1–1.2).**
++  P is accumulated only over substeps 1–4; final penetration is absent from the terminal rule.
++  Prove the final contact state is identical to substep 4, or include P_F explicitly.
++  Also define final displacement indexing and finite checks on every derived observation/motion tensor before commit.
++- **[MINOR] The priority proof establishes a latch invariant, not physical order independence.**
++  Swapping substep physics changes the trajectory; only aggregation of a fixed predicate trace is order independent.
++  The formula also omits the other terminal failures mentioned immediately above it.
++- **[MAJOR] Atomicity does not cover every relevant mutation (A §1.3).**
++  Replay, input normalizers, and Gram state are listed, but network BN buffers, RNG advances,
++  pending macro accumulators, and reset/curriculum bookkeeping need explicit prepare/commit ownership.
++  Rejecting the whole batch is conservative, but necessity of discarding valid sibling environments is not proved.
++- **[MAJOR] The stated FB target is not a complete gradient contract.**
++  Give target dimensions and stop-gradient boundaries, including the target-policy call and online B relabel encoding.
++  The terminal mask and true pre-reset state are sound; they do not establish the rest of the update.
++
++### UFO Relabel & BN Order Fidelity — 25%
++
++- **[CRITICAL] The central 25% rubric requirement has no algorithm (A §1.3, §5).**
++  Specify fresh per-update 50/50 sphere samples of radius sqrt(d_z) and current-online-B encodings
++  of permuted replay m_next, with BN frozen during relabel construction and subsequent relevant forwards.
++  Show exactly one current (obs, m_current) BN pass followed by one next (next_obs, m_next) pass.
++- **[MAJOR] Input normalization is conflated with network BN fidelity.**
++  Collection-time normalizer updates do not implement replay-update BN ordering.
++  Test 1's count increment of one is also unexplained against the two updates stated in §1.3.
++  Add instrumented forward-call assertions and immutable replay behavior-latent checks.
++- **[MAJOR] CandidateProvider and production wiring are absent.**
++  Assert unfiltered [T,229] candidate access and exercise train.py -> runner.run -> Trainer;
++  a separate classifier harness cannot certify the required training path.
++
++### Curriculum & Quota State Completeness — 20%
++
++- **[CRITICAL] Removing “paused” does not prove quota-credit correctness (A §2.2).**
++  D <- D + q - r conserves only the total deficit; it supplies neither a deficit bound nor service guarantee.
++  Several simultaneous resets can all choose the same argmax because no reservation/debit occurs between choices.
++  Specify reset ordering, immediate reservations, epoch replenishment, and bounded starvation tests.
++- **[MAJOR] Allocation and time units conflict.**
++  Fixed prefix env mapping in §2.1 and deficit-based reset allocation in §2.2 need a stated precedence.
++  One 4096-env commit adds 4096 control rows but increments S by one; define separate row and vector-step counters.
++  Derive evaluation timing and training budgets from those units before claiming the 100,000-step contract.
++- **[MAJOR] Anti-forgetting admits a forbidden unlock.**
++  After one clean pass, a frontier pass with a first low-height drop >10 pp is still a pass under “confirmed forgetting.”
++  It can complete pass_streak=2 and unlock despite regression.
++  Any such drop must block that panel's unlock eligibility; define streak reset, hold release, and initial reference state.
++- **[MAJOR] Stage changes and resume state are incomplete.**
++  Define new-height deficit initialization, treatment of old episodes, streak reset after unlock, and reference updates.
++  The hash omits per-env heights, episode state, pending macros, epoch position, and outstanding credit reservations.
++
++### Verification Suite Executability — 20%
++
++- **[CRITICAL] The mandatory panel-continuation denominator test is replaced by quota/Wilson tests.**
++  Run a fixed full panel with an early credible failure; assert later episodes execute and the failed seed remains counted.
++  Test invalid-panel halting separately, including same-seed replay and no partial success publication.
++- **[MAJOR] Save/load hash equality is weaker than six-optimizer update and resume parity.**
++  Execute actual updates, checkpoint mid-episode/macro, then compare uninterrupted and resumed next actions,
++  minibatches, targets, parameter updates, counters, BN, scheduler state, and RNG-driven choices.
++- **[MAJOR] The physical fixtures are not reproducible specifications.**
++  Provide an exact model, initial state, solver configuration, action sequence, injection hooks, and bounded step count.
++  A capsule fallback tests classifier plumbing but cannot certify the 229-dimensional production runner.
++
++## 3. Audit of Rejected Alternative & Necessity Claim
++
++- **[MAJOR] A1 has a concrete operational motivation but is contract-inadmissible by construction.**
++  A2 also violates rejection requirements; neither challenges the selected architecture within the feasible design space.
++  Compare against immediate online terminal updates with separate failure storage, or per-env transactional rejection.
++  A3's use as an evaluation metric alone does not violate the charter's prohibition on tracking training rewards.
++- **[CRITICAL] C-B05-A-01 does not follow from P1–P3 as stated.**
++  The bias identity holds for conditional target means under a fixed policy/target law and uncorrected survivor-only regression.
++  P1–P3 do not require those conditions, realizable regression, convergence, or absence of an independent failure estimator.
++  Recursive Bellman fixed points and a changing planner need a separate derivation.
++  Committing to both buffers is a charter requirement; necessity for unbiased task Q does not follow from FB support.
++- **[MAJOR] The proposed falsifiers are not logical negations of the analytic claim.**
++  A CI containing zero can reflect low power; P3 supplies no minimum detectable effect.
++  Equal penetration rates do not contradict critic bias because the planner need not change its selected action.
++  Use a fixed-policy finite MDP with known hazard/returns, then separately test planner consequences.
++- **Appendix B:** necessity grading cannot be certified without its text.
++  On the stated premises alone, “Grade 1” is unsupported; restrict the quantifiers and make the statistical test precise.
++
++## 4. Spike Protocol Critique
++
++- **[MAJOR] Mechanism controls:** add no-penetration valid steps, equality at 0.03 m, empty contacts,
++  final-only corruption/schema/timing failures, success-plus-penetration, timeout bootstrap, and one-invalid-env batches.
++  Exhaustive Boolean patterns test the latch, not extraction of those predicates from actual simulator state.
++- **[MAJOR] Execution evidence:** elapsed time is not a backend detector.
++  Log backend/model versions, actual substep calls, production entry point, and fixture identities.
++  The supplied VERDICT lacks panel continuation, BN traces, optimizer updates, and resume evidence.
++- **[MAJOR] Statistical confounds:** equal committed-step budgets give commit/drop arms unequal attempted interactions.
++  Match attempted steps and compute, report retained rows, and measure bias against independent fixed-policy MC returns.
++  Define pairing/seed clustering for success CIs; pooled episodes do not provide independent training-seed evidence.
++- **[MAJOR] Threshold scope:** 79/100 correctly implements the stated Wilson gate for n=100 only.
++  Repeated unlock looks and multiple heights/arms require an explicit inferential scope or multiplicity treatment.
++  Define the E+M ratio direction and censored-run comparisons; neither is presently an executable acceleration rule.
+
+exec
+/bin/bash -lc 'wc -l /srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/reviews/review-B-on-A.md' in /srv/claude/research/fb-beyond-imitation-acceleration
+ succeeded in 0ms:
+123 /srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/reviews/review-B-on-A.md
+
+codex
+Wrote the 123-line [blind review](/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/reviews/review-B-on-A.md), covering all required sections and rubric dimensions.
+
+Recommendation: require revision before passing B05. No other reviews or drafts were read.
+tokens used
+25,913
+Wrote the 123-line [blind review](/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/reviews/review-B-on-A.md), covering all required sections and rubric dimensions.
+
+Recommendation: require revision before passing B05. No other reviews or drafts were read.

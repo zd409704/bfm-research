@@ -1,0 +1,51 @@
+{
+  "experiment_id": "B05_R21_TERMINAL_BOUNDARY_AND_CURRICULUM_SUITE",
+  "elapsed_sec": 0.009,
+  "verdict": "PASS",
+  "motion_descriptor_shape": [
+    229
+  ],
+  "test1_credible_penetration": {
+    "status": "severe_penetration",
+    "terminated": true,
+    "commit_to_replay": true,
+    "phi_next": 0.0,
+    "substeps_checked": 4
+  },
+  "test2_post_penetration_nan_override": {
+    "status": "invalid",
+    "commit_to_replay": false,
+    "update_normalizers": false,
+    "step_counter_unchanged": true,
+    "offending_substep": 3
+  },
+  "test2b_post_penetration_buffer_overflow_override": {
+    "status": "invalid",
+    "offending_substep": 4
+  },
+  "test3_curriculum_and_quota": {
+    "wilson_lb95_78_of_100": 0.689296,
+    "wilson_lb95_79_of_100": 0.7002,
+    "min_successes_of_100_for_lb70": 79,
+    "quota_2_heights": {
+      "0.10": 2048,
+      "0.20": 2048
+    },
+    "quota_5_heights": {
+      "0.10": 409,
+      "0.20": 410,
+      "0.30": 614,
+      "0.40": 615,
+      "0.50": 2048
+    },
+    "quota_7_heights": {
+      "0.10": 409,
+      "0.20": 410,
+      "0.30": 307,
+      "0.40": 307,
+      "0.50": 307,
+      "0.60": 308,
+      "0.70": 2048
+    }
+  }
+}

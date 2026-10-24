@@ -1,0 +1,21 @@
+I wrote the adjudication to `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B03/adjudication-sonnet-order2.md`. I have not counted its lines, so I can't confirm it fits the 80–140 range. I ran no scripts.
+
+- **Eligibility:** Both candidates pass the hard constraints and are eligible. I did not have the text of Appendix B, so I applied the B.5 and B.9 gates from the Charter and the brief only.
+- **Scores:**
+
+  | Dimension (weight) | P | Q |
+  |---|---:|---:|
+  | Compatibility with kinematic-only NPZ (30) | 24 | 24 |
+  | Rigor of aliasing analysis (25) | 20 | 16 |
+  | Diagnostic precision (25) | 14 | 16 |
+  | Spike falsifiability (20) | 12 | 12 |
+  | **Total** | **70** | **68** |
+
+  P is ahead because its claims hold as written. Q has the richer diagnostics and the R/K/I case taxonomy. But its main claims (Prop. 1.4, Prop. 1.5, the Case K margin, and the Bayes floor that leaves out `z`) were each flagged CRITICAL in the blind review.
+- **Principle claims:**
+  - P's CAND-01 and CAND-02 are accepted as Grade 1, and CAND-01 needs a retitle.
+  - Q's CAND-01 is downgraded to Grade 3, because a planner can still select among branches that FB treats as tied.
+  - Q's CAND-02 is accepted as Grade 2, conditionally.
+  - Q's CAND-03 is accepted as Grade 1, narrowly.
+- **Disposition:** I recommend P, with Q as the alternate. The margin is only 2 points, and I note that a Tie can't be ruled out. The report lists 10 mandatory merge items from Q into P.
+- **Confounds:** The report names reviewer asymmetry as the main one: Q drew 6 CRITICAL findings and P drew none, which may reflect reviewer severity. Neither reviewer, nor I, had the baselines or Appendix B.

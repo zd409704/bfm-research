@@ -1,0 +1,29 @@
+--- B05-review-A-on-B.txt
++++ B05-review-B-on-A.txt
+@@ -1,19 +1,19 @@
+-You are Blind Reviewer A on Packet B05 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
++You are Blind Reviewer B on Packet B05 of the research program at `/srv/claude/research/fb-beyond-imitation-acceleration`.
+ 
+ Read the following frozen context and candidate files:
+ 1. `/srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md`
+ 2. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/brief.md`
+-3. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/proposals/B.md`
++3. `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/proposals/A.md`
+ 
+ Isolation & Execution Rules:
+ - Do NOT read any other file in `reviews/` or `drafts/`.
+ - You may also read `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/spikes/B05-SPIKE/VERDICT.json`.
+-- Write the output markdown file `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/reviews/review-A-on-B.md` directly without running any bash or python exploratory scripts.
++- Write the output markdown file `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/reviews/review-B-on-A.md` directly without running any bash or python exploratory scripts.
+ - Keep your review concise, rigorous, and between 80 and 140 lines, directly keyed to the rubric rows and hard constraints in `brief.md`.
+ 
+-Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/reviews/review-A-on-B.md`:
+-1. `# Blind Review A on Proposal B (Packet B05)`
+-2. `## 1. Gate & Hard-Constraint Audit`: Check whether Proposal B violates any Hard Constraint in `PROGRAM_CHARTER.md` or `brief.md`.
++Required Sections in `/srv/claude/research/fb-beyond-imitation-acceleration/packets/B05/reviews/review-B-on-A.md`:
++1. `# Blind Review B on Proposal A (Packet B05)`
++2. `## 1. Gate & Hard-Constraint Audit`: Check whether Proposal A violates any Hard Constraint in `PROGRAM_CHARTER.md` or `brief.md`.
+ 3. `## 2. Rubric-Keyed Technical Objections`: Concrete mathematical, physical, or algorithmic defects keyed to each rubric dimension in `brief.md` (labeled `[CRITICAL]`, `[MAJOR]`, or `[MINOR]`).
+-4. `## 3. Audit of Rejected Alternative & Necessity Claim`: Evaluate whether the rejected alternative in Proposal B is non-trivial and whether its Principle Claim (`C-B05-B-01`) satisfies Appendix B premises and falsifiability.
++4. `## 3. Audit of Rejected Alternative & Necessity Claim`: Evaluate whether the rejected alternative in Proposal A is non-trivial and whether its Principle Claim (`C-B05-A-01`) satisfies Appendix B premises and falsifiability.
+ 5. `## 4. Spike Protocol Critique`: Identify any missing controls, unmeasured confounds, or threshold flaws in the proposed empirical spike.

@@ -1,0 +1,18 @@
+I have completed the independent cross-family adjudication for Packet `B02` (Order 1: Candidate P vs. Candidate Q) and written the report to [adjudication-agy-order1.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/adjudication-agy-order1.md) (89 lines).
+
+### Adjudication Summary
+
+1. **Eligibility Gate Check**: Both [order1_P.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/anonymized/order1_P.md) and [order1_Q.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/anonymized/order1_Q.md) pass the Hard Constraints in [PROGRAM_CHARTER.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md) (§2), [brief.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/brief.md) (§2), and Methodology v1.0 Appendix B.5 gates (subject to quarantining P's non-acting shadow critic `N` as an explicit negative control and capping Q's contiguous-suffix task-update skip rate).
+2. **Rubric-Weighted Scores**:
+   - **Candidate P**: **`86.5 / 100`** (`26.5/30` Off-Policy Semantics, `21.5/25` Contract Compliance, `17.5/20` Computational Overhead, `21.0/25` Spike Falsifiability).
+   - **Candidate Q**: **`84.5 / 100`** (`25.5/30` Off-Policy Semantics, `22.5/25` Contract Compliance, `15.0/20` Computational Overhead, `21.5/25` Spike Falsifiability).
+3. **Principle Claim Adjudication (Appendix B.9)**:
+   - **`C-B02-CAND-01` (P)**: `Candidate (tighten-premises)` — restrict part (c) to outcome-independent pre-transition relabeling maps $\zeta = f(\omega_t, H_t, z_{\mathrm{actual}}, m_{\mathrm{prompt}})$ and explicit belief-sufficient history $H_t$.
+   - **`C-B02-CAND-02` (P)**: `Candidate (stay)` — exact single-pass normalizer invariance, stationary mixture bias, and segment-end telescoping identity.
+   - **`C-B02-CAND-03` (P)**: `Candidate (tighten-premises)` — augment D5 kinematic distance with paired-noise task-return and contact/ball-outcome interventions.
+   - **`C-B02-CAND-04` (P)**: `Candidate (stay)` — exact $O(d_z)$ gauge symmetry and insufficiency of $\Delta_B$ alone to bound $b_\Delta$.
+   - **`C-B02-CAND-01` (Q)**: `Candidate (tighten-premises)` — recast from measure-equality definition to the minimax TV lower bound $\sup_{\|f\|_\infty \le M}|\mathbb E_g f - \mathbb E_n f| = 2M\,\mathrm{TV}(\mathbb P_g^z, \mathbb P_n^z)$ under unverified conjugacy.
+   - **`C-B02-CAND-02` (Q)**: `Candidate (stay)` — query-invariant prompt semantics require query-independent EMA normalizer state.
+4. **Disposition**:
+   - **Recommend**: **`P`** (`86.5 / 100`)
+   - **Alternate**: **`Q`** (`84.5 / 100`), with four mandatory merge items integrated from Q and the blind reviews ([review-B-on-A.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-B-on-A.md), [review-A-on-B.md](file:///srv/claude/research/fb-beyond-imitation-acceleration/packets/B02/reviews/review-A-on-B.md)).
