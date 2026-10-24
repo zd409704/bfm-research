@@ -51,3 +51,6 @@ Specifically, the V3 asymmetric local representation (`LOCAL_RESPONSE_ASYM_FB_V3
   - `B03-rank16-representation-capacity-across-144-morphology-regimes.md`
   - `B04-hierarchical-composition-of-local-motor-units-for-multi-joint-control.md`
 - `reviews/`, `synthesis/`, `method-issues/`, `claims/`, `packets/`, `logs/`: Operational directories for the adversarial research cycle.
+- `codebase/unit_bfm/`: sanitized local FB training tree. Stage-2 norms are in `codebase/unit_bfm/v3/stage2_norms.py`.
+- `stage2/`: scaled full-physics smoke, Colab runner, and `stage2_results.json`.
+- `STAGE2_STATUS.md`: what Stage-2 runs, and why H1–H4 stay Candidate.

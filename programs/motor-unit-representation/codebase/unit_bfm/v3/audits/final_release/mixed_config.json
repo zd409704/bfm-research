@@ -1,0 +1,1258 @@
+{
+  "version": "LOCAL_RESPONSE_ASYM_FB_V3",
+  "config_version": "v3-pipeline-1",
+  "mode": "dev",
+  "seed": 61001,
+  "cpu_threads": 1,
+  "run_root": "runs",
+  "physics": {
+    "dt": 0.001,
+    "control_dt": 0.01,
+    "episode_s": 2.0,
+    "backend": "cpu",
+    "overrides": {}
+  },
+  "collection": {
+    "source_weights": {
+      "rule": 0.5,
+      "policy": 0.5
+    },
+    "scene_weights": {
+      "E0": 0.2,
+      "E1": 0.15,
+      "E2": 0.2,
+      "E3": 0.15,
+      "E4": 0.3
+    },
+    "structures": [
+      {
+        "geometry_id": 0,
+        "limit_id": 0,
+        "config_id": "g00_l0",
+        "geometry_family": "straight_planar"
+      },
+      {
+        "geometry_id": 13,
+        "limit_id": 1,
+        "config_id": "g13_l1",
+        "geometry_family": "straight_planar"
+      },
+      {
+        "geometry_id": 26,
+        "limit_id": 2,
+        "config_id": "g26_l2",
+        "geometry_family": "straight_planar"
+      },
+      {
+        "geometry_id": 35,
+        "limit_id": 3,
+        "config_id": "g35_l3",
+        "geometry_family": "straight_planar"
+      }
+    ],
+    "capacity_nominal": [
+      3.0,
+      6.0,
+      9.0
+    ],
+    "p0_episodes": {
+      "E0": 4,
+      "E1": 3,
+      "E2": 4,
+      "E3": 3,
+      "E4": 6
+    },
+    "rule_time_weights": {
+      "transient": 0.2,
+      "motion": 0.3,
+      "load_release": 0.5
+    },
+    "policy_time_weights": {
+      "short": 0.2,
+      "long": 0.8
+    },
+    "num_worlds": 2,
+    "rollout_memory_limit_bytes": 536870912,
+    "directed_coverage": true
+  },
+  "learning": {
+    "batch_size": 64,
+    "lr": 0.0001,
+    "gamma": 0.99,
+    "polyak": 0.01,
+    "action_std": 0.2,
+    "action_clip": 0.3,
+    "updates_per_W": 0.015625,
+    "online_warmup_W": 400
+  },
+  "replay": {
+    "policy_capacity": 2048,
+    "rule_extra_per_group": 32,
+    "min_group_episodes": 2,
+    "rule_capacity": 1024,
+    "p0_fraction": 0.5
+  },
+  "coverage": {
+    "thresholds": {
+      "xi_episodes": 2,
+      "xi_steps": 20,
+      "cross_xi_episodes": 20,
+      "process_episodes": 2,
+      "active_duration_s": 0.5,
+      "hold_duration_s": 0.2,
+      "hold_q_error": 0.05,
+      "hold_dq": 0.05,
+      "contact_force_floor_N": 0.2,
+      "contact_weight_fraction": 0.02,
+      "adjacent_dq": 0.05,
+      "adjacent_stall_capacity_fraction": 0.1,
+      "fixture_weight_fraction": 0.02,
+      "fixture_capacity_fraction": 0.02,
+      "e4_contact_motion_fraction": 0.2,
+      "e4_bilateral_fraction": 0.25,
+      "scene_fraction_tolerance": 0.05,
+      "noise_multiplier": 5,
+      "motion_dq": 0.05
+    },
+    "scene_weights": {
+      "E0": 0.2,
+      "E1": 0.15,
+      "E2": 0.2,
+      "E3": 0.15,
+      "E4": 0.3
+    },
+    "groups": [
+      {
+        "scene": "E0",
+        "config_id": "g00_l0",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ],
+        "fixed_side": "P"
+      },
+      {
+        "scene": "E0",
+        "config_id": "g00_l0",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ],
+        "fixed_side": "D"
+      },
+      {
+        "scene": "E1",
+        "config_id": "g00_l0",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ]
+      },
+      {
+        "scene": "E2",
+        "config_id": "g00_l0",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ]
+      },
+      {
+        "scene": "E3",
+        "config_id": "g00_l0",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ]
+      },
+      {
+        "scene": "E4",
+        "config_id": "g00_l0",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery",
+          "contact_adjacent_active",
+          "bilateral_force"
+        ]
+      },
+      {
+        "scene": "E0",
+        "config_id": "g13_l1",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ],
+        "fixed_side": "P"
+      },
+      {
+        "scene": "E0",
+        "config_id": "g13_l1",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ],
+        "fixed_side": "D"
+      },
+      {
+        "scene": "E1",
+        "config_id": "g13_l1",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ]
+      },
+      {
+        "scene": "E2",
+        "config_id": "g13_l1",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ]
+      },
+      {
+        "scene": "E3",
+        "config_id": "g13_l1",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ]
+      },
+      {
+        "scene": "E4",
+        "config_id": "g13_l1",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery",
+          "contact_adjacent_active",
+          "bilateral_force"
+        ]
+      },
+      {
+        "scene": "E0",
+        "config_id": "g26_l2",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ],
+        "fixed_side": "P"
+      },
+      {
+        "scene": "E0",
+        "config_id": "g26_l2",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ],
+        "fixed_side": "D"
+      },
+      {
+        "scene": "E1",
+        "config_id": "g26_l2",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ]
+      },
+      {
+        "scene": "E2",
+        "config_id": "g26_l2",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ]
+      },
+      {
+        "scene": "E3",
+        "config_id": "g26_l2",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ]
+      },
+      {
+        "scene": "E4",
+        "config_id": "g26_l2",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery",
+          "contact_adjacent_active",
+          "bilateral_force"
+        ]
+      },
+      {
+        "scene": "E0",
+        "config_id": "g35_l3",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ],
+        "fixed_side": "P"
+      },
+      {
+        "scene": "E0",
+        "config_id": "g35_l3",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ],
+        "fixed_side": "D"
+      },
+      {
+        "scene": "E1",
+        "config_id": "g35_l3",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ]
+      },
+      {
+        "scene": "E2",
+        "config_id": "g35_l3",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ]
+      },
+      {
+        "scene": "E3",
+        "config_id": "g35_l3",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery"
+        ]
+      },
+      {
+        "scene": "E4",
+        "config_id": "g35_l3",
+        "feasible_xi": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "required_processes": [
+          "positive_motion",
+          "negative_motion",
+          "boundary_approach",
+          "boundary_departure",
+          "loaded_hold",
+          "load_release_recovery",
+          "contact_adjacent_active",
+          "bilateral_force"
+        ]
+      }
+    ],
+    "cross_requirements": [
+      {
+        "tags": {
+          "installation_sector": 0,
+          "fixed_side": "P"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 0,
+          "fixed_side": "D"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 1,
+          "fixed_side": "P"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 1,
+          "fixed_side": "D"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 2,
+          "fixed_side": "P"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 2,
+          "fixed_side": "D"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 3,
+          "fixed_side": "P"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 3,
+          "fixed_side": "D"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 4,
+          "fixed_side": "P"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 4,
+          "fixed_side": "D"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 5,
+          "fixed_side": "P"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 5,
+          "fixed_side": "D"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 6,
+          "fixed_side": "P"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 6,
+          "fixed_side": "D"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 7,
+          "fixed_side": "P"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "installation_sector": 7,
+          "fixed_side": "D"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "0:0",
+          "capacity": 3.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "0:0",
+          "capacity": 6.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "0:0",
+          "capacity": 9.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "0:1",
+          "capacity": 3.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "0:1",
+          "capacity": 6.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "0:1",
+          "capacity": 9.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "0:2",
+          "capacity": 3.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "0:2",
+          "capacity": 6.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "0:2",
+          "capacity": 9.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "1:0",
+          "capacity": 3.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "1:0",
+          "capacity": 6.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "1:0",
+          "capacity": 9.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "1:1",
+          "capacity": 3.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "1:1",
+          "capacity": 6.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "1:1",
+          "capacity": 9.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "1:2",
+          "capacity": 3.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "1:2",
+          "capacity": 6.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "1:2",
+          "capacity": 9.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "2:0",
+          "capacity": 3.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "2:0",
+          "capacity": 6.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "2:0",
+          "capacity": 9.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "2:1",
+          "capacity": 3.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "2:1",
+          "capacity": 6.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "2:1",
+          "capacity": 9.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "2:2",
+          "capacity": 3.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "2:2",
+          "capacity": 6.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "length_cell": "2:2",
+          "capacity": 9.0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 0,
+          "load_point_bin": 0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 0,
+          "load_point_bin": 1
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 0,
+          "load_point_bin": 2
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 0,
+          "load_point_bin": 3
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 0,
+          "load_point_bin": 4
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 1,
+          "load_point_bin": 0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 1,
+          "load_point_bin": 1
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 1,
+          "load_point_bin": 2
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 1,
+          "load_point_bin": 3
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 1,
+          "load_point_bin": 4
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 2,
+          "load_point_bin": 0
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 2,
+          "load_point_bin": 1
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 2,
+          "load_point_bin": 2
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 2,
+          "load_point_bin": 3
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "mass_ratio_bin": 2,
+          "load_point_bin": 4
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "neighbours": "single",
+          "contact_side": "P"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "neighbours": "single",
+          "contact_side": "D"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "neighbours": "double",
+          "contact_side": "P"
+        },
+        "episodes": 2
+      },
+      {
+        "tags": {
+          "neighbours": "double",
+          "contact_side": "D"
+        },
+        "episodes": 2
+      }
+    ],
+    "evidence": {
+      "physics_contract_verified": false,
+      "rules_calibrated": false,
+      "noise_calibrated": false,
+      "cross_manifest_frozen": false
+    }
+  },
+  "evaluation": {
+    "version": "v3-eval-1",
+    "reference_samples": 2048,
+    "integration_samples": 256,
+    "episode_s": 0.5,
+    "repeats": 1,
+    "thresholds": {
+      "q": 0.05,
+      "dq": 0.1,
+      "tau": 0.3,
+      "ddq": 10.0,
+      "tip_ax": 5.0,
+      "tip_az": 5.0,
+      "tip_vx": 0.1,
+      "tip_vz": 0.1,
+      "compliance": 0.3,
+      "hold_dq": 0.05,
+      "hold_duration_s": 0.2
+    },
+    "cases": [
+      {
+        "scene": "E0",
+        "fixed_side": "P",
+        "geometry_id": 0,
+        "limit_id": 0,
+        "capacity_nominal": 6.0,
+        "query": {
+          "kind": "dq",
+          "target": 0.0,
+          "width": 1.0
+        },
+        "split": "diagnostic"
+      },
+      {
+        "scene": "E1",
+        "fixed_side": "D",
+        "geometry_id": 0,
+        "limit_id": 0,
+        "capacity_nominal": 6.0,
+        "query": {
+          "kind": "dq",
+          "target": 0.0,
+          "width": 1.0
+        },
+        "split": "diagnostic"
+      },
+      {
+        "scene": "E2",
+        "fixed_side": "P",
+        "geometry_id": 0,
+        "limit_id": 0,
+        "capacity_nominal": 6.0,
+        "query": {
+          "kind": "dq",
+          "target": 0.0,
+          "width": 1.0
+        },
+        "split": "diagnostic"
+      },
+      {
+        "scene": "E3",
+        "fixed_side": "D",
+        "geometry_id": 0,
+        "limit_id": 0,
+        "capacity_nominal": 6.0,
+        "query": {
+          "kind": "dq",
+          "target": 0.0,
+          "width": 1.0
+        },
+        "split": "diagnostic"
+      },
+      {
+        "scene": "E4",
+        "fixed_side": "P",
+        "geometry_id": 0,
+        "limit_id": 0,
+        "capacity_nominal": 6.0,
+        "query": {
+          "kind": "dq",
+          "target": 0.0,
+          "width": 1.0
+        },
+        "split": "diagnostic"
+      }
+    ],
+    "unsupported_categories": [
+      "unseen_topology: requires an independently specified withheld topology template"
+    ]
+  },
+  "budget": {
+    "p0_min_W": 800,
+    "total_W": 8000,
+    "coverage_interval_W": 2000,
+    "checkpoint_interval_W": 100000,
+    "keep_p0_checkpoint": true
+  }
+}

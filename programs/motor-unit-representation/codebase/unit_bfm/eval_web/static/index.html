@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unit BFM Freezing weight assessment</title><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar"><div class="brand"><span class="brand-mark">∠</span> UNIT BFM <span class="divider">/</span> <span class="brand-sub">Sports lab.</span></div><span class="badge">Local . SIM_Privileged</span></header>
+<main>
+  <div class="intro"><div><div class="eyebrow">FROZEN POLICY EVALUATION</div><h1>From z to real motion</h1><p>Select how to freeze weights and evaluate, and look at the objectives, movements and interactions of the single joint double bar, article by article.</p></div><div class="intro-note"><strong>1 DOF · 2 LINK · PLANAR</strong><span>100 Hz Control / 1 kHz simulation</span><span>Candidate model, generic capability not yet accepted</span></div></div>
+  <details class="scope-note"><summary>Training scope: V1 / V2 are all x-z flats, not just a projection of 3D tracks</summary><p>MuJoCo itself is a three-dimensional simulator, but all of the struts around the y-axis are currently in motion; the root of the activity is only x, z-ziding and pitch. Training is also limited to flat motion and Fx, Fz, My. The current weights can only be tested for partial control under flat conditions, and cannot prove a three-dimensional adaptation to kinetics. Individual electric machines can still be trained in the roots of the three-dimensional movement and in the adjacent poles; this requires an additional extension of authentic freedom, observation, B-result characteristics and sampling.</p></details>
+  <div id="error" class="error" role="alert" hidden></div>
+  <div class="workspace">
+    <aside>
+      <section class="card controls"><div class="section-heading"><span class="step">01</span><h2>Run Evaluation</h2></div>
+        <label for="checkpoint">Freezing of Checkpoints</label><select id="checkpoint"></select>
+        <label for="plan">Evaluation project</label><select id="plan"></select>
+        <p id="plan-description" class="muted"></p>
+        <div class="method-detail"><span>Every track<b>5 sec</b></span><span>Number of tracks<b id="plan-count">—</b></span><span>Parameter Update<b>Close</b></span></div>
+        <button id="run" class="primary">Run Selected Evaluations<span>↗</span></button>
+        <p class="small muted">The new results are saved independently; existing tracks can continue to be viewed.</p>
+        <div id="job-panel" hidden><div class="job-head"><span id="job-state" class="status-pill"></span><button id="cancel" class="text-button">Stop</button></div><p id="job-stage"></p><details><summary>Run Log</summary><pre id="job-log"></pre></details></div>
+      </section>
+      <section class="card methods"><h2>How to understand the results</h2>
+        <p><b>Full target B (g*)</b><br>The complete result is constructed from a joint angle, two gestures, zero motion and gravity compensation rectangular and is coded as z.</p>
+        <p><b>Incentive score query</b><br>Z obtained the reference result score with freeze B; no re-training model with reference incentive.</p>
+        <p><b>Random z</b><br>Observation behaviour is covered and no target is set.</p>
+        <div class="rule"></div><p class="small">Keeps the error to take the end of 1 second; toggles the error to include the whole moment of the journey. The resolution reference is the law of control, not the enhanced learning baseline of qpos.</p>
+      </section>
+    </aside>
+    <div class="results">
+      <details class="card live-controls" open><summary>Interactive simulations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .<span class="small muted">Freezing of the Actor CPU Mujoco Three Branch Contrast</span></summary>
+        <p class="small muted">Run the same z on a continuous basis after start-up. Blue/Orange is a closed-ring branch; grey branch is subject to the same disturbance, but replays the action of the third undisturbed branch. Red arrow is the actual physical mimic of real disturbance.</p>
+        <p class="observation-note"><b>It is currently a simulation of privileged feedback strategy.</b>The electric power is read in q, dq, driving rectangular estimates and commands; Actor on this page also receives two sets of world attitude/velocity, exposure and environmental power truths provided by MujoCo. Gravity direction, world movement and external power are not normal electric telemetry. Current weights cannot be replaced by power input alone.</p>
+        <fieldset id="live-setup"><div class="live-config-grid">
+          <div><label for="live-role">Connection Conditions</label><select id="live-role"><option value="0">R0 P-Paternity fixed.</option><option value="1">R1 P-Father Resilient Support</option><option value="2">R2 Floating double poles and ground</option><option value="3">R3 Side adjacent joint driver</option></select></div>
+          <div><label for="live-task">Query Behaviour</label><select id="live-task"><option value="hold">Keep the joint angle.</option><option value="velocity">Joint speed</option><option value="brake">Brake</option><option value="compliance">Responsive rectitude</option></select></div>
+          <div><label id="live-target-label" for="live-target">Target q* / Rad</label><input id="live-target" type="number" min="-3.141592653589793" max="3.141592653589793" step="0.1" value="0.3"></div>
+          <div><label for="live-duration">Simulation duration</label><select id="live-duration"><option value="15">15 sec</option><option value="30" selected>30 sec</option><option value="60">60 sec</option></select></div>
+          <div><label for="live-q">Initial q / Rad</label><input id="live-q" type="number" min="-3.141592653589793" max="3.141592653589793" step="0.1" value="0"></div>
+          <div><label for="live-dq">Initial dq / Rad/s</label><input id="live-dq" type="number" min="-4" max="4" step="0.5" value="0"></div>
+        </div>
+        <div id="live-compliance" class="live-config-grid" hidden><div><label for="live-k">K / N·m/rad</label><input id="live-k" type="number" min="0.3" max="12" step="0.1" value="1"></div><div><label for="live-d">D / N·m·s/rad</label><input id="live-d" type="number" min="0.02" max="0.5" step="0.01" value="0.15"></div><div><label for="live-bias">Prejudiced / N.m.</label><input id="live-bias" type="number" min="-1" max="1" step="0.1" value="0"></div></div>
+        <details class="physics-panel" open><summary>Physical properties and randomization of the experiment<span class="small muted">• The three branches share the same set of parameters.</span></summary>
+          <p class="small muted">Manually, you can set specific values or sample by the wide range of training. The following joint limits are retained in the sample. The original training does not follow the organ limit; the modification of the limit is an external evaluation of training. Geometric changes are recalculated for quality, physicos and inertia.</p>
+          <div class="sampling-actions"><label for="physics-seed">Random Feeds</label><input id="physics-seed" type="number" min="0" max="4294967295" step="1" value="20261001"><button id="physics-sample" class="play">Sampling by wide range of training</button><button id="physics-reset" class="text-button">Restore nominal parameters</button></div>
+          <div id="physics-fields"></div>
+          <label class="check-label"><input id="auto-pulses" type="checkbox">Automatic random outburst (sampled by spacing, range and action point of training, stacked with manual disturbance)</label>
+          <p class="small muted">Automatic external disturbances are added only to the closed ring and motion back branch, with no disturbance reference to remain undisturbed. Seed control event plan; only physical feedback that has already occurred is provided to Actor.</p>
+          <p id="physics-preview" class="physics-summary"></p>
+        </details></fieldset>
+        <div class="live-actions"><button id="live-start" class="primary">Start real-time experiments.</button><button id="live-pause" class="play" disabled>Pause Simulation</button><button id="live-step" class="play" disabled>Step 10 ms</button><button id="live-stop" class="play" disabled>Stop and Save</button><button id="live-view" class="text-button" disabled>View live images</button></div>
+        <div class="pulse-panel"><b>Manual Out-of-Step — World x-z coordinates</b><div class="live-config-grid">
+          <div><label for="pulse-side">Side of the pole.</label><select id="pulse-side"><option value="D">D. Model side</option><option value="P">P. Model parent</option></select></div>
+          <div><label for="pulse-fx">Fx / N (+ Right)</label><input id="pulse-fx" type="number" min="-15" max="15" step="1" value="4"></div>
+          <div><label for="pulse-fz">Fz / N (+ Up)</label><input id="pulse-fz" type="number" min="-15" max="15" step="1" value="0"></div>
+          <div><label for="pulse-my">Add My / N.m</label><input id="pulse-my" type="number" min="-3" max="3" step="0.2" value="0"></div>
+          <div><label for="pulse-duration">Duration / s</label><input id="pulse-duration" type="number" min="0.1" max="1.5" step="0.05" value="0.25"></div>
+          <div><label for="pulse-fraction">Point of action: Model pole starting to end ratio</label><input id="pulse-fraction" type="number" min="0.2" max="1" step="0.1" value="0.8"></div>
+        </div><button id="live-pulse" class="pulse-button" disabled>A disturbance.</button><p class="small muted">50 ms smooth edges; power and power rectangles can be added. R0 is put in the next simulation area at the time of the pause. R0 is applied to fixed Ps that are absorbed; the range is beyond the range of training and does not promise success.</p></div>
+        <p id="live-status" class="small muted" role="status">Not yet started; use the freezing weight selected above. Physical properties are set at the top groups and locked after start-up.</p>
+        <p id="live-physics-summary" class="physics-summary"></p><details id="live-parameters" hidden><summary>Record of parameters for this practical entry into force</summary><pre id="live-parameter-values"></pre></details>
+        <div id="live-stats" class="live-stats"></div><div id="pulse-log" class="small pulse-log"></div>
+      </details>
+      <section class="card result-picker"><div class="section-heading"><span class="step">02</span><h2>Select Results</h2><button id="refresh" class="text-button push">Refresher</button></div>
+        <label for="evaluation" class="sr-only">Evaluation results</label><select id="evaluation"></select>
+        <p id="provenance" class="small muted"></p>
+        <div class="picker-row"><div><label for="dataset">Data file/ structure</label><select id="dataset"></select></div><div><label for="filter">Task / Call Period</label><select id="filter"><option value="all">All cases</option></select></div></div>
+        <label for="case">Trajectory cases</label><select id="case"></select>
+        <div class="result-actions"><span id="case-count" class="small muted"></span><a id="download" download>Download original tracks</a><a id="metrics-link" target="_blank" rel="noopener">Indicator JSON <unk></a></div>
+        <div id="summary" class="summary-table"></div>
+      </section>
+      <section class="card viewer-card"><div class="section-heading"><span class="step">03</span><h2>Track Playback</h2><span id="loading" class="small muted push"></span></div>
+        <div class="goal-panel" id="goal-panel">
+          <div class="goal-heading"><span class="goal-tag">Query Target</span><h3 id="goal-title">Read Target...</h3><span id="goal-phase" class="small push"></span></div>
+          <p id="goal-source" class="small"></p><p id="goal-expression" class="goal-expression"></p>
+          <div id="goal-values" class="goal-values"></div>
+          <p id="goal-description" class="small"></p>
+          <details><summary>How to judge implementation and the scope of the objective</summary><p id="goal-criterion"></p><p id="goal-scope"></p><p id="goal-semantics"></p></details>
+        </div>
+        <div class="viewer-options"><label><input id="show-target" type="checkbox" checked>Show Golden Targets</label><label><input id="compare" type="checkbox" checked disabled> <span id="compare-label">Collapse Parsing Reference</span></label><label><input id="follow" type="checkbox">Following institutions</label><span><i class="dot gold"></i>Objective<i class="dot blue"></i>P-Paternity<i class="dot orange"></i>D-subside<i class="dot gray"></i>Contrast<i class="dot red"></i>Outdoors</span></div>
+        <div class="stage"><canvas id="motion" aria-label="Planar mechanism animation of a saved trajectory"></canvas><div id="stage-label" class="stage-label">Save qpos playback. Non-replicate</div><div id="time-label" class="time-label">0.01 s</div></div>
+        <div class="transport"><button id="play" class="play" aria-label="Play">Play</button><input id="timeline" type="range" min="0" max="499" value="0" aria-label="Playback time"><label for="speed" class="sr-only">Play speed</label><select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></div>
+        <div id="live" class="live-values"></div><div id="case-metrics" class="metric-cards"></div>
+        <p id="case-note" class="small muted"></p>
+      </section>
+      <section class="card plots-card"><div class="section-heading"><h2>Sport and interaction</h2><span class="small muted push">Click curve to position time . Fault line to target / reference</span></div>
+        <div class="plot-grid">
+          <div class="plot"><h3>joint angle<span>rad</span></h3><canvas data-chart="q"></canvas></div>
+          <div class="plot"><h3>Joint speed<span>rad/s</span></h3><canvas data-chart="dq"></canvas></div>
+          <div class="plot"><h3>Real power rectangles<span>N·m</span></h3><canvas data-chart="tau"></canvas></div>
+          <div class="plot"><h3>Send command u<span>Normalization</span></h3><canvas data-chart="u"></canvas></div>
+          <div class="plot"><h3>Environmental force<span>N</span></h3><canvas data-chart="force"></canvas><div class="legend">PFx Blue P Fz Green D Fx Orange D Fz Purple</div></div>
+          <div class="plot"><h3>Environmental force level<span>N·m</span></h3><canvas data-chart="moment"></canvas><div class="legend">P Blue D Orange</div></div>
+          <div class="plot"><h3>Contact markers<span>0 / 1</span></h3><canvas data-chart="contact"></canvas><div class="legend">P Blue D Orange</div></div>
+          <div class="plot"><h3>Current command z<span>16-D</span></h3><canvas id="latent"></canvas><div class="legend">Potential coordinates have no predefined physical axis.</div></div>
+        </div>
+      </section>
+      <details class="card videos"><summary>MuJoCo render video already available<span class="small muted">Fixed Index Example, with Successes and Failures</span></summary><label for="video-select">Select Video</label><select id="video-select"></select><video id="video" controls preload="none"></video></details>
+    </div>
+  </div>
+  <footer>UNIT BFM / Local Assessment Workstation<span>Full state real. Freeze weight. Original result retained.</span></footer>
+</main>
+<script src="app.js"></script>
+</body></html>

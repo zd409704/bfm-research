@@ -1,0 +1,746 @@
+{
+  "name": "unit_bfm_biped_4dof_v0",
+  "root": "pelvis",
+  "source": "biped/models/biped_4dof.urdf",
+  "sha256": "6237fa9df7fb5dc3cc5ec127cc1d576d5e030bfe4b16d450b03a32a7998fa293",
+  "links": [
+    {
+      "name": "pelvis",
+      "mass": 1.0,
+      "inertial_origin": {
+        "xyz": [
+          0.0,
+          0.0,
+          0.1325
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "inertia": [
+        [
+          0.005060416666666667,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.004860416666666667,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.000466666666666667
+        ]
+      ],
+      "visuals": [
+        {
+          "name": "torso_upright",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              0.145
+            ],
+            "rpy": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "box",
+            "size": [
+              0.04,
+              0.04,
+              0.21
+            ]
+          },
+          "material": "torso"
+        },
+        {
+          "name": "hip_crossbar",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              0.02
+            ],
+            "rpy": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "box",
+            "size": [
+              0.04,
+              0.16,
+              0.04
+            ]
+          },
+          "material": "torso"
+        }
+      ],
+      "collisions": [
+        {
+          "name": "torso_upright_collision",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              0.145
+            ],
+            "rpy": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "box",
+            "size": [
+              0.04,
+              0.04,
+              0.21
+            ]
+          }
+        },
+        {
+          "name": "hip_crossbar_collision",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              0.02
+            ],
+            "rpy": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "box",
+            "size": [
+              0.04,
+              0.16,
+              0.04
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "left_thigh",
+      "mass": 0.5,
+      "inertial_origin": {
+        "xyz": [
+          0.0,
+          0.0,
+          -0.15
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "inertia": [
+        [
+          0.003816666666666667,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.003816666666666667,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.000133333333333333
+        ]
+      ],
+      "visuals": [
+        {
+          "name": "left_thigh_box",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              -0.15
+            ],
+            "rpy": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "box",
+            "size": [
+              0.04,
+              0.04,
+              0.3
+            ]
+          },
+          "material": "left_leg"
+        },
+        {
+          "name": "left_hip_marker",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rpy": [
+              1.5707963267948966,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "cylinder",
+            "radius": 0.026,
+            "length": 0.05
+          },
+          "material": "joint_marker"
+        }
+      ],
+      "collisions": [
+        {
+          "name": "left_thigh_collision",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              -0.15
+            ],
+            "rpy": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "box",
+            "size": [
+              0.04,
+              0.04,
+              0.3
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "left_shank",
+      "mass": 0.25,
+      "inertial_origin": {
+        "xyz": [
+          0.0,
+          0.0,
+          -0.15
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "inertia": [
+        [
+          0.001908333333333333,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.001908333333333333,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          6.6666666666667e-05
+        ]
+      ],
+      "visuals": [
+        {
+          "name": "left_shank_box",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              -0.15
+            ],
+            "rpy": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "box",
+            "size": [
+              0.04,
+              0.04,
+              0.3
+            ]
+          },
+          "material": "left_leg"
+        },
+        {
+          "name": "left_knee_marker",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rpy": [
+              1.5707963267948966,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "cylinder",
+            "radius": 0.023,
+            "length": 0.05
+          },
+          "material": "joint_marker"
+        }
+      ],
+      "collisions": [
+        {
+          "name": "left_shank_collision",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              -0.15
+            ],
+            "rpy": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "box",
+            "size": [
+              0.04,
+              0.04,
+              0.3
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "right_thigh",
+      "mass": 0.5,
+      "inertial_origin": {
+        "xyz": [
+          0.0,
+          0.0,
+          -0.15
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "inertia": [
+        [
+          0.003816666666666667,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.003816666666666667,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.000133333333333333
+        ]
+      ],
+      "visuals": [
+        {
+          "name": "right_thigh_box",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              -0.15
+            ],
+            "rpy": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "box",
+            "size": [
+              0.04,
+              0.04,
+              0.3
+            ]
+          },
+          "material": "right_leg"
+        },
+        {
+          "name": "right_hip_marker",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rpy": [
+              1.5707963267948966,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "cylinder",
+            "radius": 0.026,
+            "length": 0.05
+          },
+          "material": "joint_marker"
+        }
+      ],
+      "collisions": [
+        {
+          "name": "right_thigh_collision",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              -0.15
+            ],
+            "rpy": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "box",
+            "size": [
+              0.04,
+              0.04,
+              0.3
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "right_shank",
+      "mass": 0.25,
+      "inertial_origin": {
+        "xyz": [
+          0.0,
+          0.0,
+          -0.15
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "inertia": [
+        [
+          0.001908333333333333,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.001908333333333333,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          6.6666666666667e-05
+        ]
+      ],
+      "visuals": [
+        {
+          "name": "right_shank_box",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              -0.15
+            ],
+            "rpy": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "box",
+            "size": [
+              0.04,
+              0.04,
+              0.3
+            ]
+          },
+          "material": "right_leg"
+        },
+        {
+          "name": "right_knee_marker",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rpy": [
+              1.5707963267948966,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "cylinder",
+            "radius": 0.023,
+            "length": 0.05
+          },
+          "material": "joint_marker"
+        }
+      ],
+      "collisions": [
+        {
+          "name": "right_shank_collision",
+          "origin": {
+            "xyz": [
+              0.0,
+              0.0,
+              -0.15
+            ],
+            "rpy": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "geometry": {
+            "type": "box",
+            "size": [
+              0.04,
+              0.04,
+              0.3
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "joints": [
+    {
+      "name": "left_hip",
+      "type": "revolute",
+      "parent": "pelvis",
+      "child": "left_thigh",
+      "origin": {
+        "xyz": [
+          0.0,
+          0.06,
+          0.0
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "limit": {
+        "lower": -1.2,
+        "upper": 1.2,
+        "effort": 6.0,
+        "velocity": 12.0
+      },
+      "dynamics": {
+        "damping": 0.03,
+        "friction": 0.02
+      }
+    },
+    {
+      "name": "left_knee",
+      "type": "revolute",
+      "parent": "left_thigh",
+      "child": "left_shank",
+      "origin": {
+        "xyz": [
+          0.0,
+          0.0,
+          -0.3
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "limit": {
+        "lower": -1.2,
+        "upper": 1.2,
+        "effort": 6.0,
+        "velocity": 12.0
+      },
+      "dynamics": {
+        "damping": 0.03,
+        "friction": 0.02
+      }
+    },
+    {
+      "name": "right_hip",
+      "type": "revolute",
+      "parent": "pelvis",
+      "child": "right_thigh",
+      "origin": {
+        "xyz": [
+          0.0,
+          -0.06,
+          0.0
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "limit": {
+        "lower": -1.2,
+        "upper": 1.2,
+        "effort": 6.0,
+        "velocity": 12.0
+      },
+      "dynamics": {
+        "damping": 0.03,
+        "friction": 0.02
+      }
+    },
+    {
+      "name": "right_knee",
+      "type": "revolute",
+      "parent": "right_thigh",
+      "child": "right_shank",
+      "origin": {
+        "xyz": [
+          0.0,
+          0.0,
+          -0.3
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "limit": {
+        "lower": -1.2,
+        "upper": 1.2,
+        "effort": 6.0,
+        "velocity": 12.0
+      },
+      "dynamics": {
+        "damping": 0.03,
+        "friction": 0.02
+      }
+    }
+  ],
+  "materials": {
+    "torso": [
+      0.4,
+      0.46,
+      0.53,
+      1.0
+    ],
+    "left_leg": [
+      0.16,
+      0.48,
+      0.82,
+      1.0
+    ],
+    "right_leg": [
+      0.88,
+      0.43,
+      0.17,
+      1.0
+    ],
+    "joint_marker": [
+      0.23,
+      0.27,
+      0.32,
+      1.0
+    ]
+  },
+  "total_mass": 2.5,
+  "presets": {
+    "straight": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "crouch": [
+      -0.25,
+      0.5,
+      -0.25,
+      0.5
+    ],
+    "left_clearance": [
+      -0.65,
+      1.1,
+      0.0,
+      0.0
+    ],
+    "right_clearance": [
+      0.0,
+      0.0,
+      -0.65,
+      1.1
+    ]
+  }
+}

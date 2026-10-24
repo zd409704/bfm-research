@@ -1,0 +1,15 @@
+{
+  "net": true,
+  "target": true,
+  "metrics_exact": true,
+  "W": [
+    8096,
+    8096
+  ],
+  "updates": [
+    101,
+    101
+  ],
+  "replay_tensor_exact": true,
+  "rng_exact": true
+}

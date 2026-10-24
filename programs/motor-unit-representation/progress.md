@@ -6,3 +6,5 @@
 | `B02` | E0–E4 Scene Sync, Rule Calibration, Coverage Gates | `DONE` | `DONE` | `DONE` | `DONE` | `DONE` (`PASS` CPU) | `DONE` (`D-B02-001`) |
 | `B03` | Rank-16 Capacity Across 144 Morphology Regimes | `DONE` | `DONE` | `DONE` | `DONE` | `DONE` (`PASS` CPU) | `DONE` (`D-B03-001`) |
 | `B04` | Hierarchical Composition of Frozen Local Motor Units | `DONE` | `DONE` | `DONE` | `DONE` | `DONE` (`PASS` CPU) | `DONE` (`D-B04-001`) |
+
+Stage-2 extends this queue. The sealed packet decisions above are unchanged. The V3 tree and the scaled learning-curve suite are described in `STAGE2_STATUS.md`. H1–H4 remain Candidate.

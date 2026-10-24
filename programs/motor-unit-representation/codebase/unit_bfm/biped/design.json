@@ -1,0 +1,33 @@
+{
+  "version": "BIPED_V2_ROD_COMPOSITION_V1_1",
+  "unit_version": "SIM_PRIVILEGED_FF_MR_RF_V2",
+  "root": "pelvis",
+  "hip_half_spacing_m": 0.09,
+  "rod_section_m": [0.04, 0.04],
+  "links": {
+    "pelvis": {"length_m": 0.25, "mass_kg": 1.0, "direction": 1},
+    "left_thigh": {"length_m": 0.30, "mass_kg": 0.50, "direction": -1},
+    "left_shank": {"length_m": 0.30, "mass_kg": 0.25, "direction": -1},
+    "right_thigh": {"length_m": 0.30, "mass_kg": 0.50, "direction": -1},
+    "right_shank": {"length_m": 0.30, "mass_kg": 0.25, "direction": -1}
+  },
+  "units": [
+    {"joint": "left_hip", "P": "pelvis", "D": "left_thigh", "xyz": [0, 0.09, 0]},
+    {"joint": "left_knee", "P": "left_thigh", "D": "left_shank", "xyz": [0, 0, -0.30]},
+    {"joint": "right_hip", "P": "pelvis", "D": "right_thigh", "xyz": [0, -0.09, 0]},
+    {"joint": "right_knee", "P": "right_thigh", "D": "right_shank", "xyz": [0, 0, -0.30]}
+  ],
+  "joint": {
+    "axis": [0, 1, 0], "lower_rad": -1.2, "upper_rad": 1.2,
+    "damping": 0.03, "frictionloss": 0.02, "armature": 0.003,
+    "margin_rad": 0.03, "solreflimit": [0.002, 1], "solimplimit": [0.99, 0.999, 0.001],
+    "urdf_velocity_metadata_rad_s": 12,
+    "urdf_velocity_metadata_note": "Required URDF metadata only. The companion V2 simulator does not enforce a new hard velocity cap."
+  },
+  "drive": {
+    "physics_dt_s": 0.001, "control_dt_s": 0.01,
+    "nominal_request_Nm": 6.0, "capacity_Nm": 6.0,
+    "response_time_s": 0.01, "delay_ms": 0
+  },
+  "scope": "Planar x/z/pitch root, four pitch joints. Local rods and observed m28 match the V2 generator; shared-body biped contact and coordination remain a new composition."
+}

@@ -1,0 +1,175 @@
+{
+  "success": 72,
+  "failed": 28,
+  "failures": [
+    {
+      "seed": 1,
+      "scene": "E2",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.005839662519751971"
+    },
+    {
+      "seed": 1,
+      "scene": "E2",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.005839662519751971"
+    },
+    {
+      "seed": 1,
+      "scene": "E4",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.005839662519752221"
+    },
+    {
+      "seed": 1,
+      "scene": "E4",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.005839662519752221"
+    },
+    {
+      "seed": 2,
+      "scene": "E2",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.021044747203635597"
+    },
+    {
+      "seed": 2,
+      "scene": "E2",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.021044747203635597"
+    },
+    {
+      "seed": 2,
+      "scene": "E4",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.021044747203635597"
+    },
+    {
+      "seed": 2,
+      "scene": "E4",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.021044747203635597"
+    },
+    {
+      "seed": 3,
+      "scene": "E2",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.0036992948765969345"
+    },
+    {
+      "seed": 3,
+      "scene": "E2",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.0036992948765969345"
+    },
+    {
+      "seed": 3,
+      "scene": "E4",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.003699294876596917"
+    },
+    {
+      "seed": 3,
+      "scene": "E4",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.003699294876596917"
+    },
+    {
+      "seed": 5,
+      "scene": "E2",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.023912683161674123"
+    },
+    {
+      "seed": 5,
+      "scene": "E2",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.023912683161674123"
+    },
+    {
+      "seed": 5,
+      "scene": "E4",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.023912683161674123"
+    },
+    {
+      "seed": 5,
+      "scene": "E4",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.023912683161674123"
+    },
+    {
+      "seed": 6,
+      "scene": "E2",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.04800607319889402"
+    },
+    {
+      "seed": 6,
+      "scene": "E2",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.04800607319889402"
+    },
+    {
+      "seed": 6,
+      "scene": "E4",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.04800607319889402"
+    },
+    {
+      "seed": 6,
+      "scene": "E4",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.04800607319889402"
+    },
+    {
+      "seed": 7,
+      "scene": "E2",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.018157842759309796"
+    },
+    {
+      "seed": 7,
+      "scene": "E2",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.018157842759309796"
+    },
+    {
+      "seed": 7,
+      "scene": "E4",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.018157842759309824"
+    },
+    {
+      "seed": 7,
+      "scene": "E4",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.018157842759309824"
+    },
+    {
+      "seed": 9,
+      "scene": "E2",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.021814429093216802"
+    },
+    {
+      "seed": 9,
+      "scene": "E2",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.021814429093216802"
+    },
+    {
+      "seed": 9,
+      "scene": "E4",
+      "side": "P",
+      "error": "illegal initial assembly: distance -0.02181442909321679"
+    },
+    {
+      "seed": 9,
+      "scene": "E4",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.02181442909321679"
+    }
+  ],
+  "seconds": 23.057905333000235
+}

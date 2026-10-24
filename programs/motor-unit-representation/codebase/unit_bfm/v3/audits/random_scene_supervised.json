@@ -1,0 +1,283 @@
+{
+  "success": 54,
+  "failed": 46,
+  "failures": [
+    {
+      "seed": 1,
+      "scene": "E0",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 1,
+      "scene": "E0",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 1,
+      "scene": "E1",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 1,
+      "scene": "E1",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 1,
+      "scene": "E2",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 1,
+      "scene": "E2",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 1,
+      "scene": "E3",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 1,
+      "scene": "E4",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 1,
+      "scene": "E4",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 2,
+      "scene": "E0",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 2,
+      "scene": "E0",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 2,
+      "scene": "E1",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 2,
+      "scene": "E1",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 2,
+      "scene": "E2",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 2,
+      "scene": "E2",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 2,
+      "scene": "E3",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 3,
+      "scene": "E1",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 3,
+      "scene": "E2",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 3,
+      "scene": "E2",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 4,
+      "scene": "E2",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 4,
+      "scene": "E2",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 5,
+      "scene": "E0",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 5,
+      "scene": "E0",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 5,
+      "scene": "E1",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 5,
+      "scene": "E2",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 5,
+      "scene": "E2",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 5,
+      "scene": "E3",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 6,
+      "scene": "E0",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 6,
+      "scene": "E1",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 6,
+      "scene": "E1",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 6,
+      "scene": "E2",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 6,
+      "scene": "E2",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 6,
+      "scene": "E3",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.024"
+    },
+    {
+      "seed": 6,
+      "scene": "E4",
+      "side": "D",
+      "error": "obstacle placement exhausted actual-surface candidates: [{'normal_world': [0.34255530464719586, 0.0, -0.939497665381914], 'clearance_m': 0.008, 'point_world': [-0.12930715507833151, 0.0, 1.0388529714724395], 'source_geom': 2, 'min_distance_m': -0.024, 'accepted': False}, {'normal_world': [0.3425553046471963, 0.0, -0.9394976653819138], 'clearance_m': 0.025, 'point_world': [-0.12348371489932916, 0.0, 1.022881511160947], 'source_geom': 2, 'min_distance_m': -0.024, 'accepted': False}, {'normal_world': [0.3425553046471965, 0.0, -0.9394976653819137], 'clearance_m': 0.06, 'point_world': [-0.11149427923667729, 0.0, 0.98999909287258], 'source_geom': 2, 'min_distance_m': -0.024, 'accepted': False}, {'normal_world': [0.34255530464719636, 0.0, -0.9394976653819138], 'clearance_m': 0.12, 'point_world': [-0.09094096095784553, 0.0, 0.9336292329496652], 'source_geom': 2, 'min_distance_m': -0.024, 'accepted': False}, {'normal_world': [0.46942736297510396, 0.0, -0.8829710928961605], 'clearance_m': 0.24, 'point_world': [-0.049834324400181984, 0.0, 0.8208895131038356], 'source_geom': 19, 'min_distance_m': -0.024, 'accepted': False}, {'normal_world': [-0.3425553046471968, 0.0, 0.9394976653819137], 'clearance_m': 0.008, 'point_world': [-0.20268414915080618, 0.0, 1.2400978907266678], 'source_geom': 2, 'min_distance_m': -0.024, 'accepted': False}, {'normal_world': [-0.342555304647197, 0.0, 0.9394976653819136], 'clearance_m': 0.025, 'point_world': [-0.20850758932980853, 0.0, 1.2560693510381602], 'source_geom': 2, 'min_distance_m': -0.024, 'accepted': False}, {'normal_world': [-0.3425553046471961, 0.0, 0.9394976653819139], 'clearance_m': 0.06, 'point_world': [-0.2204970249924604, 0.0, 1.2889517693265273], 'source_geom': 2, 'min_distance_m': -0.024, 'accepted': False}, {'normal_world': [-0.342555304647196, 0.0, 0.9394976653819139], 'clearance_m': 0.12, 'point_world': [-0.24105034327129216, 0.0, 1.345321629249442], 'source_geom': 2, 'min_distance_m': -0.024, 'accepted': False}, {'normal_world': [-0.20907474728550093, 0.0, 0.9778996625664128], 'clearance_m': 0.24, 'point_world': [-0.2821569798289557, 0.0, 1.4580613490952716], 'source_geom': 19, 'min_distance_m': -0.024, 'accepted': False}]"
+    },
+    {
+      "seed": 7,
+      "scene": "E0",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 7,
+      "scene": "E0",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 7,
+      "scene": "E1",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 7,
+      "scene": "E1",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 7,
+      "scene": "E2",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 7,
+      "scene": "E2",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 7,
+      "scene": "E3",
+      "side": "D",
+      "error": "illegal initial assembly: distance -0.02399999999999977"
+    },
+    {
+      "seed": 7,
+      "scene": "E4",
+      "side": "D",
+      "error": "obstacle placement exhausted actual-surface candidates: [{'normal_world': [-0.21736547516412522, 0.0, 0.9760902879378905], 'clearance_m': 0.008, 'point_world': [0.3053903681390701, 0.0, 1.3622340720937267], 'source_geom': 2, 'min_distance_m': -0.02399999999999977, 'accepted': False}, {'normal_world': [-0.21736547516412444, 0.0, 0.9760902879378908], 'clearance_m': 0.025, 'point_world': [0.30169515506128, 0.0, 1.378827606988671], 'source_geom': 2, 'min_distance_m': -0.02399999999999977, 'accepted': False}, {'normal_world': [-0.21736547516412436, 0.0, 0.9760902879378908], 'clearance_m': 0.06, 'point_world': [0.2940873634305356, 0.0, 1.412990767066497], 'source_geom': 2, 'min_distance_m': -0.02399999999999977, 'accepted': False}, {'normal_world': [-0.217365475164125, 0.0, 0.9760902879378907], 'clearance_m': 0.12, 'point_world': [0.2810454349206881, 0.0, 1.4715561843427705], 'source_geom': 2, 'min_distance_m': -0.02399999999999977, 'accepted': False}, {'normal_world': [-0.21736547516412472, 0.0, 0.9760902879378907], 'clearance_m': 0.24, 'point_world': [0.2549615779009931, 0.0, 1.5886870188953173], 'source_geom': 2, 'min_distance_m': -0.02399999999999977, 'accepted': False}, {'normal_world': [0.21736547516412522, 0.0, -0.9760902879378905], 'clearance_m': 0.008, 'point_world': [0.345374216776902, 0.0, 1.1826846459472888], 'source_geom': 2, 'min_distance_m': -0.02399999999999977, 'accepted': False}, {'normal_world': [0.21736547516412444, 0.0, -0.9760902879378908], 'clearance_m': 0.025, 'point_world': [0.34906942985469214, 0.0, 1.1660911110523446], 'source_geom': 2, 'min_distance_m': -0.02399999999999977, 'accepted': False}, {'normal_world': [0.21736547516412436, 0.0, -0.9760902879378908], 'clearance_m': 0.06, 'point_world': [0.3566772214854365, 0.0, 1.1319279509745186], 'source_geom': 2, 'min_distance_m': -0.02399999999999977, 'accepted': False}, {'normal_world': [0.217365475164125, 0.0, -0.9760902879378907], 'clearance_m': 0.12, 'point_world': [0.369719149995284, 0.0, 1.073362533698245], 'source_geom': 2, 'min_distance_m': -0.02399999999999977, 'accepted': False}, {'normal_world': [0.21736547516412472, 0.0, -0.9760902879378907], 'clearance_m': 0.24, 'point_world': [0.395803007014979, 0.0, 0.9562316991456983], 'source_geom': 2, 'min_distance_m': -0.02399999999999977, 'accepted': False}]"
+    },
+    {
+      "seed": 8,
+      "scene": "E1",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 8,
+      "scene": "E2",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 9,
+      "scene": "E2",
+      "side": "P",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    },
+    {
+      "seed": 9,
+      "scene": "E2",
+      "side": "D",
+      "error": "invalid physics: ['joint_limit_overshoot']"
+    }
+  ],
+  "seconds": 43.734920868999325
+}

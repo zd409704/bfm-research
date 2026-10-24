@@ -1,0 +1,16 @@
+{
+  "hold": {
+    "q_ref": 1.0,
+    "q_final": 0.595652475172175,
+    "dq_final": -0.026046616820999548,
+    "required_gravity_torque": 3.714673662434459,
+    "capacity": 6.0,
+    "max_PD_torque_in_acceptance_region": 0.33000000000000007
+  },
+  "replay_episode_counts": [
+    49819,
+    50181
+  ],
+  "uniform_transition_expected_short_probability": 0.1,
+  "scope": "Old PD and Replay tested as migration risks; not evidence of V3 training outcomes"
+}

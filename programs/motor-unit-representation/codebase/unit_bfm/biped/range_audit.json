@@ -1,0 +1,934 @@
+{
+  "design_version": "BIPED_V2_ROD_COMPOSITION_V1_1",
+  "urdf_sha256": "9df90b5066d96a10ece2ce167f73025328e30a6d9b95daf485fe285e59604fb5",
+  "reference_run": "artifacts/rf_v2_full",
+  "reference_bank_size": 128,
+  "reference": "Saved V2 XMLs compiled with MuJoCo; scalar nominal envelopes only.",
+  "scalar_nominal_field_envelope_passed": true,
+  "joints": [
+    {
+      "joint": "left_hip",
+      "P": "pelvis",
+      "D": "left_thigh",
+      "xyz": [
+        0,
+        0.09,
+        0
+      ],
+      "nominal_fields": {
+        "P_length": {
+          "value": 0.25,
+          "bank_min": 0.15382606983184816,
+          "bank_max": 0.39891622066497806,
+          "within_marginal_envelope": true
+        },
+        "D_length": {
+          "value": 0.30000000000000004,
+          "bank_min": 0.25001490116119385,
+          "bank_max": 0.4456610202789307,
+          "within_marginal_envelope": true
+        },
+        "P_mass": {
+          "value": 1.0,
+          "bank_min": 0.4090766906738281,
+          "bank_max": 2.1663124561309814,
+          "within_marginal_envelope": true
+        },
+        "D_mass": {
+          "value": 0.5,
+          "bank_min": 0.15999944508075714,
+          "bank_max": 0.6774170994758606,
+          "within_marginal_envelope": true
+        },
+        "P_Iyy": {
+          "value": 0.0053416665643453605,
+          "bank_min": 0.0009944079443812372,
+          "bank_max": 0.021019937098026277,
+          "within_marginal_envelope": true
+        },
+        "D_Iyy": {
+          "value": 0.003816666826605797,
+          "bank_min": 0.0011132123880088329,
+          "bank_max": 0.009135625511407853,
+          "within_marginal_envelope": true
+        },
+        "P_COM_from_joint_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.0016630971804261208,
+          "within_marginal_envelope": true
+        },
+        "P_COM_from_joint_z": {
+          "value": 0.125,
+          "bank_min": 0.07163616418838502,
+          "bank_max": 0.1968443036079407,
+          "within_marginal_envelope": true
+        },
+        "D_COM_from_joint_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.001661503314971924,
+          "within_marginal_envelope": true
+        },
+        "D_COM_from_joint_z": {
+          "value": -0.15000000000000002,
+          "bank_min": -0.22533349990844728,
+          "bank_max": -0.12614877223968507,
+          "within_marginal_envelope": true
+        },
+        "q_lower": {
+          "value": -1.2,
+          "bank_min": -1.2,
+          "bank_max": -1.2,
+          "within_marginal_envelope": true
+        },
+        "q_upper": {
+          "value": 1.2,
+          "bank_min": 1.2,
+          "bank_max": 1.2,
+          "within_marginal_envelope": true
+        },
+        "tau_nominal": {
+          "value": 6.0,
+          "bank_min": 6.0,
+          "bank_max": 6.0,
+          "within_marginal_envelope": true
+        },
+        "T_nominal": {
+          "value": 0.01,
+          "bank_min": 0.01,
+          "bank_max": 0.01,
+          "within_marginal_envelope": true
+        }
+      },
+      "exact_m28_matches_in_saved_bank": [],
+      "geometry_family": "uniform_0.04_m_square_rod",
+      "P_COM_along_joint_axis_offset_m": -0.09
+    },
+    {
+      "joint": "left_knee",
+      "P": "left_thigh",
+      "D": "left_shank",
+      "xyz": [
+        0,
+        0,
+        -0.3
+      ],
+      "nominal_fields": {
+        "P_length": {
+          "value": 0.30000000000000004,
+          "bank_min": 0.15382606983184816,
+          "bank_max": 0.39891622066497806,
+          "within_marginal_envelope": true
+        },
+        "D_length": {
+          "value": 0.30000000000000004,
+          "bank_min": 0.25001490116119385,
+          "bank_max": 0.4456610202789307,
+          "within_marginal_envelope": true
+        },
+        "P_mass": {
+          "value": 0.5,
+          "bank_min": 0.4090766906738281,
+          "bank_max": 2.1663124561309814,
+          "within_marginal_envelope": true
+        },
+        "D_mass": {
+          "value": 0.25,
+          "bank_min": 0.15999944508075714,
+          "bank_max": 0.6774170994758606,
+          "within_marginal_envelope": true
+        },
+        "P_Iyy": {
+          "value": 0.003816666826605797,
+          "bank_min": 0.0009944079443812372,
+          "bank_max": 0.021019937098026277,
+          "within_marginal_envelope": true
+        },
+        "D_Iyy": {
+          "value": 0.0019083334133028985,
+          "bank_min": 0.0011132123880088329,
+          "bank_max": 0.009135625511407853,
+          "within_marginal_envelope": true
+        },
+        "P_COM_from_joint_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.0016630971804261208,
+          "within_marginal_envelope": true
+        },
+        "P_COM_from_joint_z": {
+          "value": 0.15000000000000002,
+          "bank_min": 0.07163616418838502,
+          "bank_max": 0.1968443036079407,
+          "within_marginal_envelope": true
+        },
+        "D_COM_from_joint_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.001661503314971924,
+          "within_marginal_envelope": true
+        },
+        "D_COM_from_joint_z": {
+          "value": -0.15000000000000002,
+          "bank_min": -0.22533349990844728,
+          "bank_max": -0.12614877223968507,
+          "within_marginal_envelope": true
+        },
+        "q_lower": {
+          "value": -1.2,
+          "bank_min": -1.2,
+          "bank_max": -1.2,
+          "within_marginal_envelope": true
+        },
+        "q_upper": {
+          "value": 1.2,
+          "bank_min": 1.2,
+          "bank_max": 1.2,
+          "within_marginal_envelope": true
+        },
+        "tau_nominal": {
+          "value": 6.0,
+          "bank_min": 6.0,
+          "bank_max": 6.0,
+          "within_marginal_envelope": true
+        },
+        "T_nominal": {
+          "value": 0.01,
+          "bank_min": 0.01,
+          "bank_max": 0.01,
+          "within_marginal_envelope": true
+        }
+      },
+      "exact_m28_matches_in_saved_bank": [],
+      "geometry_family": "uniform_0.04_m_square_rod",
+      "P_COM_along_joint_axis_offset_m": 0
+    },
+    {
+      "joint": "right_hip",
+      "P": "pelvis",
+      "D": "right_thigh",
+      "xyz": [
+        0,
+        -0.09,
+        0
+      ],
+      "nominal_fields": {
+        "P_length": {
+          "value": 0.25,
+          "bank_min": 0.15382606983184816,
+          "bank_max": 0.39891622066497806,
+          "within_marginal_envelope": true
+        },
+        "D_length": {
+          "value": 0.30000000000000004,
+          "bank_min": 0.25001490116119385,
+          "bank_max": 0.4456610202789307,
+          "within_marginal_envelope": true
+        },
+        "P_mass": {
+          "value": 1.0,
+          "bank_min": 0.4090766906738281,
+          "bank_max": 2.1663124561309814,
+          "within_marginal_envelope": true
+        },
+        "D_mass": {
+          "value": 0.5,
+          "bank_min": 0.15999944508075714,
+          "bank_max": 0.6774170994758606,
+          "within_marginal_envelope": true
+        },
+        "P_Iyy": {
+          "value": 0.0053416665643453605,
+          "bank_min": 0.0009944079443812372,
+          "bank_max": 0.021019937098026277,
+          "within_marginal_envelope": true
+        },
+        "D_Iyy": {
+          "value": 0.003816666826605797,
+          "bank_min": 0.0011132123880088329,
+          "bank_max": 0.009135625511407853,
+          "within_marginal_envelope": true
+        },
+        "P_COM_from_joint_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.0016630971804261208,
+          "within_marginal_envelope": true
+        },
+        "P_COM_from_joint_z": {
+          "value": 0.125,
+          "bank_min": 0.07163616418838502,
+          "bank_max": 0.1968443036079407,
+          "within_marginal_envelope": true
+        },
+        "D_COM_from_joint_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.001661503314971924,
+          "within_marginal_envelope": true
+        },
+        "D_COM_from_joint_z": {
+          "value": -0.15000000000000002,
+          "bank_min": -0.22533349990844728,
+          "bank_max": -0.12614877223968507,
+          "within_marginal_envelope": true
+        },
+        "q_lower": {
+          "value": -1.2,
+          "bank_min": -1.2,
+          "bank_max": -1.2,
+          "within_marginal_envelope": true
+        },
+        "q_upper": {
+          "value": 1.2,
+          "bank_min": 1.2,
+          "bank_max": 1.2,
+          "within_marginal_envelope": true
+        },
+        "tau_nominal": {
+          "value": 6.0,
+          "bank_min": 6.0,
+          "bank_max": 6.0,
+          "within_marginal_envelope": true
+        },
+        "T_nominal": {
+          "value": 0.01,
+          "bank_min": 0.01,
+          "bank_max": 0.01,
+          "within_marginal_envelope": true
+        }
+      },
+      "exact_m28_matches_in_saved_bank": [],
+      "geometry_family": "uniform_0.04_m_square_rod",
+      "P_COM_along_joint_axis_offset_m": 0.09
+    },
+    {
+      "joint": "right_knee",
+      "P": "right_thigh",
+      "D": "right_shank",
+      "xyz": [
+        0,
+        0,
+        -0.3
+      ],
+      "nominal_fields": {
+        "P_length": {
+          "value": 0.30000000000000004,
+          "bank_min": 0.15382606983184816,
+          "bank_max": 0.39891622066497806,
+          "within_marginal_envelope": true
+        },
+        "D_length": {
+          "value": 0.30000000000000004,
+          "bank_min": 0.25001490116119385,
+          "bank_max": 0.4456610202789307,
+          "within_marginal_envelope": true
+        },
+        "P_mass": {
+          "value": 0.5,
+          "bank_min": 0.4090766906738281,
+          "bank_max": 2.1663124561309814,
+          "within_marginal_envelope": true
+        },
+        "D_mass": {
+          "value": 0.25,
+          "bank_min": 0.15999944508075714,
+          "bank_max": 0.6774170994758606,
+          "within_marginal_envelope": true
+        },
+        "P_Iyy": {
+          "value": 0.003816666826605797,
+          "bank_min": 0.0009944079443812372,
+          "bank_max": 0.021019937098026277,
+          "within_marginal_envelope": true
+        },
+        "D_Iyy": {
+          "value": 0.0019083334133028985,
+          "bank_min": 0.0011132123880088329,
+          "bank_max": 0.009135625511407853,
+          "within_marginal_envelope": true
+        },
+        "P_COM_from_joint_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.0016630971804261208,
+          "within_marginal_envelope": true
+        },
+        "P_COM_from_joint_z": {
+          "value": 0.15000000000000002,
+          "bank_min": 0.07163616418838502,
+          "bank_max": 0.1968443036079407,
+          "within_marginal_envelope": true
+        },
+        "D_COM_from_joint_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.001661503314971924,
+          "within_marginal_envelope": true
+        },
+        "D_COM_from_joint_z": {
+          "value": -0.15000000000000002,
+          "bank_min": -0.22533349990844728,
+          "bank_max": -0.12614877223968507,
+          "within_marginal_envelope": true
+        },
+        "q_lower": {
+          "value": -1.2,
+          "bank_min": -1.2,
+          "bank_max": -1.2,
+          "within_marginal_envelope": true
+        },
+        "q_upper": {
+          "value": 1.2,
+          "bank_min": 1.2,
+          "bank_max": 1.2,
+          "within_marginal_envelope": true
+        },
+        "tau_nominal": {
+          "value": 6.0,
+          "bank_min": 6.0,
+          "bank_max": 6.0,
+          "within_marginal_envelope": true
+        },
+        "T_nominal": {
+          "value": 0.01,
+          "bank_min": 0.01,
+          "bank_max": 0.01,
+          "within_marginal_envelope": true
+        }
+      },
+      "exact_m28_matches_in_saved_bank": [],
+      "geometry_family": "uniform_0.04_m_square_rod",
+      "P_COM_along_joint_axis_offset_m": 0
+    }
+  ],
+  "saved_model_sources": [
+    {
+      "key": "R0_000",
+      "sha256": "b3a2c6ad78770cb9c9e264845c724ef09aed6c460fe42cfecce27610dca3f745"
+    },
+    {
+      "key": "R0_001",
+      "sha256": "a70b57c6d8c33453c37359ee925de4a3a273ff54a08b31af02569e9d8083127d"
+    },
+    {
+      "key": "R0_002",
+      "sha256": "39e5c10475a4b4342037fa7e025f87293596fa19ac78b98ca68100e6ecf0dda1"
+    },
+    {
+      "key": "R0_003",
+      "sha256": "21514fce92a758d145c0ec3430a057d379ee7fe7d9b84ddde5ec514707dccde1"
+    },
+    {
+      "key": "R0_004",
+      "sha256": "6904095f377b9f5f0c6be48209f06cd3af2ecdca3b63b4039231b99dd2f501ae"
+    },
+    {
+      "key": "R0_005",
+      "sha256": "9749534aa836ac919ef665f2caefa683fa8772905f21bb3a6fd1db54a39918a2"
+    },
+    {
+      "key": "R0_006",
+      "sha256": "6cd73f04a31c4746836920dcd043a7e6c18f775920eaddbd1e2b5a9505ca827a"
+    },
+    {
+      "key": "R0_007",
+      "sha256": "bd28a5af4ae3543a7f9d132989957cafa5184de48c367bc065b0681b3cf80d2e"
+    },
+    {
+      "key": "R0_008",
+      "sha256": "bbb0d7f250371f13c4c9aa4bf762799b72dfab96ec09d2bb70104cfff46e429f"
+    },
+    {
+      "key": "R0_009",
+      "sha256": "50940f5d01dd9aedc51dabbfcfac6add4bdabbc5c7b6126a98718286e7971083"
+    },
+    {
+      "key": "R0_010",
+      "sha256": "e5abbe49f18c9bc3eed5853c27e95f0efeb2822b85732b35e2e272f5abbfac7b"
+    },
+    {
+      "key": "R0_011",
+      "sha256": "efb949211b25fa67ef1fe0d997559c29739f84a37134d4ddead206dfda65598a"
+    },
+    {
+      "key": "R0_012",
+      "sha256": "1aa01c58c6130c169688defaec5ade3a0e0b28cfb31f99568468aecb35fafb33"
+    },
+    {
+      "key": "R0_013",
+      "sha256": "e00b9e2425de677b32a69754c7ca74764ad96fb0eedc737613b9421c8bd147e8"
+    },
+    {
+      "key": "R0_014",
+      "sha256": "1f4e314918296565c3e3a373f19bb02d340acfa35b1f5b1af7ab1c427958152c"
+    },
+    {
+      "key": "R0_015",
+      "sha256": "279263d418cca7dc7e862ac38640c78a4b2ba507dd9661293d089ebc0629e643"
+    },
+    {
+      "key": "R0_016",
+      "sha256": "a18a7390cf22c10eee468a94861c931dd1aaa666e37d779c7f88dda93dfdb32b"
+    },
+    {
+      "key": "R0_017",
+      "sha256": "5aa4bffaa34d614a171712260ad03376084338ac05ad5eb95d38cde7ce770c6a"
+    },
+    {
+      "key": "R0_018",
+      "sha256": "7b37c95c16a69c62cf03bbb70de067adbd4daa718c05654bccb0e7e1874901b3"
+    },
+    {
+      "key": "R0_019",
+      "sha256": "183bf78c1a6f859380240206506403ac0509f1700c89746fd94a4709e9c53219"
+    },
+    {
+      "key": "R0_020",
+      "sha256": "f40b605fc06d2fbadb00e44b735279e8b3928dee8c3179c24b6375f2b64e8bd4"
+    },
+    {
+      "key": "R0_021",
+      "sha256": "e417671648b9180125f592ac9e53a1de0f6fae1c9961954566de644e185b57b9"
+    },
+    {
+      "key": "R0_022",
+      "sha256": "12bb96afd6fbce5de875f23cfbf7ed81b0ee320240ebab13f57c5bed38081f78"
+    },
+    {
+      "key": "R0_023",
+      "sha256": "25b40d4701cc454f81f2ec5023452731fcf02a4ea464731508fd85812d1634d8"
+    },
+    {
+      "key": "R0_024",
+      "sha256": "0fb8170a6c3a29c3355ac707bc6e9e1d3a178be54c436b1875f40e36d7bf4001"
+    },
+    {
+      "key": "R0_025",
+      "sha256": "6c8e27cabe3a3241e83938cc1df9746f564e964dd3be33991badae54a567ab0a"
+    },
+    {
+      "key": "R0_026",
+      "sha256": "48f866af15f984656d82c81870c9ba858072a2b24024effb4c3bb109b304ddea"
+    },
+    {
+      "key": "R0_027",
+      "sha256": "ada229825a32ca5c55a08e81c0506be6f772551e1c4503d2617be495ad6bf125"
+    },
+    {
+      "key": "R0_028",
+      "sha256": "efa258f6517bb516cc9b9910348bb1a232bb33fb6495e90ade68a2ed41f841ff"
+    },
+    {
+      "key": "R0_029",
+      "sha256": "dd83a72a760917b0ef3117c1f4ac2d287d5d3f37ad01c2e9ae9dc3d1d6a45a1e"
+    },
+    {
+      "key": "R0_030",
+      "sha256": "d33730758fb59c4958297191634785f1809ab8440bdb73f191e4faa87639acfa"
+    },
+    {
+      "key": "R0_031",
+      "sha256": "8c7d5f66d3f3126e19f83a90c32d5203d4f32d01258c2ad212d2e015ad90f4f8"
+    },
+    {
+      "key": "R1_000",
+      "sha256": "83f9a5c098b4e6f6d1b5e65585bf0b51d932cc1ef4ab7b1e4790b435eda4bbc0"
+    },
+    {
+      "key": "R1_001",
+      "sha256": "f5a6cafc1768ddefb7566878041126ef090825c9d8e5c8991fb0dd54688f0744"
+    },
+    {
+      "key": "R1_002",
+      "sha256": "ddfcc081c92f497c10bf46d6d7a68baae081d818b4a4a5d8b330fb86e0cab7eb"
+    },
+    {
+      "key": "R1_003",
+      "sha256": "07ea4d3e0aa6c578b2b677a7345658f7c223f5f69b66332585263dc5ae638972"
+    },
+    {
+      "key": "R1_004",
+      "sha256": "645cf897af8a351eb5b59a418e43588a8127c996f6ba5a9e58dd4297312f430c"
+    },
+    {
+      "key": "R1_005",
+      "sha256": "b06d368f7af21432291f4b007ac070aac0cb21e69105e01d3082fad1ca079d3d"
+    },
+    {
+      "key": "R1_006",
+      "sha256": "c403f2c9db8f7dfc9c3e14f7738ce872c222321d9c56072a80d3dc9a5264bc6b"
+    },
+    {
+      "key": "R1_007",
+      "sha256": "04d1404f517400cca76e793ec4aaa70cfccf6bcc7b0565621459303c33ddd1da"
+    },
+    {
+      "key": "R1_008",
+      "sha256": "97238acdd85bc222dbaaf7d6af7e093bdd12059bef284df84e1d41160f13c074"
+    },
+    {
+      "key": "R1_009",
+      "sha256": "219ff75f9c633b216bbb11d393e2766d19988ee6790cbce23014c9b3fbee3eb5"
+    },
+    {
+      "key": "R1_010",
+      "sha256": "ccd3ee4517501ac3a9d5ce17f57796b5d5fbd3cfb8a5053968bce095e23daf06"
+    },
+    {
+      "key": "R1_011",
+      "sha256": "89cd76f087833df39693ef6d57ac805c5679368746aae39f55d6175408da01be"
+    },
+    {
+      "key": "R1_012",
+      "sha256": "61a45653faaad14fc1e48bb721644641440b0401590621bc55418f6447bbc6d4"
+    },
+    {
+      "key": "R1_013",
+      "sha256": "b22da6490825c66f456ce2e6035dd342c5d63cb1d9b3ed5a349aed84cbf191dd"
+    },
+    {
+      "key": "R1_014",
+      "sha256": "c1bff25b6d832e9f5409617981ad665a8eb02680c9dbc26243eeeab59cca539b"
+    },
+    {
+      "key": "R1_015",
+      "sha256": "eaaf69537891e2f6f4a2fcf506ed98cfd3705cf7841e144f1b20f70baabef166"
+    },
+    {
+      "key": "R1_016",
+      "sha256": "5d6ba999c27a35c131fc358675763b425574530a07d6727085c8c94a79d3b000"
+    },
+    {
+      "key": "R1_017",
+      "sha256": "c7f62f565a93b6d6becc2b4501a474628ef47b9a1285cc8e226cd4ef33f4897e"
+    },
+    {
+      "key": "R1_018",
+      "sha256": "a9bdfe450be99ecaee60b31c95b960961e6e545d8ef12a3a398f8aebd9394660"
+    },
+    {
+      "key": "R1_019",
+      "sha256": "448b86907c66bf3464cedeb4b6e4c2c9d08dd029993921862ff0224ec23b87b0"
+    },
+    {
+      "key": "R1_020",
+      "sha256": "3bd9af1ed9030ec55899d3c51c9cf321c0f765d6bec224058f0d4e1ccec1f2cd"
+    },
+    {
+      "key": "R1_021",
+      "sha256": "a081ddcd5cbf9604795ec8c0aeaae2161cb3a1bf50ec036e2eda1b226929b3a3"
+    },
+    {
+      "key": "R1_022",
+      "sha256": "2162c029082ba884b5581c023bba0ac770d4fcb5c41af20cd0dea8a316eac74e"
+    },
+    {
+      "key": "R1_023",
+      "sha256": "05135870065d57fa829279194f173a83be29b8d6d620875a4a51391823ee9cdc"
+    },
+    {
+      "key": "R1_024",
+      "sha256": "fe98119ff9ab0951cdd99c80818aaba8eef95c711c41392e5ddff7a72a5adf7b"
+    },
+    {
+      "key": "R1_025",
+      "sha256": "163b0fe767914d48a5b5d8181450ff0898b616f2cca927dd5ca9d4a7110c0045"
+    },
+    {
+      "key": "R1_026",
+      "sha256": "028656eb7b3e77dafe9ac698196341e6c3739db3953f6482f002e25a4c4be125"
+    },
+    {
+      "key": "R1_027",
+      "sha256": "7e5db0996e28bc5cac32c782b150e8e52b17279e42a45d08b74be33d692ba288"
+    },
+    {
+      "key": "R1_028",
+      "sha256": "39528242282426690808def6b69854b8a2b2826cb2bd2ddd84c6a4d746fc644b"
+    },
+    {
+      "key": "R1_029",
+      "sha256": "90149df02083aa5e915446cbe963b93c9bdadfb28169d0313712824b9e744a11"
+    },
+    {
+      "key": "R1_030",
+      "sha256": "8b7067ed8a0b7e10cf2c3d1f19fda48fd0e15e5870abdcb74f68065706277c0e"
+    },
+    {
+      "key": "R1_031",
+      "sha256": "6750b4a6a800d526d4b57b9b8079ec6e6230bfc5527e1f4cb89d50b111577a5c"
+    },
+    {
+      "key": "R2_000",
+      "sha256": "e08662ffcda5a89511aee10bbd40655319b30d6baba64a2440b68b3e323ab10f"
+    },
+    {
+      "key": "R2_001",
+      "sha256": "3a74b4f459501cdf719fdb7b3dd26246656fc9d99bea447645df3d1e71d519c6"
+    },
+    {
+      "key": "R2_002",
+      "sha256": "8a38b6dc25297994ecc910080badcb1eed8e26d5e3f0d2835666ef2d9c4664a5"
+    },
+    {
+      "key": "R2_003",
+      "sha256": "eaf75951309950bcb97312fb5b2278c9130b9248b6299bb0d2b2585df82e72a9"
+    },
+    {
+      "key": "R2_004",
+      "sha256": "cc3cbae5480cc289d4ac482815f824f3aa8212f6f506a53bbf2ef19703ce0663"
+    },
+    {
+      "key": "R2_005",
+      "sha256": "70accf7dbff4efc27d41882c6285268975188f6350674ff3b5f8c260d9949195"
+    },
+    {
+      "key": "R2_006",
+      "sha256": "599280870e1d817014804d950688ded27e03bb05989fe139a5f9b0481ee2549a"
+    },
+    {
+      "key": "R2_007",
+      "sha256": "4fe3bea92548220d9ff1c1a8bf5a0e84cb75a8bc8b637e55225da891f040ce26"
+    },
+    {
+      "key": "R2_008",
+      "sha256": "4130c7d206edf9938aaab83e9dea1f4ea071f12e689d83d299c4966c6c9bcd93"
+    },
+    {
+      "key": "R2_009",
+      "sha256": "c190d6c5ddf95bf87a9ce5ed29fbc19a9c77ea4b135c097fdc1dfed8d49a3720"
+    },
+    {
+      "key": "R2_010",
+      "sha256": "33e50308d8c5f23c1793521106d73a24367cdbef35d17ea4ef5036e9f8b70b58"
+    },
+    {
+      "key": "R2_011",
+      "sha256": "788e1aa6621499e92e8d9c86f76a88fb85e13b26d6b6cc12477575aae6cde7f4"
+    },
+    {
+      "key": "R2_012",
+      "sha256": "88a51f4e167767b0043a0e3828c122ecae58dea469edf4e6ec0cc927dbf17209"
+    },
+    {
+      "key": "R2_013",
+      "sha256": "fe4bc07c565feca7cb722a9baf573cdb3dd801a13ad2993c72e6b3a2511514e0"
+    },
+    {
+      "key": "R2_014",
+      "sha256": "43c4ea5b4d252d38d00195365417327cc658fddb4910eb4ab5e2693df0ba0c50"
+    },
+    {
+      "key": "R2_015",
+      "sha256": "3a2177d38f00e9f8b3a9e2060104c955800c2584e323418c02ced20e09c7b0e0"
+    },
+    {
+      "key": "R2_016",
+      "sha256": "2294bfdacd5cfaf0b001d640938e9906ee2ff1c965585893a4e4df973ad38571"
+    },
+    {
+      "key": "R2_017",
+      "sha256": "174c17706fcb7354df3acbd83d8349553a7cab464fd8f4c465a7d81a90d95163"
+    },
+    {
+      "key": "R2_018",
+      "sha256": "4161bd714e526678e77c890d359f6304b7397f289997326feae18c8d46e41eba"
+    },
+    {
+      "key": "R2_019",
+      "sha256": "ee38406360925be5fb5e0ee23577188b29a731d32a32e251ca0cfa7670e99f49"
+    },
+    {
+      "key": "R2_020",
+      "sha256": "f44c297de7764aa33128e22cd86057a19f9ecc65b6ed8068f300e95356bf77fb"
+    },
+    {
+      "key": "R2_021",
+      "sha256": "3bd09821025e4a89933cb5738f3dd4a9c6c4cfb152b295d1a8e926f2e73aaddc"
+    },
+    {
+      "key": "R2_022",
+      "sha256": "0e574fa1045930d9f544b973f773bb214feaf9737a1521450ee4c57b64888b46"
+    },
+    {
+      "key": "R2_023",
+      "sha256": "519b0b681c3edfdcbb234085ecfb1f238d9bbfa1be6f7c99d427c65416c1bb8f"
+    },
+    {
+      "key": "R2_024",
+      "sha256": "91716818989bff65093cd5b8d30d6282c55152141e32c5e2820a15fd487de5ea"
+    },
+    {
+      "key": "R2_025",
+      "sha256": "9abc449a9d933ea85024b4ed4dc9398c68a48033f57bc128886ae517280936df"
+    },
+    {
+      "key": "R2_026",
+      "sha256": "de625e41c1d3e06b5442461b30fa78648a37b34eb6ce04f2b8f33c09c079ff1b"
+    },
+    {
+      "key": "R2_027",
+      "sha256": "738e4ca8951aec84bc4d22fbb1de4859c94b8ea410ad7a93b34b51f5c2819559"
+    },
+    {
+      "key": "R2_028",
+      "sha256": "78e5d007f0fb124adfc7aacea450182553d032e1eb7c1955256715909dec1c55"
+    },
+    {
+      "key": "R2_029",
+      "sha256": "c183132c9b3df01b0a0378228d356ad5a394c84210a344dc5385b0ad20e37890"
+    },
+    {
+      "key": "R2_030",
+      "sha256": "d150d98cce2f2a172f08396112510ba5208e1f769f5d3c153c7206673955dd2b"
+    },
+    {
+      "key": "R2_031",
+      "sha256": "5f98700b551579c2546f95bbaa648f620ca62827cf1773efdb348f589f08faaa"
+    },
+    {
+      "key": "R3_000",
+      "sha256": "353f6675fc918adb2b62769b9fdac9ce445fde89a43dab6be9a3043d49dda8c7"
+    },
+    {
+      "key": "R3_001",
+      "sha256": "a29ee74dc045f18bca486adafd86d7bf9fcf2858b2f0d3aed4f0ee5f732fcfa0"
+    },
+    {
+      "key": "R3_002",
+      "sha256": "31c45e1c69e5da4d57bae794cf908c3db95f231e51a0a8501f11ae20cfd7a4b1"
+    },
+    {
+      "key": "R3_003",
+      "sha256": "f32ec39c51e5a180e953cff6427482be510f81ce85fdf8a5ccf625d8763285b7"
+    },
+    {
+      "key": "R3_004",
+      "sha256": "97fc0bc68458c4ae12acaeda85a0d5bad86f66c95033c4f5ef046bbf473d8b49"
+    },
+    {
+      "key": "R3_005",
+      "sha256": "2dd59db2e90058f74a48ea2189df2b6a8600ccef3c78fe40b8be40dabee6a553"
+    },
+    {
+      "key": "R3_006",
+      "sha256": "93f3a1175b96fb4fd03016d996da38ae651662d4d24154d2f131b7cc539b7c13"
+    },
+    {
+      "key": "R3_007",
+      "sha256": "39f14545bed0e580a30ebbf27d0d00110a7c643bc6d2aa7575ba9569d6a180b2"
+    },
+    {
+      "key": "R3_008",
+      "sha256": "c56e6bcaa5908602cbc0c36d6f910c7b072e374abae34710be5178a617515b45"
+    },
+    {
+      "key": "R3_009",
+      "sha256": "4d2d5d0caa39df38d832195a51db4bb7c27ad974bff1ce964470a2040c663cfe"
+    },
+    {
+      "key": "R3_010",
+      "sha256": "51101e77d7ba05a37b26ca2c2c30470b38ea7372b732b2a88cf2a44158f4e7d7"
+    },
+    {
+      "key": "R3_011",
+      "sha256": "64272f923a334877640e2ab31f51594ab149083b8c820e7e33ec046c88275d1f"
+    },
+    {
+      "key": "R3_012",
+      "sha256": "1192e6f3db7d9a29acc30b6f13ec43f04957991efe3fab6b2c16c27992b55986"
+    },
+    {
+      "key": "R3_013",
+      "sha256": "5f5c76d133f963e887bd2e9c402d2336c16f2c54948f2127a3d6973781e051f2"
+    },
+    {
+      "key": "R3_014",
+      "sha256": "5168ccde7d73c6d06d2c0251c5798c2bb3a05b574db53c171d6ada8bbb1b81dd"
+    },
+    {
+      "key": "R3_015",
+      "sha256": "13811be29bda4b22305dabb8dcdf73116d4f05b7e3fb15f2d6257ff502d80118"
+    },
+    {
+      "key": "R3_016",
+      "sha256": "d7db9da6dd75541aa80e19e3afaa31419de7b5e400e27cf110abe8c82cf571d0"
+    },
+    {
+      "key": "R3_017",
+      "sha256": "3d004c0f37d0d4c0ba0ee42786adfe5af1f47f2b2d4689435f3b3bc1f8f18406"
+    },
+    {
+      "key": "R3_018",
+      "sha256": "7780a7a848e7f9d640ee7101db354c725c8092cd1b4efc9bdb5a6267c87627a6"
+    },
+    {
+      "key": "R3_019",
+      "sha256": "c958dca43f4fff2912d80f475d241597ba6409694b2493d7e11f02aff4ae7e50"
+    },
+    {
+      "key": "R3_020",
+      "sha256": "3f42d0d63117874bdbdbad1b2688b099a6096aad4cab302747f8ec906e531028"
+    },
+    {
+      "key": "R3_021",
+      "sha256": "817efb9a8860364fdb06f5a0285bf124e84b610c548ad2686d317d3257e11bff"
+    },
+    {
+      "key": "R3_022",
+      "sha256": "987f92c2a35e4a4566f457e79767e537fc4f01577dc4f315759b058966844148"
+    },
+    {
+      "key": "R3_023",
+      "sha256": "e3563724e28541125469826a60b6cf72d884268b83836d86f0fe180fa6b3a82e"
+    },
+    {
+      "key": "R3_024",
+      "sha256": "5fe721b5640083af633ebcba36d689c3b84696284e662d2d9b65fd4af3ab6915"
+    },
+    {
+      "key": "R3_025",
+      "sha256": "80dc4b9265355ef7934cbc433c5443971262c3aacb1026c5c8e8249dc282d1cb"
+    },
+    {
+      "key": "R3_026",
+      "sha256": "0fcbd1b86d4bad98dd83f843d88e38442a859ec84af3bfa6ab8ef9dc1b63449e"
+    },
+    {
+      "key": "R3_027",
+      "sha256": "a20c554514fba02c96c9c5b2e25e47e2b8d44a51109038d26e2376fa75ee2cab"
+    },
+    {
+      "key": "R3_028",
+      "sha256": "d7abde8cb65fa7e229f4717b14647891df64698c6d18dc92c8e2d181aaebf866"
+    },
+    {
+      "key": "R3_029",
+      "sha256": "98271b39fe012caf45b35e4d6509ad427143b4bc04f2790e2b2453326af6a9f8"
+    },
+    {
+      "key": "R3_030",
+      "sha256": "bfa11e9cbadb50d19f765d000e86b69799729bb1d80d3eff4094620eb2835126"
+    },
+    {
+      "key": "R3_031",
+      "sha256": "28b9dc27b34cbff1cb216393ca9f5202445437a6c4de37b1a37b7a986a09be1d"
+    }
+  ],
+  "local_generator_verification": "compatibility.json",
+  "full_training_distribution_match": false,
+  "remaining_composition_differences": [
+    "Two hips share one rod torso; each thigh belongs to both a hip and a knee unit.",
+    "Hip joint origins are spaced by 0.18 m along y. Planar mass/gravity equivalence is checked separately; collision sets are not identical.",
+    "Ground contact and multiple neighboring learned controllers occur simultaneously, unlike the original separate R2/R3 roles."
+  ],
+  "simulator_settings_implemented_in": [
+    "models/biped_4dof.xml",
+    "runtime.py"
+  ],
+  "urdf_velocity_limit_note": "12 rad/s is metadata only; the companion simulator does not enforce this extra speed limit.",
+  "note": "Envelope inclusion is not exact finite-bank reuse or proof of policy capability. See compatibility.json for geometry, timing and integration checks.",
+  "walking_validated": false
+}

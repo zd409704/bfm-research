@@ -1,0 +1,37 @@
+{
+  "counts": {
+    "actor": 207617,
+    "b": 74000,
+    "each_F_Dp512": 473872
+  },
+  "kinematics": {
+    "velocity_error": 5.155615823149162e-09,
+    "acceleration_error": 3.97655330885982e-09
+  },
+  "acceleration": {
+    "current_true_acceleration": 0.0,
+    "estimated": -2.0,
+    "effective_delay_s": 0.02
+  },
+  "compressed_history": {
+    "current_slopes": [
+      0.0,
+      2.1684043449710089e-16
+    ],
+    "next_slopes_if_same_next_velocity": [
+      0.0,
+      -2.0
+    ]
+  },
+  "loss": {
+    "scalar_formula_abs_error": 3.552713678800501e-15,
+    "row_vs_column_discount_max_error": 1.9164278590104764
+  },
+  "global_context_rank": {
+    "contexts": 144,
+    "z_dim": 16,
+    "coarse_occupancy_rank": 144,
+    "best_rank16_relative_frobenius_error": 0.9428090415820634,
+    "scope": "Exact global discounted occupancy of immutable context indicators at a fixed z, not a measured control-error bound"
+  }
+}

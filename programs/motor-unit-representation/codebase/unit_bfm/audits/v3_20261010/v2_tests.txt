@@ -1,0 +1,13 @@
+test_actor_min_is_after_dot_product (unit_bfm.tests.test_fb_formula.Formula) ... ok
+test_density_and_orthogonal_value_and_gradients (unit_bfm.tests.test_fb_formula.Formula) ... ok
+test_result_excludes_command_fields (unit_bfm.tests.test_fb_formula.Formula) ... ok
+test_interval_summary_not_subsample (unit_bfm.tests.test_contracts.Contracts) ... ok
+test_live_replay_equivalence_including_odd_phase (unit_bfm.tests.test_contracts.Contracts) ... ok
+test_network_counts_and_feedback_independence (unit_bfm.tests.test_contracts.Contracts) ... ok
+test_reward_basis_exact (unit_bfm.tests.test_contracts.Contracts) ... ok
+test_fixed_z_target_and_optimizer_ownership (unit_bfm.tests.test_learning.LearningContracts) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.627s
+
+OK

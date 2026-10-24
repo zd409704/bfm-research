@@ -1,0 +1,21 @@
+{
+  "device": "cuda",
+  "physics_p": 4534,
+  "memory_dim": 243,
+  "counts": {
+    "actor": 207617,
+    "f1": 2657552,
+    "f2": 2657552,
+    "b": 74000,
+    "online": 5596721,
+    "execution": 281617
+  },
+  "actor_plus_B_ms_p50": 0.16030395636335015,
+  "actor_plus_B_ms_p99": 0.1997518353164194,
+  "CPU_collection_W_per_s": 92.65734565431998,
+  "episode_bytes": 1059662,
+  "bytes_per_transition": 21193.24,
+  "sample512_s": 0.029822179465554655,
+  "update512_s": 0.010518004070036113,
+  "note": "CPU episode collection; network device separately specified; latency excludes external sensors/bus."
+}

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated companion scene. Root has unactuated x/z/pitch only. Drive inputs are filtered actual torques supplied by runtime.py, not raw policy commands. -->
+<mujoco model="unit_bfm_biped_v2_rods_v1_1">
+  <compiler angle="radian" autolimits="true" inertiafromgeom="false" />
+  <option timestep="0.001" integrator="implicitfast" solver="Newton" iterations="20" gravity="0 0 -9.81" />
+  <default>
+    <joint type="hinge" axis="0 1 0" range="-1.2 1.2" damping="0.03" frictionloss="0.02" armature="0.003" margin="0.03" solreflimit="0.002 1" solimplimit="0.99 0.999 0.001" />
+    <geom friction=".8 .005 .0001" condim="3" solref=".01 1" />
+  </default>
+  <worldbody>
+    <light pos="1 -2 3" />
+    <geom name="floor" type="plane" size="5 5 .1" rgba=".4 .42 .44 1" />
+    <body name="pelvis" pos="0 0 .601">
+      <joint name="root_x" type="slide" axis="1 0 0" limited="false" damping="0" frictionloss="0" armature="0" />
+      <joint name="root_z" type="slide" axis="0 0 1" limited="false" damping="0" frictionloss="0" armature="0" />
+      <joint name="root_pitch" type="hinge" axis="0 1 0" limited="false" damping="0" frictionloss="0" armature="0" />
+      <body name="left_thigh" pos="0 0.09 0">
+        <joint name="left_hip" />
+        <body name="left_shank" pos="0 0 -0.3">
+          <joint name="left_knee" />
+          <inertial pos="0 0 -0.15" mass="0.25" diaginertia="0.001908333333333333 0.001908333333333333 6.666666666666667e-05" />
+          <geom name="left_shank_box" type="box" size="0.02 0.02 0.15" pos="0 0 -0.15" rgba=".16 .48 .82 1" />
+        </body>
+        <inertial pos="0 0 -0.15" mass="0.5" diaginertia="0.003816666666666667 0.003816666666666667 0.0001333333333333333" />
+        <geom name="left_thigh_box" type="box" size="0.02 0.02 0.15" pos="0 0 -0.15" rgba=".16 .48 .82 1" />
+      </body>
+      <body name="right_thigh" pos="0 -0.09 0">
+        <joint name="right_hip" />
+        <body name="right_shank" pos="0 0 -0.3">
+          <joint name="right_knee" />
+          <inertial pos="0 0 -0.15" mass="0.25" diaginertia="0.001908333333333333 0.001908333333333333 6.666666666666667e-05" />
+          <geom name="right_shank_box" type="box" size="0.02 0.02 0.15" pos="0 0 -0.15" rgba=".88 .43 .17 1" />
+        </body>
+        <inertial pos="0 0 -0.15" mass="0.5" diaginertia="0.003816666666666667 0.003816666666666667 0.0001333333333333333" />
+        <geom name="right_thigh_box" type="box" size="0.02 0.02 0.15" pos="0 0 -0.15" rgba=".88 .43 .17 1" />
+      </body>
+      <inertial pos="0 0 0.125" mass="1.0" diaginertia="0.005341666666666667 0.005341666666666667 0.0002666666666666667" />
+      <geom name="pelvis_box" type="box" size="0.02 0.02 0.125" pos="0 0 0.125" rgba=".4 .46 .53 1" />
+      <geom name="hip_axis_mount_marker" type="cylinder" size="0.008 0.09" euler="1.5707963267948966 0 0" contype="0" conaffinity="0" mass="0" rgba=".23 .27 .32 1" />
+    </body>
+  </worldbody>
+  <contact>
+    <exclude body1="pelvis" body2="left_thigh" />
+    <exclude body1="left_thigh" body2="left_shank" />
+    <exclude body1="pelvis" body2="right_thigh" />
+    <exclude body1="right_thigh" body2="right_shank" />
+  </contact>
+  <actuator>
+    <motor name="left_hip_drive" joint="left_hip" gear="1" ctrllimited="true" ctrlrange="-6 6" />
+    <motor name="left_knee_drive" joint="left_knee" gear="1" ctrllimited="true" ctrlrange="-6 6" />
+    <motor name="right_hip_drive" joint="right_hip" gear="1" ctrllimited="true" ctrlrange="-6 6" />
+    <motor name="right_knee_drive" joint="right_knee" gear="1" ctrllimited="true" ctrlrange="-6 6" />
+  </actuator>
+</mujoco>

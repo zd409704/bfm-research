@@ -1,0 +1,53 @@
+{
+  "scope": "Existing V2 geometry; V3 hinge-clearance models have not been implemented",
+  "rows": [
+    {
+      "explicit_pair": false,
+      "q": 0.0,
+      "distance_m": 0.0,
+      "pair_contacts": 0
+    },
+    {
+      "explicit_pair": false,
+      "q": 0.6,
+      "distance_m": -0.011292849467900754,
+      "pair_contacts": 0
+    },
+    {
+      "explicit_pair": false,
+      "q": 1.2,
+      "distance_m": -0.018640781719344468,
+      "pair_contacts": 0
+    },
+    {
+      "explicit_pair": false,
+      "q": 2.4,
+      "distance_m": -0.034747874310824885,
+      "pair_contacts": 0
+    },
+    {
+      "explicit_pair": true,
+      "q": 0.0,
+      "distance_m": 0.0,
+      "pair_contacts": 0
+    },
+    {
+      "explicit_pair": true,
+      "q": 0.6,
+      "distance_m": -0.011292849467900754,
+      "pair_contacts": 2
+    },
+    {
+      "explicit_pair": true,
+      "q": 1.2,
+      "distance_m": -0.018640781719344468,
+      "pair_contacts": 4
+    },
+    {
+      "explicit_pair": true,
+      "q": 2.4,
+      "distance_m": -0.034747874310824885,
+      "pair_contacts": 2
+    }
+  ]
+}

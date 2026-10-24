@@ -1,0 +1,379 @@
+{
+  "urdf_sha256": "6237fa9df7fb5dc3cc5ec127cc1d576d5e030bfe4b16d450b03a32a7998fa293",
+  "reference_run": "unit_bfm/artifacts/rf_v2_full",
+  "reference_bank_size": 128,
+  "reference": "Compiled saved training XMLs, not a fresh randomized library",
+  "scalar_nominal_field_envelope_passed": true,
+  "full_training_distribution_match": false,
+  "note": "Marginal min/max inclusion does not establish joint-distribution coverage, behavior coverage, or walking feasibility. Pelvis length is the chosen equivalent 0.25 m extent; its geometry differs from a training rod.",
+  "joints": [
+    {
+      "joint": "left_hip",
+      "P": "pelvis",
+      "D": "left_thigh",
+      "nominal_fields": {
+        "P_length": {
+          "value": 0.25,
+          "bank_min": 0.15382606983184816,
+          "bank_max": 0.39891622066497806,
+          "within_marginal_envelope": true
+        },
+        "D_length": {
+          "value": 0.3,
+          "bank_min": 0.25001490116119385,
+          "bank_max": 0.4456610202789307,
+          "within_marginal_envelope": true
+        },
+        "P_mass": {
+          "value": 1.0,
+          "bank_min": 0.4090766906738281,
+          "bank_max": 2.1663124561309814,
+          "within_marginal_envelope": true
+        },
+        "D_mass": {
+          "value": 0.5,
+          "bank_min": 0.15999944508075714,
+          "bank_max": 0.6774170994758606,
+          "within_marginal_envelope": true
+        },
+        "P_Iyy": {
+          "value": 0.004860416666666667,
+          "bank_min": 0.0009944079443812372,
+          "bank_max": 0.021019937098026277,
+          "within_marginal_envelope": true
+        },
+        "D_Iyy": {
+          "value": 0.003816666666666667,
+          "bank_min": 0.0011132123880088329,
+          "bank_max": 0.009135625511407853,
+          "within_marginal_envelope": true
+        },
+        "P_COM_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.0016630971804261208,
+          "within_marginal_envelope": true
+        },
+        "P_COM_z": {
+          "value": 0.1325,
+          "bank_min": 0.07163616418838502,
+          "bank_max": 0.1968443036079407,
+          "within_marginal_envelope": true
+        },
+        "D_COM_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.001661503314971924,
+          "within_marginal_envelope": true
+        },
+        "D_COM_z": {
+          "value": -0.15,
+          "bank_min": -0.22533349990844728,
+          "bank_max": -0.12614877223968507,
+          "within_marginal_envelope": true
+        }
+      },
+      "P_COM_from_joint_xyz_m": [
+        0.0,
+        -0.06,
+        0.1325
+      ],
+      "D_COM_from_joint_xyz_m": [
+        0.0,
+        0.0,
+        -0.15
+      ],
+      "joint_limits": {
+        "lower": -1.2,
+        "upper": 1.2,
+        "effort": 6.0,
+        "velocity": 12.0
+      },
+      "joint_dynamics": {
+        "damping": 0.03,
+        "friction": 0.02
+      },
+      "geometry_family": "new_compound_pelvis_and_branch"
+    },
+    {
+      "joint": "left_knee",
+      "P": "left_thigh",
+      "D": "left_shank",
+      "nominal_fields": {
+        "P_length": {
+          "value": 0.3,
+          "bank_min": 0.15382606983184816,
+          "bank_max": 0.39891622066497806,
+          "within_marginal_envelope": true
+        },
+        "D_length": {
+          "value": 0.3,
+          "bank_min": 0.25001490116119385,
+          "bank_max": 0.4456610202789307,
+          "within_marginal_envelope": true
+        },
+        "P_mass": {
+          "value": 0.5,
+          "bank_min": 0.4090766906738281,
+          "bank_max": 2.1663124561309814,
+          "within_marginal_envelope": true
+        },
+        "D_mass": {
+          "value": 0.25,
+          "bank_min": 0.15999944508075714,
+          "bank_max": 0.6774170994758606,
+          "within_marginal_envelope": true
+        },
+        "P_Iyy": {
+          "value": 0.003816666666666667,
+          "bank_min": 0.0009944079443812372,
+          "bank_max": 0.021019937098026277,
+          "within_marginal_envelope": true
+        },
+        "D_Iyy": {
+          "value": 0.001908333333333333,
+          "bank_min": 0.0011132123880088329,
+          "bank_max": 0.009135625511407853,
+          "within_marginal_envelope": true
+        },
+        "P_COM_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.0016630971804261208,
+          "within_marginal_envelope": true
+        },
+        "P_COM_z": {
+          "value": 0.15,
+          "bank_min": 0.07163616418838502,
+          "bank_max": 0.1968443036079407,
+          "within_marginal_envelope": true
+        },
+        "D_COM_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.001661503314971924,
+          "within_marginal_envelope": true
+        },
+        "D_COM_z": {
+          "value": -0.15,
+          "bank_min": -0.22533349990844728,
+          "bank_max": -0.12614877223968507,
+          "within_marginal_envelope": true
+        }
+      },
+      "P_COM_from_joint_xyz_m": [
+        0.0,
+        0.0,
+        0.15
+      ],
+      "D_COM_from_joint_xyz_m": [
+        0.0,
+        0.0,
+        -0.15
+      ],
+      "joint_limits": {
+        "lower": -1.2,
+        "upper": 1.2,
+        "effort": 6.0,
+        "velocity": 12.0
+      },
+      "joint_dynamics": {
+        "damping": 0.03,
+        "friction": 0.02
+      },
+      "geometry_family": "uniform_rod_pair_with_in_range_new_parameters"
+    },
+    {
+      "joint": "right_hip",
+      "P": "pelvis",
+      "D": "right_thigh",
+      "nominal_fields": {
+        "P_length": {
+          "value": 0.25,
+          "bank_min": 0.15382606983184816,
+          "bank_max": 0.39891622066497806,
+          "within_marginal_envelope": true
+        },
+        "D_length": {
+          "value": 0.3,
+          "bank_min": 0.25001490116119385,
+          "bank_max": 0.4456610202789307,
+          "within_marginal_envelope": true
+        },
+        "P_mass": {
+          "value": 1.0,
+          "bank_min": 0.4090766906738281,
+          "bank_max": 2.1663124561309814,
+          "within_marginal_envelope": true
+        },
+        "D_mass": {
+          "value": 0.5,
+          "bank_min": 0.15999944508075714,
+          "bank_max": 0.6774170994758606,
+          "within_marginal_envelope": true
+        },
+        "P_Iyy": {
+          "value": 0.004860416666666667,
+          "bank_min": 0.0009944079443812372,
+          "bank_max": 0.021019937098026277,
+          "within_marginal_envelope": true
+        },
+        "D_Iyy": {
+          "value": 0.003816666666666667,
+          "bank_min": 0.0011132123880088329,
+          "bank_max": 0.009135625511407853,
+          "within_marginal_envelope": true
+        },
+        "P_COM_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.0016630971804261208,
+          "within_marginal_envelope": true
+        },
+        "P_COM_z": {
+          "value": 0.1325,
+          "bank_min": 0.07163616418838502,
+          "bank_max": 0.1968443036079407,
+          "within_marginal_envelope": true
+        },
+        "D_COM_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.001661503314971924,
+          "within_marginal_envelope": true
+        },
+        "D_COM_z": {
+          "value": -0.15,
+          "bank_min": -0.22533349990844728,
+          "bank_max": -0.12614877223968507,
+          "within_marginal_envelope": true
+        }
+      },
+      "P_COM_from_joint_xyz_m": [
+        0.0,
+        0.06,
+        0.1325
+      ],
+      "D_COM_from_joint_xyz_m": [
+        0.0,
+        0.0,
+        -0.15
+      ],
+      "joint_limits": {
+        "lower": -1.2,
+        "upper": 1.2,
+        "effort": 6.0,
+        "velocity": 12.0
+      },
+      "joint_dynamics": {
+        "damping": 0.03,
+        "friction": 0.02
+      },
+      "geometry_family": "new_compound_pelvis_and_branch"
+    },
+    {
+      "joint": "right_knee",
+      "P": "right_thigh",
+      "D": "right_shank",
+      "nominal_fields": {
+        "P_length": {
+          "value": 0.3,
+          "bank_min": 0.15382606983184816,
+          "bank_max": 0.39891622066497806,
+          "within_marginal_envelope": true
+        },
+        "D_length": {
+          "value": 0.3,
+          "bank_min": 0.25001490116119385,
+          "bank_max": 0.4456610202789307,
+          "within_marginal_envelope": true
+        },
+        "P_mass": {
+          "value": 0.5,
+          "bank_min": 0.4090766906738281,
+          "bank_max": 2.1663124561309814,
+          "within_marginal_envelope": true
+        },
+        "D_mass": {
+          "value": 0.25,
+          "bank_min": 0.15999944508075714,
+          "bank_max": 0.6774170994758606,
+          "within_marginal_envelope": true
+        },
+        "P_Iyy": {
+          "value": 0.003816666666666667,
+          "bank_min": 0.0009944079443812372,
+          "bank_max": 0.021019937098026277,
+          "within_marginal_envelope": true
+        },
+        "D_Iyy": {
+          "value": 0.001908333333333333,
+          "bank_min": 0.0011132123880088329,
+          "bank_max": 0.009135625511407853,
+          "within_marginal_envelope": true
+        },
+        "P_COM_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.0016630971804261208,
+          "within_marginal_envelope": true
+        },
+        "P_COM_z": {
+          "value": 0.15,
+          "bank_min": 0.07163616418838502,
+          "bank_max": 0.1968443036079407,
+          "within_marginal_envelope": true
+        },
+        "D_COM_x": {
+          "value": 0.0,
+          "bank_min": 0.0,
+          "bank_max": 0.001661503314971924,
+          "within_marginal_envelope": true
+        },
+        "D_COM_z": {
+          "value": -0.15,
+          "bank_min": -0.22533349990844728,
+          "bank_max": -0.12614877223968507,
+          "within_marginal_envelope": true
+        }
+      },
+      "P_COM_from_joint_xyz_m": [
+        0.0,
+        0.0,
+        0.15
+      ],
+      "D_COM_from_joint_xyz_m": [
+        0.0,
+        0.0,
+        -0.15
+      ],
+      "joint_limits": {
+        "lower": -1.2,
+        "upper": 1.2,
+        "effort": 6.0,
+        "velocity": 12.0
+      },
+      "joint_dynamics": {
+        "damping": 0.03,
+        "friction": 0.02
+      },
+      "geometry_family": "uniform_rod_pair_with_in_range_new_parameters"
+    }
+  ],
+  "untrained_structure_features": [
+    "Compound upright/crossbar pelvis",
+    "Hip offsets y=+/-0.06 m from pelvis COM line; training P has zero COM y offset relative to motor",
+    "Shared pelvis with two articulated legs",
+    "Ground contact combined with multiple learned neighboring actuators; R2 has contact but no neighbors, R3 has PD neighbors but no ground contact"
+  ],
+  "simulator_settings_missing_from_urdf": [
+    "Planar unactuated root x/z/pitch",
+    "V2 armature (nominal 0.003 kg m^2)",
+    "1 kHz physics/drive and 100 Hz action updates",
+    "Actual delayed/capacity-limited/first-order motor response (nominal T=0.010 s)",
+    "MuJoCo joint-limit margin 0.03 rad and original solver settings",
+    "Ground/contact/friction and adjacent-body collision filtering"
+  ],
+  "urdf_velocity_limit_note": "12 rad/s is a new declaration, not a hard speed limit trained in V2; check importer semantics before enforcing.",
+  "scope": "Read-only structural audit; no dynamics rollout and no changes to URDF or training weights."
+}

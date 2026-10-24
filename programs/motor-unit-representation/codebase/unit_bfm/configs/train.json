@@ -1,0 +1,17 @@
+{
+  "version": "SIM_PRIVILEGED_FF_MR_RF_V2",
+  "seed": 20260930,
+  "num_envs": 128,
+  "batch_size": 512,
+  "total_W": 20000000,
+  "P1_W": 800000,
+  "P2_W": 4000000,
+  "replay_capacity": 1000000,
+  "horizon": 500,
+  "save_every_W": 1000000,
+  "eval_every_W": 1000000,
+  "updates_per_W": 0.00390625,
+  "warmup_W": 8192,
+  "bootstrap": "unit_bfm/artifacts/p0_limits_v2/bootstrap.pt",
+  "device": "cuda:0"
+}

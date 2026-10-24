@@ -1,0 +1,74 @@
+{
+  "changed": [],
+  "after": {
+    "evaluate.py": "ac1c1891b070a4b5edd40f8018f4b0f56a3d2caaa5e9ef1eed020f36ddc11f44",
+    "networks.py": "024514d815ad7133431a2cca51f78ae484ad47071f4ca859287248bb87709454",
+    "schema.py": "738fd5d2add0db71750653d001053056de3b032c0c2ea1af3926e735d2df98e6",
+    "train.py": "56d2bcf9745feaf204728a421917ca1a81273557bc86861c671b7b6f87d2b96c",
+    "learner.py": "85d4f763316c9b9785e4cda86749a503de6bc00140d06e9649a48890150519b5",
+    "replay.py": "794cb63d578f4826dab54940d854c677302e5fcd67f53e4894758fa0d0eaa97e",
+    "programs.py": "e3bf9b45136bd426f469ad32c595ccd583186d10e1be3f0b25472305373b4671",
+    "randomization.py": "7de35c087823c9185921b354def16483236f42e4f14e63261e3fdd455bb10a5a",
+    "interface.py": "edd86909accd0ac5f27a35bd11220efcd947d51c6290ba8779532876c9752588",
+    "mechanics.py": "9256c67bf49c58b49bd02080a661ef7f2f3a6ef32fd03bc4d4101883cb7a66f9",
+    "__init__.py": "9add41e62b494dc2aaf980093e84bf45c9d867a58a5ab39693ac6b535200ee63",
+    "features.py": "6bbfc9a965415dbd13009c8def663e2abb75c8dbd0d5c3e49bd3b96283f38e1d",
+    "fb_loss.py": "8fc2fd44b79300dcc7c886c3a999d1021242dadc264fff1400c5ebf1748f8a7b",
+    "kernels.py": "a39b0545c1d4d31aac9848d5770c2dc3b3de32039bbd7d6a17bb34f9e0f77a12",
+    "warp_backend.py": "cc7c5008555581eb344cb000912808e3ba919bc7460fd9bd834514573f9ff246",
+    "coverage.py": "93afd502e94d576e68198c1a91bcde7be03acc706e131847695da0fc4d9fcfac",
+    "collect.py": "d6a42d0203f2b6efd27a74733a6907baf3ab308f3ebe2951360b4af5d3c25edd",
+    "physics.py": "6d5a9489f15cd2ea431d963521ffecb31a906ef6bc486d650d424a9e95c66271",
+    "queries.py": "78e040805ba7281d465f3f5e40473e47185c7e77c1fb0125bff1a9bbd3e1bf8a",
+    "privileged.py": "2505b1fc6f4bf862843a12ad1a496bee6a275e87bcf86bca0956e069accbc4c5"
+  },
+  "training": {
+    "W": 8018,
+    "p0_W": 800,
+    "online_W": 3609,
+    "invalid_W": 1,
+    "aborted_valid_W": 1,
+    "updates": 100,
+    "elapsed_s": 66.42857572704088,
+    "reset_counts": {
+      "xi": 11,
+      "velocity": 6,
+      "snapshot": 4
+    },
+    "snapshot_fallbacks": 0,
+    "gradient_usage": {
+      "added_rule": 3799,
+      "p0_added": 190,
+      "evicted_rule": 3237,
+      "p0_reservoir_not_retained": 610,
+      "added_policy": 3609,
+      "gradient_rule_E4": 1218,
+      "gradient_policy_E4": 994,
+      "gradient_policy_E1": 504,
+      "gradient_policy_E2": 699,
+      "gradient_rule_E0": 795,
+      "gradient_rule_E2": 460,
+      "gradient_rule_E1": 364,
+      "gradient_policy_E3": 462,
+      "gradient_rule_E3": 362,
+      "gradient_policy_E0": 542,
+      "evicted_policy": 1561
+    },
+    "replay": {
+      "capacity": 3072,
+      "active": 2610,
+      "source_active": {
+        "rule": 562,
+        "policy": 2048
+      },
+      "p0_retained": 50,
+      "p0_retention_mode": "stratified_reservoir",
+      "p0_retention_reason": "configured_groups_fit",
+      "tensor_bytes": 128028672,
+      "estimated_max_bytes": 172277760,
+      "limit_bytes": 4294967296,
+      "raw_resident": 0,
+      "disk_sampling": false
+    }
+  }
+}

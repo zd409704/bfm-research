@@ -1,0 +1,19 @@
+{
+  "source_sha256": "9df90b5066d96a10ece2ce167f73025328e30a6d9b95daf485fe285e59604fb5",
+  "status": "geometry_and_kinematics_verified",
+  "mujoco_version": "3.8.1",
+  "links": 5,
+  "actuated_joints": 4,
+  "mass_kg": 2.5,
+  "straight_collision_extent_m": [
+    0.04,
+    0.22,
+    0.85
+  ],
+  "fk_pose_cases": 36,
+  "fk_max_position_error_m": 1.1102230246251565e-16,
+  "fk_max_rotation_error": 4.440892098500626e-16,
+  "physics_stepped": false,
+  "walking_validated": false,
+  "note": "URDF imported with fixed root for FK only; the companion MJCF/runtime supply the planar root and V2 drive. See compatibility.json for that validation."
+}

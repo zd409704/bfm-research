@@ -1,0 +1,9 @@
+{
+  "visited": 720,
+  "expected": 720,
+  "actual_reset_counts": {
+    "xi": 3600,
+    "velocity": 2160,
+    "snapshot": 1440
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "mujoco": "3.8.1",
+  "sensor_crosscheck_error": 0.0,
+  "spatial_order": "cfrc_int torque then force; xfrc_applied force then torque",
+  "reference": "subtree_com[body_rootid[body]]",
+  "joint_axis_total_reaction_Nm": 0.9999999999999999,
+  "caveat": "Total tree interaction includes actuator transfer; not an independently identified external contact wrench",
+  "without_sensor_after_forward": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "after_explicit_postconstraint": [
+    0.0,
+    0.27655822575904865,
+    0.0,
+    -3.6172088712047556,
+    0.0,
+    9.81
+  ],
+  "scope": "CPU one-link hinge API proof only; no GPU, closed-loop, fixed-D, contact or randomized-batch acceptance"
+}
