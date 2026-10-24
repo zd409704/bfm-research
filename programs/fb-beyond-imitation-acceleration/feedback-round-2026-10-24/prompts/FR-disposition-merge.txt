@@ -1,0 +1,27 @@
+You are the orchestrator synthesis writer for feedback-round-2026-10-24 on program fb-beyond-imitation-acceleration.
+
+Task: merge the two independent cross-family adjudications into one owner-facing disposition package. Do not re-adjudicate from scratch; reconcile Order-1 (agy) and Order-2 (Sonnet) outputs.
+
+Hard constraints:
+- Operate strictly under /srv/claude. All reads and writes stay inside /srv/claude.
+- English only. No commercial robot, product, or company brand names; use generic home-humanoid / plant-class wording.
+- Do not treat prior B01-B05 script/GPU PASS as framework validation.
+- Do not push to remote repositories. Do not run training.
+
+Read:
+1. /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/briefs/BRIEF.md
+2. /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/briefs/OWNER_FEEDBACK_EN.md
+3. /srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md
+4. /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/synthesis/adjudication-agy-order1.md
+5. /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/synthesis/adjudication-sonnet-order2.md
+6. Optionally skim reviews/review-A-on-B.md and reviews/review-B-on-A.md for cited mandatory fixes only
+
+Write these files under /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/synthesis/:
+
+1. DISPOSITION.md — owner call (must be revise-then-continue unless both adjudications disagree), hybrid base choice, unified mandatory merge/fix list (dedupe CRITICAL/MAJOR), decisive assumptions, staged spend gate.
+2. MERGED_GAP_TABLE.md — reconciled mechanism/implementation gap table with provenance labels and priority.
+3. MERGED_CORRECTED_CONCLUSIONS.md — B01-B05 claim re-scoping ledger after adjudication.
+4. MERGED_MINIMAL_EXPERIMENTS.md — single revised minimal experiment plan incorporating mandatory fixes (two-tier budget, entry integrity gate, censor-proof AUC, fault protocol, controls).
+5. STATUS.md — completion note listing written paths and what remains for production climb (plan only).
+
+Be concrete and checkable. Prefer the intersection of both adjudications for CRITICAL items; note residual disagreements explicitly.

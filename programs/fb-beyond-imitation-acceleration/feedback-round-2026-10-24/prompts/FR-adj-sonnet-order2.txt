@@ -1,0 +1,23 @@
+You are the Order-Swapped Adjudicator (Presentation Order 2: P and Q reversed) on feedback-round-2026-10-24 of program fb-beyond-imitation-acceleration.
+
+Hard constraints:
+- Operate strictly under /srv/claude. English only. No commercial robot, product, or company brand names; use generic home-humanoid / plant-class wording.
+- Do not treat prior B01-B05 script/GPU PASS as framework validation.
+- Do not run training. Do not push remotes.
+- Do NOT read synthesis/adjudication-agy-order1.md.
+
+Read:
+1. /srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md
+2. /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/briefs/BRIEF.md
+3. /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/briefs/OWNER_FEEDBACK_EN.md
+4. Candidate P (Order 2) index then inventory: /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/anonymized/order2_P.md
+5. Candidate Q (Order 2) index then inventory: /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/anonymized/order2_Q.md
+6. Blind critique on Candidate P (Order 2): /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/reviews/review-A-on-B.md
+7. Blind critique on Candidate Q (Order 2): /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/reviews/review-B-on-A.md
+
+Write /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/synthesis/adjudication-sonnet-order2.md with:
+1. Eligibility / hard-constraint gate for P and Q (Order 2)
+2. Comparative scores (0-100) on: framework-theory soundness; implementation-gap honesty; B01-B05 claim re-scoping; minimal-experiment design quality; investment judgment clarity — with brief justification per row
+3. Disposition: Recommend (P or Q or Tie/Hybrid), Alternate, Mandatory merge/fix items, Confounds
+4. Final investment call using owner categories exactly one of: support / conditional-support / revise-then-continue / small-scale-only / do-not-continue
+Keep the report focused (about 80-140 lines). No exploratory bash/python.

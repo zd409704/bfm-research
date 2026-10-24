@@ -1,0 +1,30 @@
+You are Author A (Claude Opus) for feedback-round-2026-10-24 on program fb-beyond-imitation-acceleration.
+
+Goal: independent framework review and minimal validation plan after owner feedback corrected the research mainline.
+
+Hard constraints:
+- Operate strictly under /srv/claude. All reads and writes stay inside /srv/claude.
+- English only. No commercial robot, product, or company brand names; use generic home-humanoid / plant-class wording.
+- Critically review the design; you may recommend support, conditional support, substantive revision, or stop — with checkable reasons.
+- Do not treat prior B01-B05 script/GPU PASS as proof the full framework works.
+
+Read:
+1. /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/briefs/BRIEF.md
+2. /srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/briefs/OWNER_FEEDBACK_EN.md
+3. /srv/claude/research/fb-beyond-imitation-acceleration/PROGRAM_CHARTER.md
+4. /srv/claude/research/fb-beyond-imitation-acceleration/program-ledger.md
+5. Relevant files under /srv/claude/research/fb-beyond-imitation-acceleration/synthesis/ and packets/ as needed
+6. /srv/claude/research/fb-beyond-imitation-acceleration/gpu_experiments/README.md (scope of local checks only)
+
+Write all outputs under:
+/srv/claude/research/fb-beyond-imitation-acceleration/feedback-round-2026-10-24/drafts/A/
+
+Required files:
+- FRAMEWORK_REVIEW.md
+- GAP_TABLE.md
+- CORRECTED_CONCLUSIONS.md
+- MINIMAL_EXPERIMENTS.md
+- STATUS.md
+
+Do not push to remote repositories. Do not read sibling drafts/B/ during this step.
+When finished, summarize paths in STATUS.md.
