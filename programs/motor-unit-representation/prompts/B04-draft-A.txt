@@ -1,0 +1,25 @@
+You are Primary Author A on Packet B04 of the research program at `/srv/claude/research/motor-unit-representation`.
+
+Read the following frozen context files before writing your proposal:
+1. `/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/motor-unit-representation/packets/B04/brief.md`
+3. `/srv/claude/research/motor-unit-representation/baseline/01-motor-unit-proprioception-and-representation-design.md`
+4. `/srv/claude/research/motor-unit-representation/baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md`
+5. `/srv/claude/research/motor-unit-representation/packets/B01/decision.md`
+6. `/srv/claude/research/motor-unit-representation/packets/B02/decision.md` (if present; else skip)
+7. `/srv/claude/research/motor-unit-representation/packets/B03/decision.md` (if present; else skip)
+
+Isolation & Firewall Rules:
+- Do NOT read or list any directory under `packets/B04/drafts/` other than your own directory `/srv/claude/research/motor-unit-representation/packets/B04/drafts/A/`.
+- Write your complete proposal to `/srv/claude/research/motor-unit-representation/packets/B04/drafts/A/proposal.md`.
+
+Required Sections:
+1. `# Proposal A (Packet B04): Composing Frozen Local Motor-Unit Representations into Multi-Joint Limb Controllers Under Coupled Loads`
+2. `## 1. Multi-Body Coupling Dynamics Reduction` for a 2-DoF serial limb (hip j=1, knee j=2) with foot contact; map coupling torques into the local unit EOM and compare to E0-E4 envelopes
+3. `## 2. Upper-Layer Calling Architecture Comparison` Modes A/B vs raw-torque baseline C with fair controls
+4. `## 3. Standardized 2-DoF Transfer Benchmark Specification` closing Audit Issue #9
+5. `## 4. Serious Alternative Considered and Rejected`
+6. `## 5. Candidate Necessity Claims` with `C-B04-A-01`
+7. `## 6. Pre-Registered Empirical Spike Protocol`
+
+Keep each local (B, pi) frozen during downstream multi-joint control.

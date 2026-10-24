@@ -1,0 +1,20 @@
+The Independent Cross-Family Adjudication report for Packet B02 has been written to [adjudication-agy-order1.md](file:///srv/claude/research/motor-unit-representation/packets/B02/adjudication-agy-order1.md).
+
+### Summary of Adjudication
+
+1. **Eligibility Gate Check**: Both [order1_P.md](file:///srv/claude/research/motor-unit-representation/packets/B02/anonymized/order1_P.md) (Candidate P) and [order1_Q.md](file:///srv/claude/research/motor-unit-representation/packets/B02/anonymized/order1_Q.md) (Candidate Q) **PASS** all hard boundaries from [PROGRAM_CHARTER.md](file:///srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md) and [brief.md](file:///srv/claude/research/motor-unit-representation/packets/B02/brief.md).
+2. **Rubric-Weighted Scores**:
+   - **Resolution of Audit Issues #1, #2, #3, #5, #6, #8 (35%)**: Candidate P = **27.50 / 35.00** | Candidate Q = **27.00 / 35.00**
+   - **720-Cell Cross-Coverage Guarantee (25%)**: Candidate P = **18.50 / 25.00** | Candidate Q = **19.50 / 25.00**
+   - **Memory & Compute Compliance (20%)**: Candidate P = **15.50 / 20.00** | Candidate Q = **15.50 / 20.00**
+   - **Spike Falsifiability (20%)**: Candidate P = **16.50 / 20.00** | Candidate Q = **16.00 / 20.00**
+   - **Total**: Candidate P = **78.00 / 100.00** | Candidate Q = **78.00 / 100.00**
+3. **Principle Claim Adjudication (Appendix B.9)**:
+   - `C-B02-P-01` (Window-residency bound): **Accept with Narrowed Scope** (`Candidate` Grade 1).
+   - `C-B02-P-02` (Bounded saturation attenuation): **Revise Premise / Narrow Scope** (`Candidate` Grade 1).
+   - `C-B02-P-03` (Internal-model role for load holding): **Retain as Exploratory Diagnostic; Adopt Position-Gate Corollary** (`Candidate` Grade 2).
+   - `C-B02-Q-01` (Marginal coverage cannot certify joint coverage): **Accept / Endorse for Promotion** (`Candidate` Grade 1).
+   - `C-B02-Q-02` (Bounded action derivative cannot prevent squash-gradient decay): **Accept / Endorse for Promotion** (`Candidate` Grade 1).
+4. **Disposition**:
+   - **Recommend**: **`Tie`** (`78.00` vs `78.00`, inside the `5.0`-point tie margin; `P` as Primary Generative / Adaptive-Normalizer / Rule-Transient Base and `Q` as Co-Primary Atomic-Storage / Net-Feasibility / Evaluation-Gate Base).
+   - **Alternate**: **`Q`** (with 5 mandatory merge items and 3 controlled confounds documented in §4 of [adjudication-agy-order1.md](file:///srv/claude/research/motor-unit-representation/packets/B02/adjudication-agy-order1.md#L118-L176)).

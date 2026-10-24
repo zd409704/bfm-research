@@ -1,0 +1,37 @@
+I've written Proposal A to `packets/B04/drafts/A/proposal.md`. It has all seven required sections, and each local (B, π) unit stays frozen and hash-locked throughout, including during few-shot fine-tuning.
+
+**Main argument**
+- **The chain equations map exactly onto each unit's own equation of motion.** I wrote the full equations for a hip–knee leg on a passive vertical rail with foot contact, then rewrote each joint's row in the single-unit form. Numerically the rewrite matches the full equations to about 7e-15 N·m. The coupling torque each unit sees falls into three kinds:
+  - **Driven by the other joint or the base.** Only this kind looks like what E3/E4 trained on.
+  - **Tied to the unit's own motion.** For example, the knee's effective inertia grows 1.6–19× in stance. This acts like a change in the plant, not a disturbance.
+  - **Caused by the foot constraint.** This includes a horizontal internal force between the two joints that neither unit can see on its own.
+- **Base vertical acceleration acts on a unit exactly like a change in gravity.** For the knee, all parent motion reduces to an effective gravity vector at the knee plus the thigh's angular acceleration. So takeoff looks like an E4 load release, and touchdown looks like an impulse plus an E3 load onset.
+- **Envelope numbers.** These come from a reference leg whose masses and inertias are my own assumptions, chosen to fall inside the training ranges; they are not values from the frozen docs.
+
+| Task | Result against E0–E4 |
+|---|---|
+| Free-space tracking | Coupling ≤ 0.29 of max torque at 3 Hz, so amplitude is inside E3; the real limit is the unit's ~30 ms load-estimation lag, which leaves 19% of the coupling uncorrected at 1 Hz and 56% at 3 Hz |
+| Payload squat | Knee demand crosses the 0.92 E3 ceiling between 2 and 3 kg of payload |
+| Drop landing | Contact torque is 1.06–1.39× max torque even for 5–15 cm drops, so outside E3, and inside E4 only if the training manifest's impulse bound is that large |
+
+**Claims**
+- **`C-B04-A-01`:** checking coupling amplitude alone can't confirm the coverage condition in Charter H4. A 50 Hz servo with a one-step delay becomes unstable when the real inertia drops below about 0.41× its tuning value, no matter how small the torque is. So the coverage certificate also needs inertia-ratio and constraint checks.
+- **`C-B04-A-02`:** the housing-transport identity described above.
+- **`C-B04-A-03`:** in stance, two units with integral action share a neutral internal-force mode. It stays put when the joint targets agree with each other and grows linearly when they don't. My simulation matches the formula exactly.
+
+**Comparison and benchmark**
+- **Arms:** Modes A and B, raw-torque baseline C, and four controls: a classical PD servo, randomly initialised frozen units, a larger raw policy, and the blending mode.
+- **Fairness:** every arm gets the same 282-D observation, runs at 50 Hz, has trainable parameters within 1% of each other, uses the same SAC setup and hyperparameter grid, and gets 2M environment steps.
+- **Benchmark (`LIMB2-v1`):** tracking, payload squat-hold and land/hop tasks. Zero-shot transfer swaps shank length (0.18–0.40 m) and knee capacity (3 or 9 N·m); these stay within the units' training ranges while the chain dynamics change. Every cell is pre-classed as in or out of the training envelope.
+- **Issue #9 closure:** the proposal lists explicit criteria.
+
+**Rejected alternative:** retraining the units with sensors for housing motion. That would change the frozen 137-D input contract, wouldn't fix the inertia or internal-force problems, and would force changes to baseline C as well. I kept it as a contingency for a later packet.
+
+**Spike:** six CPU gates covering the equation check, the numbers above, the two simulated demonstrations, a fairness audit and evaluator controls. It does not test H4 itself; that needs converged units, which don't exist yet. Until the units pass the B02 coverage and static-hold gates, the main study is blocked.
+
+I wrote two numpy scripts in my draft directory to produce these numbers; they are my own calculations, not the official spike. I also read `baseline/02` for the input formats and configuration ranges, which wasn't on your list, and the proposal says so where it uses it. I didn't open any other drafts or the existing `spikes/B04-SPIKE` directory.
+
+Files are in `packets/B04/drafts/A/`:
+- `proposal.md`
+- `coupling_envelope.py` and `coupling_envelope.out.json`
+- `inertia_ratio.py` and `inertia_ratio.out.json`

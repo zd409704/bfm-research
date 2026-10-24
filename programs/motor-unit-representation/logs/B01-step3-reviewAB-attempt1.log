@@ -1,0 +1,22 @@
+The blind review is written to `packets/B01/reviews/review-A-on-B.md`, with the four sections you asked for.
+
+Besides the three listed files, I also read the baseline's description of the 5,065-D privileged context (`baseline/02` lines 40–46), Audit Issue #4 in `baseline/03`, and §11.5 and Appendix B of the pinned method. I used these only to check the proposal's claims. I opened nothing else in `reviews/` or `drafts/`.
+
+**Verdict:** Proposal B breaks no hard constraint and is eligible for ranking. I confirmed its claim that the frozen spec gives only block widths for the 22 groups, not per-group offsets.
+
+**Main objections, by rubric row:**
+- **Action-Jacobian proof (35%), [MAJOR]:** The proposal's construction is correct, but it only shows the deterministic case, where many critics fit the data equally well and one *could* ignore the action. It leaves out the stronger result: if the future window contains noise and fully accounts for the action's effect, the best-fitting critic has an action derivative of exactly zero. That stochastic case is the one likely to apply to V3. The decomposition of the action gradient also uses two different policies when the window is longer than one step.
+- **22-group audit (25%), [MAJOR]:**
+  - Replacing all 726 dims of Groups 18–21 probably throws away current solver states, which `baseline/03` says live in that block.
+  - For leaking slices elsewhere, the proposal defaults to masking. The causal replacement would be the value from the previous completed interval, freshly recollected.
+  - A preview of the exogenous future load schedule is legal under the brief, yet it is dropped in favour of a template that only covers one family of load generators.
+- **E0–E4 disambiguation (20%):** The two audit gaps above put contact-state observability for E1 and E2 at risk. I recommend a probe check that the original current slices can still be recovered from the sanitized input.
+- **Necessity claim C-B01-B-01:**
+  - One of its premises already states the conclusion, so the falsifier can never fire.
+  - Whether it applies to V3 depends on the future window being a deterministic function of state and action, and nothing tests that. I recommend measuring the window's variance across restored-snapshot branches.
+- **Rejected alternatives:** The "detach the future window" option is close to a strawman, since the proposal itself says replay data already behaves that way. Two stronger alternatives are not argued against: keeping only the exogenous preview, and a learned predictor of the window from current state and action.
+- **Spike protocol:**
+  - **Missing arms:** one that keeps only the exogenous preview, and one with the future slices shuffled across samples.
+  - **Confounds:** the critic trains on 64-step episodes but the reference returns use a 200-step horizon, and termination at episode end is undefined; underfitting is mixed in with the causality effect.
+  - **Thresholds:** the packing-invariance check should require exact equality rather than a `1e-7` tolerance, and the detached control should be bit-identical to the raw arm rather than within 5%.
+  - **Smaller issues:** a 0.05/0.95 ratio is 5.26%, not 5.27%; with five seeds the confidence intervals are only descriptive; and the H1 measurement differs from the charter's definition without saying so.

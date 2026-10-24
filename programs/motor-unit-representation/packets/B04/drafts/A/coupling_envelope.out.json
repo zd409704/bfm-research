@@ -1,0 +1,169 @@
+{
+ "identity_residual_max": 7.105427357601002e-15,
+ "tracking": {
+  "f=0.5Hz": {
+   "1": {
+    "inertial": 0.005,
+    "self_inertia": 0.002,
+    "coriolis": 0.003,
+    "grav": 0.011,
+    "contact": 0.0,
+    "u_req": 0.075
+   },
+   "2": {
+    "inertial": 0.008,
+    "self_inertia": 0.0,
+    "coriolis": 0.004,
+    "grav": 0.02,
+    "contact": 0.0,
+    "u_req": 0.039
+   }
+  },
+  "f=1.0Hz": {
+   "1": {
+    "inertial": 0.022,
+    "self_inertia": 0.008,
+    "coriolis": 0.012,
+    "grav": 0.011,
+    "contact": 0.0,
+    "u_req": 0.049
+   },
+   "2": {
+    "inertial": 0.033,
+    "self_inertia": 0.0,
+    "coriolis": 0.015,
+    "grav": 0.02,
+    "contact": 0.0,
+    "u_req": 0.058
+   }
+  },
+  "f=2.0Hz": {
+   "1": {
+    "inertial": 0.088,
+    "self_inertia": 0.03,
+    "coriolis": 0.047,
+    "grav": 0.011,
+    "contact": 0.0,
+    "u_req": 0.374
+   },
+   "2": {
+    "inertial": 0.13,
+    "self_inertia": 0.0,
+    "coriolis": 0.059,
+    "grav": 0.02,
+    "contact": 0.0,
+    "u_req": 0.202
+   }
+  },
+  "f=3.0Hz": {
+   "1": {
+    "inertial": 0.198,
+    "self_inertia": 0.068,
+    "coriolis": 0.107,
+    "grav": 0.011,
+    "contact": 0.0,
+    "u_req": 0.92
+   },
+   "2": {
+    "inertial": 0.294,
+    "self_inertia": 0.0,
+    "coriolis": 0.133,
+    "grav": 0.02,
+    "contact": 0.0,
+    "u_req": 0.443
+   }
+  }
+ },
+ "squat_q2=1.2": {
+  "payload=0.0kg": {
+   "q1": -0.6,
+   "u_hip_knee": [
+    -0.06,
+    -0.411
+   ],
+   "null_dir_per_N": [
+    -0.0367,
+    -0.0275
+   ]
+  },
+  "payload=1.0kg": {
+   "q1": -0.6,
+   "u_hip_knee": [
+    -0.06,
+    -0.595
+   ],
+   "null_dir_per_N": [
+    -0.0367,
+    -0.0275
+   ]
+  },
+  "payload=2.0kg": {
+   "q1": -0.6,
+   "u_hip_knee": [
+    -0.06,
+    -0.78
+   ],
+   "null_dir_per_N": [
+    -0.0367,
+    -0.0275
+   ]
+  },
+  "payload=3.0kg": {
+   "q1": -0.6,
+   "u_hip_knee": [
+    -0.06,
+    -0.965
+   ],
+   "null_dir_per_N": [
+    -0.0367,
+    -0.0275
+   ]
+  }
+ },
+ "landing": {
+  "h=0.05m": {
+   "peak_5ms": [
+    1.21,
+    1.21
+   ],
+   "peak_20ms": [
+    1.06,
+    1.07
+   ]
+  },
+  "h=0.1m": {
+   "peak_5ms": [
+    1.96,
+    1.45
+   ],
+   "peak_20ms": [
+    1.39,
+    1.1
+   ]
+  },
+  "h=0.15m": {
+   "peak_5ms": [
+    2.73,
+    1.75
+   ],
+   "peak_20ms": [
+    1.21,
+    1.08
+   ]
+  }
+ },
+ "null_mode": {
+  "consistent_pure_I": [
+   0.0,
+   0.0
+  ],
+  "inconsistent_0.02rad_pure_I": [
+   -1.6007999999999982,
+   -3.2000000000000033
+  ],
+  "inconsistent_0.02rad_leak_0.48s": [
+   -0.3780846890602488,
+   -0.3839084969900392
+  ]
+ }
+}

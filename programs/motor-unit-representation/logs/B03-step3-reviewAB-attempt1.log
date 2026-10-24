@@ -1,0 +1,25 @@
+I wrote the blind review to `packets/B03/reviews/review-A-on-B.md`, with all five required sections. I read only the charter, the brief and Proposal B. Anything that rests on the baseline documents or the B01/B02 decisions is marked unverified.
+
+**Overall:** Proposal B breaks no hard constraint and fabricates no numbers. Its math checks out where I tested it, including the 144-group counterexample, the effective-rank lower bound and the weighted estimator. But two flaws on the highest-weighted rubric dimensions mean its main pass/fail gates can't all pass together.
+
+**CRITICAL-1 (SVD analysis, 30%):** The proposal measures successor error against one reference distribution pooled over all 144 configurations, and it keeps link length in the target. A rigid link's tip always stays at distance `L` from the joint. So configurations with different lengths can never reach each other's outcomes, and their operators don't overlap at all.
+- I proved that with `G` distinct lengths, the worst-group error is at least `sqrt(1 − 16/G)`. With 36 geometries that is about 0.745, so the `< 0.20` successor gate cannot pass.
+- The one way out is a dictionary too coarse to tell lengths apart, and then the gate no longer tests length.
+- **Fix:** measure each configuration against its own outcome distribution.
+
+**CRITICAL-2 (Audit #7, 25%; tip preservation, 25%):** The recommended penalty pushes every configuration's second moment toward the identity. I proved that this target makes linear (affine) decoding of length and tip position, velocity and acceleration impossible. So it works against the proposal's own decoding gates and the brief's goal of keeping tip information.
+- **Fix:** replace it with a minimum-rank penalty, which the proposal's own effective-rank bound already supports.
+
+**Major issues:**
+- The successor confidence bounds come from a bootstrap over only 2 source states per cell, which is degenerate.
+- The fixed reference policy depends on `z` only through `z_1`, so it exercises one latent dimension.
+- The conditional penalty reaches each configuration only about 83 times, and the weighting machinery is redundant given a direct sampler the proposal already requires.
+- The decoding thresholds are absolute, which makes them lenient for short links and strict for long ones.
+- The time scaling is a global unit change, not a per-configuration nondimensionalization.
+
+**C-B03-B-01:** I recommend accepting it as a Grade 1 mathematical counterexample, with three amendments:
+- Its premise (groups the encoder can tell apart) is actually met in V3, because `||p||` identifies the geometry exactly.
+- A measurable overlap condition between distributions would give a partial certificate (about 0.735 overlap needed for rank 12), and the claim should say so.
+- It justifies requiring per-configuration gates, not the identity-target training penalty.
+
+The rejected global-whitening alternative is rejected for sound reasons, but the review notes two gaps. Rejecting per-configuration whitening while adopting the same identity target as a penalty is inconsistent. A minimum-rank penalty, the obvious competing option, was never considered.

@@ -1,0 +1,29 @@
+I've written the proposal to `packets/B03/drafts/A/proposal.md`. It has all six required sections, keeps d_z=16, and adds no deployed parameters, so the budget stays at 281,617. I read only the frozen context files you listed plus non-draft repo files (the claim-grade rules, B01's claim-table format, and the existing B03 spike script). I did not open anything under `drafts/` except my own directory. No spike has been run: every number in the proposal is either derived exactly or comes from small FP64 calculations, and each is labeled as such.
+
+**Main argument**
+- **The rank-16 bound is real, but the baseline's answer to it doesn't work.** I generalize the √(1−16/144) ≈ 0.943 figure into an exact bound that depends only on how outcome patterns overlap across configurations.
+  - Conditioning F and π on geometry has zero effect on it.
+  - In raw g13, the tip position always has length exactly L_D, so links of different lengths never share an outcome. Under V3's pooled sampling for the loss, that forces an average successor error of at least ≈0.745 (36 link lengths × 4 strokes). This holds for any B architecture and any rescaling of g13, so H3's < 0.20 target can't be reached as V3 is currently specified. This is claim `C-B03-A-01` (Grade 1).
+- **The fix is per-configuration sampling.** If the FB loss draws its comparison samples from the same configuration, the bound falls away. FB theory then requires each configuration's B covariance to be the identity. So stratified orthonormalization is required by the objective, not just a patch for Audit Issue #7.
+- **Per-configuration effective rank:**
+  - Because B's outputs lie on a sphere, the per-configuration orthonormality loss converts exactly into the participation ratio (a conservative effective-rank measure).
+  - Global orthonormality only guarantees a rank of at least 16 × the configuration's share, which is meaningless at 1/144. This is `C-B03-A-02` (Grade 1).
+  - Inverse-probability weighting fixes quota drift during warm-up, but not the scale differences between short and long links. In an idealized model, a shared output layer can't push the worst configuration above about 10.8 (10.76 when 8 of the 16 directions follow tip size).
+- **Nondimensionalization (option c):**
+  - It is a parameter-free, exactly invertible change of coordinates inside B. It writes the link-length ratio into the v_z slot, which is always zero, so no tip or lever-arm information is lost.
+  - Dividing by L_D alone can make spread across configurations worse: 50× against 18× for raw g13 in my synthetic test. So the time-scaling exponent κ is chosen from warm-up data under a pre-registered rule.
+  - Whether this step is actually needed is `C-B03-A-03` (Grade 2), which the spike can falsify.
+- **Recommended design** combines per-configuration sampling, per-configuration weighted orthonormalization with a floor that kicks in below rank 13, and the coordinate change.
+- **Rejected alternative:** whitening each configuration's output after training. It costs 136 extra deployed parameters, makes noisy directions look like real rank, and doesn't touch the bound.
+- **Spike:** a CPU run on a reduced physics stand-in with 9 arms (including negative and anti-gaming controls) and 3 seeds each, about 11 CPU-hours. Gates:
+  - effective rank ≥ 12/16 for every configuration, including 32 held-out ones;
+  - worst-configuration successor error ≤ 0.20 to pass, ≤ 0.30 for partial;
+  - a check that the theorem holds on the measured runs;
+  - decoding of tip quantities on unseen link lengths;
+  - fixed decision rules for each outcome.
+
+**Things you should know**
+- The existing `gpu_experiments/run_b03_rank16_erank_spike.py` doesn't test the problem: it draws tip vectors as random noise unrelated to the joint angle. The proposal says it must not be used as evidence and specifies a replacement script.
+- By my arithmetic, the stated B architecture has 70,800 parameters, not 74,000. The proposal flags this but doesn't change anything, since the design doesn't alter the count.
+- Sampling per configuration slightly changes how blend-mode weights are interpreted. Goal mode is unaffected. This is disclosed for B04 to evaluate.
+EXIT_A=0

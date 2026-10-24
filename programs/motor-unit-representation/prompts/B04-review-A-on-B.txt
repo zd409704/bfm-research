@@ -1,0 +1,17 @@
+You are Blind Reviewer A on Packet B04 of the research program at `/srv/claude/research/motor-unit-representation`.
+
+Read the following frozen context and candidate files:
+1. `/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/motor-unit-representation/packets/B04/brief.md`
+3. `/srv/claude/research/motor-unit-representation/packets/B04/proposals/B.md`
+
+Isolation Rules:
+- Do NOT read any other file in `reviews/` or `drafts/`.
+- Write your complete blind review to `/srv/claude/research/motor-unit-representation/packets/B04/reviews/review-A-on-B.md`.
+
+Required Sections:
+1. `# Blind Review A on Proposal B (Packet B04)`
+2. `## 1. Gate & Hard-Constraint Audit`
+3. `## 2. Rubric-Keyed Technical Objections` keyed to brief.md rubric ([CRITICAL]/[MAJOR]/[MINOR])
+4. `## 3. Audit of Rejected Alternative & Necessity Claim` (`C-B04-B-01`)
+5. `## 4. Spike Protocol Critique`

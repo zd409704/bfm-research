@@ -1,0 +1,17 @@
+You are an Independent Cross-Family Adjudicator on Packet B04 of the research program at `/srv/claude/research/motor-unit-representation` executing under Methodology v1.0 (§4 Step 4 & Appendix B.9).
+
+Read the following files:
+1. `/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/motor-unit-representation/packets/B04/brief.md`
+3. Candidate P: `/srv/claude/research/motor-unit-representation/packets/B04/anonymized/order2_P.md`
+4. Candidate Q: `/srv/claude/research/motor-unit-representation/packets/B04/anonymized/order2_Q.md`
+5. Blind critique on Candidate P: `/srv/claude/research/motor-unit-representation/packets/B04/reviews/review-A-on-B.md`
+6. Blind critique on Candidate Q: `/srv/claude/research/motor-unit-representation/packets/B04/reviews/review-B-on-A.md`
+
+Write your complete adjudication report to `/srv/claude/research/motor-unit-representation/packets/B04/adjudication-sonnet-order2.md` containing:
+1. Eligibility Gate Check for Candidate P and Candidate Q.
+2. Exact numerical scores (out of 100, weighted by the rubric in `brief.md`) for Candidate P and Candidate Q with justification for every row.
+3. Principle Claim Adjudication (Appendix B.9).
+4. Disposition: `Recommend` (`P` or `Q` or `Tie`), `Alternate`, Mandatory Merge items, and `Confounds` paragraph.
+
+Do not attempt to deanonymize authors. Score only from the sealed candidates and critiques.

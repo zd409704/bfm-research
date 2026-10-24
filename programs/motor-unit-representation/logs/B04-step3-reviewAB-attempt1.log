@@ -1,0 +1,16 @@
+I've written the blind review to `packets/B04/reviews/review-A-on-B.md`. My overall verdict is that Proposal B's dynamics are correct, but the benchmark it specifies can't be run as written: at nominal parameters the robot can't hold most of the poses the tasks ask for. I gave it an indicative score of about 64/100.
+
+I re-derived all the math and recomputed the numbers with a small script. Every parameter count and dimension in Proposal B checks out. I read only the three files you named, so anything that rests on the baseline documents is marked as unverified rather than wrong.
+
+**Main findings:**
+- **Stance is beyond actuator capacity [CRITICAL].** Using the proposal's own equations, I calculated the knee effort needed just to stand still. At the 0.60 m reset pose it is 0.97 of capacity (the static-hold ceiling inherited from packet B02 is 0.92), 1.06 at 0.55 m, 1.14 at 0.50 m and 1.21 at the 0.45 m squat. The proposal breaks its own 0.92 rule, so the squat, hop and landing tasks are all infeasible. Standing only drops under 0.92 above about 0.62 m, or with a much lighter carriage (0.5 kg instead of 2 kg).
+- **The payload does nothing in stance [CRITICAL].** The payload sits on the foot, which is the contact point, so its weight goes straight into the ground. The joint torques come out identical with and without it, so the "payload squat" never varies the sustained load.
+- **The transfer grid mostly tests saturation [CRITICAL].** Only 1 of the 9 leg-length × knee-capacity cells can statically hold the 0.45 m squat. The pass rule for transfer also isn't compared against the raw-torque baseline, and it averages over cells, which can hide a failed one.
+- **The support test can't pass even when it should [MAJOR].** With about 20 episodes per bin, the thresholds are tighter than sampling noise, so identical distributions would fail most of the time. That pushes every result towards INCONCLUSIVE.
+- **The comparison isn't quite even [MAJOR].**
+  - **Mode A:** its normalization turns the policy's starting noise into a random command direction every 20 ms, a handicap the raw-torque arm doesn't have.
+  - **Mode B:** its multi-start solver is discontinuous and needs roughly 4×10⁹ solves.
+- **Rejected alternative [MAJOR].** The proposal throws out a model-based feedforward option because it would use privileged information. That's wrong: the inertial, Coriolis and gravity terms can be computed from joint sensors every arm already has, so it is a fair extra arm. The feasibility control should also be a mandatory gate rather than optional.
+- **`C-B04-B-01` [MAJOR].** The algebra is correct, but it's close to a tautology and doesn't constrain any design choice. The proposed test breaks the claim's own equal-inertia premise, and its error tolerance is never specified. I recommend downgrading it to a supporting lemma or determinism check.
+
+The review closes with a six-item list of changes needed before acceptance.

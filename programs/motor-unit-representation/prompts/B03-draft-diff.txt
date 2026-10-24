@@ -1,0 +1,28 @@
+--- /srv/claude/research/motor-unit-representation/prompts/B03-draft-A.txt	2026-10-23 23:01:16.641255819 -0400
++++ /srv/claude/research/motor-unit-representation/prompts/B03-draft-B.txt	2026-10-23 23:01:16.661255942 -0400
+@@ -1,4 +1,4 @@
+-You are Primary Author A on Packet B03 of the research program at `/srv/claude/research/motor-unit-representation`.
++You are Primary Author B on Packet B03 of the research program at `/srv/claude/research/motor-unit-representation`.
+ 
+ Read the following frozen context files before writing your proposal:
+ 1. `/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md`
+@@ -10,15 +10,15 @@
+ 7. `/srv/claude/research/motor-unit-representation/packets/B02/decision.md` (if present; else skip)
+ 
+ Isolation & Firewall Rules:
+-- Do NOT read or list any directory under `packets/B03/drafts/` other than your own directory `/srv/claude/research/motor-unit-representation/packets/B03/drafts/A/`.
+-- Write your complete proposal to `/srv/claude/research/motor-unit-representation/packets/B03/drafts/A/proposal.md`.
++- Do NOT read or list any directory under `packets/B03/drafts/` other than your own directory `/srv/claude/research/motor-unit-representation/packets/B03/drafts/B/`.
++- Write your complete proposal to `/srv/claude/research/motor-unit-representation/packets/B03/drafts/B/proposal.md`.
+ 
+ Required Sections:
+-1. `# Proposal A (Packet B03): Rank-16 Bilinear Bottleneck Across 144 Morphology-Stroke Regimes and Orthonormalization Regularization`
++1. `# Proposal B (Packet B03): Rank-16 Bilinear Bottleneck Across 144 Morphology-Stroke Regimes and Orthonormalization Regularization`
+ 2. `## 1. Singular-Value Decomposition of the 144-Configuration Outcome Operator`
+ 3. `## 2. Stratified Orthonormalization & Nondimensionalization Proposal` comparing (a) global L_orth, (b) inverse-probability weighted L_orth, (c) nondimensionalized g13 + scale ratio
+ 4. `## 3. Serious Alternative Considered and Rejected`
+-5. `## 4. Candidate Necessity Claims` with `C-B03-A-01`
++5. `## 4. Candidate Necessity Claims` with `C-B03-B-01`
+ 6. `## 5. Pre-Registered Empirical Spike Protocol` with per-group erank >= 12/16 gates
+ 
+ Keep d_z=16 and deployed parameter budget 281,617 fixed.

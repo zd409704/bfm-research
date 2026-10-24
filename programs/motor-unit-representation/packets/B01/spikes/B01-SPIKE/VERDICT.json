@@ -1,0 +1,38 @@
+{
+  "experiment_id": "B01_PRIVILEGED_FUTURE_FORCE_JACOBIAN",
+  "device": "cpu",
+  "elapsed_sec": 1.1242,
+  "verdict": "PASS",
+  "gates": {
+    "G1_leak_ratio_ge_5": {
+      "value": 12.968399011094206,
+      "pass": true
+    },
+    "G2_causal_ratio_le_1": {
+      "value": 0.012455837395863633,
+      "pass": true
+    },
+    "G3_bellman_bias_reduction_ge_2x": {
+      "resid_leak": 0.7182393074035645,
+      "resid_causal": 0.07353747636079788,
+      "reduction": 9.766983352405113,
+      "pass": true
+    },
+    "G4_deployed_no_p": {
+      "pass": true
+    }
+  },
+  "jacobians": {
+    "leak_on": {
+      "ja": 0.04214831441640854,
+      "jf": 0.5465962886810303,
+      "ratio": 12.968399011094206
+    },
+    "leak_off": {
+      "ja": 6.715826034545898,
+      "jf": 0.08365123718976974,
+      "ratio": 0.012455837395863633
+    }
+  },
+  "notes": "Synthetic scaled p (32-D) preserves exogenous vs endogenous split of Groups 18-21; CPU-honest when CUDA absent."
+}

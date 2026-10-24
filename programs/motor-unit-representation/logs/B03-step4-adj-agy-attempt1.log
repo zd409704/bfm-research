@@ -1,0 +1,25 @@
+I have completed the independent cross-family adjudication for Packet B03 and written the full report to [adjudication-agy-order1.md](file:///srv/claude/research/motor-unit-representation/packets/B03/adjudication-agy-order1.md).
+
+### Summary of Adjudication
+
+1. **Eligibility Gate Check**: Both **Candidate P** ([order1_P.md](file:///srv/claude/research/motor-unit-representation/packets/B03/anonymized/order1_P.md)) and **Candidate Q** ([order1_Q.md](file:///srv/claude/research/motor-unit-representation/packets/B03/anonymized/order1_Q.md)) **PASS** all hard technical boundaries in [PROGRAM_CHARTER.md](file:///srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md) and constraints in [brief.md](file:///srv/claude/research/motor-unit-representation/packets/B03/brief.md) ($d_z = 16$, `281,617` deployed parameter budget with zero added deployed parameters, proprioceptive purity, single-step physical interpretability of $g_{13}$ via the $v_{\mathrm{tip},z} \equiv 0$ slot bijection, causal $p_{5065}$ forward inputs, zero fabricated coverage metrics, and separation of pipeline smoke runs from converged control).
+2. **Rubric-Weighted Scores**:
+   - **Candidate P**: **83.25 / 100**
+     - *Mathematical Analysis of Cross-Morphology SVD (30%)*: `86.0` (`25.80`)
+     - *Resolution of Audit Issue #7 (25%)*: `83.0` (`20.75`)
+     - *Preservation of Tip Kinematic Information (25%)*: `86.0` (`21.50`)
+     - *Spike Falsifiability (20%)*: `76.0` (`15.20`)
+   - **Candidate Q**: **75.75 / 100**
+     - *Mathematical Analysis of Cross-Morphology SVD (30%)*: `72.0` (`21.60`)
+     - *Resolution of Audit Issue #7 (25%)*: `81.0` (`20.25`)
+     - *Preservation of Tip Kinematic Information (25%)*: `74.0` (`18.50`)
+     - *Spike Falsifiability (20%)*: `77.0` (`15.40`)
+3. **Principle Claim Adjudication (Appendix B.9)**:
+   - **`C-B03-P-01` & `C-B03-Q-02`**: Accepted as a merged **Candidate (Grade 1 — Conditional Mathematical Impossibility Lemma)** establishing the $\sqrt{1 - \frac{1}{K}\sum_{j \in J_{16}} m_j} \approx 0.745$ pooled-reference rank-16 error floor across support-disjoint lever-arm shells, narrowed per [review-B-on-A.md](file:///srv/claude/research/motor-unit-representation/packets/B03/reviews/review-B-on-A.md) (`[M1, S1, S2]`).
+   - **`C-B03-P-02` & `C-B03-Q-01`**: Accepted as a merged **Candidate (Grade 1 — Exact Algebraic Identity & Counterexample)** establishing $\|\Sigma_B^{(k)} - I_{16}\|_F^2 = 256/\mathrm{PR}_k - 16$, $\operatorname{erank}_H(\Sigma_B^{(k)}) \ge \mathrm{PR}_k$, and the 144-group coordinate-axis collapse counterexample under pooled isotropy, refined per [review-B-on-A.md](file:///srv/claude/research/motor-unit-representation/packets/B03/reviews/review-B-on-A.md) (`[M4]`) and [review-A-on-B.md](file:///srv/claude/research/motor-unit-representation/packets/B03/reviews/review-A-on-B.md) (§3.2).
+   - **`C-B03-Q-03`**: Accepted as **Candidate (Grade 1 — Kinematic Injectivity Lemma)** proving the necessity of a recoverable scale carrier ($\lambda$ or $r_L$) when tip coordinates are divided by lever arm $\rho$.
+   - **`C-B03-P-03`**: Narrowed from a Grade-2 necessity claim to a **Testable Architectural Hypothesis** per [review-B-on-A.md](file:///srv/claude/research/motor-unit-representation/packets/B03/reviews/review-B-on-A.md) (`[M3]`).
+4. **Disposition**:
+   - **Recommend**: **`P`** (`+7.50` margin over the `5.0`-point tie threshold)
+   - **Alternate**: **`Q`**
+   - **Mandatory Merge Items & Confounds**: Detailed in §4 of [adjudication-agy-order1.md](file:///srv/claude/research/motor-unit-representation/packets/B03/adjudication-agy-order1.md#L112-L154).

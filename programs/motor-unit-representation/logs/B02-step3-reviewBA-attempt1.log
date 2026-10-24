@@ -1,0 +1,1379 @@
+Reading prompt from stdin...
+OpenAI Codex v0.163.0
+--------
+workdir: /srv/claude
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: high
+reasoning summaries: none
+session id: 01a16be4-4834-7492-a4a2-ac965502afa8
+--------
+user
+You are Blind Reviewer B on Packet B02 of the research program at `/srv/claude/research/motor-unit-representation`.
+
+Read the following frozen context and candidate files:
+1. `/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/motor-unit-representation/packets/B02/brief.md`
+3. `/srv/claude/research/motor-unit-representation/packets/B02/proposals/A.md`
+
+Isolation Rules:
+- Do NOT read any other file in `reviews/` or `drafts/`.
+- Write your complete blind review to `/srv/claude/research/motor-unit-representation/packets/B02/reviews/review-B-on-A.md`.
+
+Required Sections:
+1. `# Blind Review B on Proposal A (Packet B02)`
+2. `## 1. Gate & Hard-Constraint Audit`
+3. `## 2. Rubric-Keyed Technical Objections` keyed to brief.md rubric ([CRITICAL]/[MAJOR]/[MINOR])
+4. `## 3. Audit of Rejected Alternative & Necessity Claim` (`C-B02-A-01`)
+5. `## 4. Spike Protocol Critique`
+
+codex
+I’ll read the charter, packet brief, and Proposal A, then write the blind review without accessing other reviews or drafts.
+
+exec
+/bin/bash -lc "pwd; rg --files -g AGENTS.md -g '"'!research/**/reviews/**'"' -g '"'!research/**/drafts/**'"' /srv 2>/dev/null" in /srv/claude
+ exited 1 in 0ms:
+/srv/claude
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md /srv/claude/research/motor-unit-representation/packets/B02/brief.md /srv/claude/research/motor-unit-representation/packets/B02/proposals/A.md' in /srv/claude
+ succeeded in 0ms:
+# Program Charter: Single-Actuator Two-Link Local Behavioral Representation
+
+## 1. Mission Statement
+
+Establish a mathematically rigorous, physically causal, and empirically verified local behavioral representation for a single active rotary joint and its two adjacent links ($P$ and $D$), resolving the 9 open V3 audit defects, closing the `coverage_ready` multi-regime training gates (E0–E4), and defining a falsifiable protocol for composing frozen local motor representations into multi-joint limb controllers.
+
+---
+
+## 2. Hard Technical Boundaries
+
+1. **Deployment Proprioceptive Purity**: At deployment time, only the calibrated 137-D proprioceptive history $x_{137}$ and 13-D single-step outcome $g_{13}$ may be accessed by $\pi_\theta(x_{137}, z_{16})$ and $B_\omega(g_{13})$. No privileged force, contact, or environment solver fields from $p_{5065}$ may leak into deployed modules.
+2. **Causal Integrity of Privileged Forward Inputs**: Even during training, the privileged context $p_{5065}$ fed to $F_{\eta_1, \eta_2}(x_{137,t}, p_{5065,t}, a_t, z_{16})$ must represent the physical regime, active load/contact state, and historical disturbance generator state at time $t$—or explicitly separate exogenous environment schedule parameters from endogenous future robot reactions.
+3. **Zero Fabricated Coverage Metrics**: Coverage gates (`sustained_load_hold_count`, `post_load_recovery_count`, `limit_escape_rate`, `zero_vel_rmse`) must be computed on real physics rollouts across all 144 morphology/stroke configurations (`36` geometry seeds $\times$ `4` stroke profiles) and all 5 scene regimes (E0–E4).
+4. **Strict Separation of Short-Run Pipeline Verification vs Converged Control**: No document may claim that the 101-update V3 smoke run demonstrates converged motor control.
+
+---
+
+## 3. Core Falsifiable Hypotheses
+
+- **H1 (Causal Privileged Disambiguation)**: Replacing acausal future force lookahead in $p_{5065}$ with causal exogenous disturbance generator parameters + current/historical contact-force states preserves $> 95\%$ of $F$'s TD target explained variance while eliminating temporal causality violations.
+- **H2 (Synchronized E3/E4 Load-Hold and Rule Calibration)**: Synchronizing the step-level external load schedule with `E3_SUSTAINED_LOAD` / `E4_POST_LOAD_RECOVERY` labels and routing P0 warmup + rule-replay quotas through the inertia-scaled PD + static-bias + anti-windup rule controller drives `sustained_load_hold_count` and `post_load_recovery_count` past their minimum readiness gates and reduces $\dot{q}=0$ RMSE below `0.35 rad/s`.
+- **H3 (Rank-16 Cross-Morphology Factorizability)**: Although 144 completely orthogonal transition matrices would bound rank-16 Frobenius approximation error at $\sqrt{1 - 16/144} \approx 0.943$, conditioning $F(x_{137}, p_{5065}, a, z_{16})$ on explicit geometry/capacity features while keeping $g_{13}$ in normalized housing-frame coordinates allows a shared 16-D $B(g_{13})$ to achieve relative successor approximation error $< 0.20$ across all 144 configurations.
+- **H4 (Multi-Joint Composition Gain)**: An upper-level 2-DoF or 6-DoF limb controller commanding $z_{16}^{(k)}$ across coupled local V3 motor units achieves faster sample convergence under payload/link-length perturbations than a flat torque policy of equal parameter count, provided inter-joint coupling forces are represented inside each unit's E2/E3 training distribution.
+# Brief B02: E0–E4 Scene Synchronization, Inertia-Scaled Rule Calibration Wiring, and Coverage Gate Closure
+
+**Packet ID**: `B02`
+**Status**: `IN_PROGRESS`
+**Method Version**: v1.0 (`1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7`)
+**Inherited Ledger Snapshot**: `X-BASE-001`..`X-BASE-005`
+**Tie Margin**: `5.0` points out of `100.0`
+**Baseline References**: `baseline/02-v3-asymmetric-network-and-training-specification.md`, `baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md` (Audit Issues #1, #2, #3, #5, #6, #8)
+
+---
+
+## 1. Problem Statement
+
+In the V3 short-run verification ledger (`baseline/03`), `coverage_ready = false` because `sustained_load_hold_count = 0`, `post_load_recovery_count = 0`, and zero-velocity holding RMSE remains `5.89–13.88 rad/s`. Six interrelated engineering and algorithmic defects (Audit Issues #1, #2, #3, #5, #6, and #8) drive this failure:
+1. Step-level external torque generators are not synchronized with `E3_SUSTAINED_LOAD` ($\ge 25$ steps) and `E4_POST_LOAD_RECOVERY` scene labels (#1).
+2. The analytical `rule_calibration` controller (static gravity/load bias + inertia-scaled PD + anti-windup integral) is not wired into the P0 warmup collector or the `32,768` rule replay partition (#2).
+3. The $144 \times 5 = 720$-cell cross-coverage matrix (`configuration_group x scene_regime`) is not tracked as a hard gate (#3).
+4. The frozen $\dot{q}=0$ diagnostic panel injects moving targets rather than static holding targets (#5).
+5. Batch normalizers drift between the `32,768` rule partition and `65,536` policy partition (#6), and $\tanh$ saturation stalls actor recovery under high E3 loads (#8).
+
+**Core Question**: What exact synchronized state-machine specification for E0–E4 scene generators, `rule_calibration` rollout wiring, normalizer updating, and $144 \times 5$ cross-coverage accounting guarantees closure of all readiness gates within bounded CPU FP32 replay (`98,304` transitions)?
+
+---
+
+## 2. Hard Constraints & Non-Goals
+
+- Must strictly preserve the bounded CPU FP32 replay cap (`32,768` rule + `65,536` policy = `98,304` transitions, $\le 4.10\text{ GB}$ tensor memory).
+- Must cover all `144` morphology-stroke groups (`36` geometry seeds $\times$ `4` stroke profiles across $C_0 \in \{3, 6, 9\}\text{ N}\cdot\text{m}$).
+
+---
+
+## 3. Deliverables Required from Primary Authors
+
+1. **Synchronized E0–E4 Step-Level Generator Contract**: Specify deterministic episode-level and step-level torque/contact schedules for E0 (`20%`), E1 (`15%`), E2 (`20%`), E3 (`15%`), and E4 (`30%`) so that every E3 episode contains a guaranteed $\ge 25$-step sustained-load window and every E4 episode contains a guaranteed load-release transition and $\ge 20$-step recovery window.
+2. **Rule Calibration Wiring & Anti-Saturation Actor Loss**: Specify how `rule_calibration` populates the `32,768` rule buffer across all $720$ `(config, scene)` cells, how normalizer statistics are computed without rule/policy covariate shift, and how pre-activation penalty or target smoothing resolves $\tanh$ saturation (#8).
+3. **Frozen Static-Holding Evaluation Specification**: Define the exact static-equilibrium target vector $g_{13}^{\mathrm{hold}}(q^\star)$ and pass threshold ($\dot{q}=0$ RMSE $< 0.35\text{ rad/s}$ across E0, E3, E4).
+
+---
+
+## 4. Adjudication Rubric
+
+| Dimension | Weight | Scoring Standard |
+|---|---:|---|
+| Resolution of Audit Issues #1, #2, #3, #5, #6, #8 | 35% | Every listed defect has an exact, non-handwavy algorithmic and code-level fix. |
+| 720-Cell Cross-Coverage Guarantee | 25% | Guarantees minimum transition quota in every `(144 config x 5 scene)` cell. |
+| Memory & Compute Compliance | 20% | Stays strictly inside `98,304` transitions and `4.694 GB` peak RSS. |
+| Spike Falsifiability | 20% | Pre-registers exact pass criteria for `coverage_ready = true` and $\dot{q}=0$ RMSE. |
+# Proposal A (Packet B02): E0–E4 Scene Synchronization, Inertia-Scaled Rule Calibration Wiring, and Coverage Gate Closure
+
+**Packet ID**: `B02`
+**Author Slot**: Primary Author A
+**Method Version**: v1.0 (`1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7`)
+**Inherited Ledger Snapshot**: `X-BASE-001`..`X-BASE-005`, plus `D-B01-001` (causal `p_5065` partition, merged norms in `synthesis/B01-synthesis.md`)
+**Frozen Context Read**: `PROGRAM_CHARTER.md`, `packets/B02/brief.md`, `baseline/02`, `baseline/03`, `packets/B01/decision.md`, `synthesis/B01-synthesis.md`
+**Audit Issues Addressed**: #1, #2, #3, #5, #6, #8 (#4 is inherited as solved by `D-B01-001`; #7 and #9 are out of scope, but §2.4 notes a side effect on #7)
+**Status of Every Claim Below**: `Candidate` (Appendix B.4). Nothing in this draft is empirical evidence. §6 is a pre-registration, not a result. The only numbers computed while drafting are arithmetic checks (buffer residency, memory headroom, discrete PID eigenvalues, `tanh` derivatives). They are labelled as arithmetic wherever they appear.
+
+---
+
+## 0. Summary of Position
+
+1. **Issue #1 has one root cause: two independent samplers.** The scene label and the step-level torque generator are drawn separately, so they can disagree. The fix is a single pure function `make_program(run_seed, config_id, scene, ordinal) → SceneProgram`. It emits the label, the full open-loop `τ_ext[0:T]` array, the reference trajectory, the initial state and the declared event windows together. The environment only reads from the program. The label is a field of the program, not a separate draw. Episodes are never terminated early, so a declared window can't be truncated.
+2. **The episode clock is fixed at T = 64 control steps (1.28 s) for every scene, plus a 16-step unstored history pre-roll.** E3 has a plateau of ≥ 46 steps (≥ 25 required). E4 has a time-triggered release edge at `t_rel ∈ [24, 32]` and ≥ 30 quiet recovery steps (≥ 20 required). Release is time-triggered, never state-triggered, so all of Group 18 stays exogenous in the sense of `D-B01-001`.
+3. **Both replay partitions are slot-addressed by (config, scene) cell, not global FIFOs.** Each cell has a fixed capacity: rule `45/34/45/34/68` and policy `91/68/91/68/137` transitions per config for E0..E4. Every policy cell can hold at least one complete 64-step episode (minimum capacity 68 ≥ 64). The 720-cell minimum quota is therefore structural, not statistical. A global FIFO under i.i.d. scheduling leaves about 186 of 720 cells empty at any time (arithmetic, §4).
+4. **The rule partition can't store a complete episode for every cell**, because 32,768 / 64 = 512 < 720 (Claim `C-B02-A-01`). It stores declared windows of 34–45 transitions cut from complete rule rollouts. The windows are anchored to the program's event times, so every E3 rule window lies inside the load plateau and every E4 rule window contains the release edge plus ≥ 26 recovery steps.
+5. **Normalizers (#6)**: replay stores raw FP32. Statistics are recomputed exactly over the resident buffer with the sampling weights ρ (1/3 rule, 2/3 policy, scene quotas). Every refresh is applied through a function-preserving re-parameterization of each network's first linear layer. Both slices of every mini-batch see the same normalizer, and no refresh changes any network output.
+6. **Anti-saturation (#8)**: a pre-activation hinge penalty on `y` (with `a = tanh(y)`) beyond `y_max = 2.0` bounds gradient attenuation at `sech²(2.0) = 0.0707` instead of letting it go to zero. All E3/E4 load programs are built so the required static holding effort satisfies `|u*| ≤ 0.92 < tanh(2.0) = 0.964`, so the penalty never binds at a holding optimum (Claim `C-B02-A-02`).
+7. **Static-holding panel (#5)**: z is constant per episode, `z_hold(q*) = B_ω(N_g(g13_hold(q*)))`, and no reference generator runs during evaluation. RMSE is computed on simulator-truth `q̇` over fixed scoring windows, separately for E0, E3 and E4, and each must be < 0.35 rad/s. The rule controller must pass the same panel at < 0.10 rad/s as a positive control, otherwise the panel itself is invalid.
+8. **Cross-coverage (#3)**: `cross_coverage_144_x_5` is a 720-record JSON matrix. Its event counts are computed from simulator readbacks (applied external torque and contact torque), not from labels. `coverage_ready` is the AND of all per-cell gates, a zero `scene_sync_violation_count`, and a passing evaluator negative control.
+
+---
+
+## 1. Synchronized E0–E4 Step-Level Generator Contract
+
+### 1.1 Plant convention and timing
+
+Control step Δt = 20 ms with four 5 ms physics substeps and zero-order hold on `u_clip,t` over `[t, t+1)`. The joint equation used for the schedule definitions (simulator ground truth) is
+
+$$
+J\,\ddot q \;=\; S_{\max}\,u_{\mathrm{clip}} \;+\; \tau_g(q) \;+\; \tau_{\mathrm{ext}} \;-\; b\,\dot q \;-\; \tau_c\,\mathrm{sgn}(\dot q) \;+\; \tau_{\mathrm{stop}} \;+\; \tau_{\mathrm{contact}},
+\qquad S_{\max} = 1.25\,C_0 .
+$$
+
+The static holding effort at target `q*` under external torque `τ_ext` is
+
+$$
+u^\star(q^\star,\tau_{\mathrm{ext}}) \;=\; -\,\frac{\tau_g(q^\star) + \tau_{\mathrm{ext}}}{S_{\max}}\qquad(\text{ignoring stiction, which only helps}).
+$$
+
+`τ_ext[t]` is held constant across all four substeps of step `t` and is written to the simulator before substep 1. Every load edge therefore falls exactly on a control boundary.
+
+### 1.2 The `SceneProgram` object (single source of truth)
+
+```text
+SceneProgram (frozen, immutable):
+  config_id ∈ [0,144)   scene ∈ {E0..E4}   ordinal n ∈ ℕ   domain ∈ {TRAIN_RULE, TRAIN_POLICY, PANEL}
+  T = 64, T_pre = 16
+  q0, qd0                                  # initial state at end of pre-roll
+  q_ref[0:T], qd_ref[0:T]                  # used by rule controller and z_hold episodes only
+  tau_ext[0:T]                             # open-loop external torque (N·m), exogenous
+  obstacle: {q_obs, side, k_c, zeta_c, e_rest} | None     # E2 only
+  mode, t_on, t_rel, plateau_level, impulse  # generator parameters → Group 18 timers/modes
+  windows: {hold:[a,b), sustain:[a,b), release_edge:t_rel, recovery:[a,b),
+            contact_phase:[a,b), escape_cmd_onset:t, rule_insert:[a,b)}
+  kappa                                    # rule feedforward flag (§2.1)
+make_program(run_seed, config_id, scene, n, domain) -> SceneProgram   # pure function
+```
+
+* **Randomness**: Philox-4x32 counter RNG keyed by `(run_seed, domain, config_id, scene, n, draw_index)`. No global RNG state is consumed. A program is reproducible from its 4-tuple key, so the replay sidecar stores only the key (§2.6) and checkpoint/resume parity (`resume_diff_norm = 0.0`) is preserved: the scheduler pointer is the only collector state.
+* **Feasibility redraw**: if a drawn `q*` violates a feasibility precondition (below), `make_program` redraws with `draw_index += 1`, up to 16 attempts, and otherwise raises `ProgramInfeasible(config_id, scene)`. The cell is marked `infeasible` in the coverage ledger, which forces `coverage_ready = false`; nothing is dropped silently. The redraw depends only on exogenous parameters. It is not rejection on rollout outcomes.
+* **Self-check at reset (fail-closed)**: `env.reset(program)` evaluates the window predicates of §1.5 on the program arrays themselves and raises on any violation.
+* **No early termination**: episodes run all 64 steps. Stop contact, saturation or large velocity never terminate an episode. Only a NaN or solver failure terminates, in which case the episode is tagged `invalid`, its inserted transitions are rolled back slot-for-slot (§2.6), and the cell is re-collected with `n+1`. `invalid_episode_count` is a ledger field.
+* **Pre-roll** (`t = −16..−1`, not stored, not counted): the joint is kinematically locked at `q0` and `τ_ext = τ_ext[0]`. The behaviour controller (rule or policy) runs, so the 160 ms fast and 320 ms slow windows of `x137` are valid at `t = 0`. The lock is released at `t = 0`.
+* **Group 18 exogenous carriers** (compatible with `D-B01-001`): `scene one-hot`, `mode`, `t − t_on`, `t_rel − t` (clipped at 0), `plateau_level / S_max`, `impulse flag` and `impulse amplitude`. All of them are functions of `(program, t)` only. Because the release is time-triggered, there are no state-triggered release counters in this design.
+
+Common draws (all uniform on the stated range via Philox unless stated otherwise):
+
+* `q*` ∈ `[q_min + 0.15 Δq, q_max − 0.15 Δq]`.
+* **Feasibility precondition F1**: `|u*(q*, 0)| = |τ_g(q*)| / S_max ≤ 0.70`. This leaves load headroom for E3/E4.
+* **Load magnitude** is drawn as a target holding effort, not a raw torque. Draw sign `σ ∈ {+1, −1}` (`σ = +1` if `n mod 2 = 0`) and magnitude `m` from the scene bin, then set `τ_ext = −σ m S_max − τ_g(q*)`. If `|τ_ext| < 0.15 S_max`, flip `σ`. This gives `|τ_ext| ≥ 2m S_max − 0.15 S_max ≥ 0.25 S_max` for `m ≥ 0.2`. By construction `|u*| = m ≤ 0.92`, which is the feasibility margin used by §2.5.
+
+### 1.3 Episode-level allocation (exact scene quotas)
+
+Per configuration, scenes are allocated in **20-episode rounds**: E0 ×4, E1 ×3, E2 ×4, E3 ×3, E4 ×6, which is exactly 20/15/20/15/30 %. A global round is 144 × 20 = 2,880 episodes, ordered by a fixed low-discrepancy interleave. The episode at round position `j` is the `j`-th entry of a van der Corput permutation of the 2,880 `(config, scene, k)` tuples, so each cell's episodes are spread evenly through the round. Under slot addressing (§2.6) this ordering is not required for correctness. It only equalizes data age across cells. The policy-episode ordinal for cell `(c, s)` is a monotone counter `n_{c,s}`.
+
+### 1.4 Step-level schedules (T = 64; indices are control steps; ranges half-open)
+
+**E0 `FREE_SPACE_NOMINAL`** (`τ_ext ≡ 0`, no obstacle)
+
+* `n mod 4 = 0` (**pure hold**): `q_ref ≡ q*`, `q0 = q* + δ` with `δ ∈ [−0.05, 0.05]` rad. `windows.hold = [12, 64)`.
+* Otherwise (**hold–move–hold**): `q_ref = q*₁` on `[0, 24)`, min-jerk to `q*₂` on `[24, 40)`, `q*₂` on `[40, 64)`, with `|q*₂ − q*₁| ≥ 0.2 Δq`. `windows.hold = [12, 24) ∪ [48, 64)`.
+* `windows.rule_insert = [10, 55)` (45 transitions).
+
+**E1 `BOUNDARY_LIMIT_ESCAPE`** (`τ_ext ≡ 0`)
+
+* Stop side alternates with `n`. `q0` is placed so that the stop margin is `d ∈ [0, 0.04]` (schema units of `d_min`/`d_max`, so `< 0.05` always holds).
+* `n mod 3 = 0` (**press-then-escape**): outward `q_ref` 0.05 rad beyond the stop on `[0, 16)`, then inward `q_ref = stop ± 0.30 Δq` (min-jerk over 8 steps) on `[16, 64)`. `escape_cmd_onset = 16`.
+* Otherwise (**escape**): the inward command starts at `0`. `escape_cmd_onset = 0`.
+* **Escape event** (physics-verified): within 25 steps of `escape_cmd_onset`, the true margin exceeds 0.10 and does not fall back below 0.01 before `t = 64`.
+* `windows.rule_insert = [escape_cmd_onset, escape_cmd_onset + 34)` (34 transitions; ends ≤ 50).
+
+**E2 `COMPLIANT_AND_RIGID_CONTACT`** (`τ_ext ≡ 0`)
+
+* `q_obs ∈ [q_min + 0.3 Δq, q_max − 0.3 Δq]`, approach side alternating.
+* Stiffness bin `n mod 3`: compliant `k_c ∈ [10, 100]`, medium `[100, 1000]`, rigid `[1000, 10000]` N·m/rad (log-uniform), with `ζ_c ∈ [0.1, 1.0]` and restitution `e ∈ [0, 0.5]`.
+* `q0 = q_obs ∓ 0.25 Δq` (free side). `q_ref`: hold `q0` on `[0, 8)`, min-jerk to `q_obs ± 0.10` rad (0.10 rad into the surface) on `[8, 24)`, hold on `[24, 48)`, min-jerk back to `q0` on `[48, 64)`. `contact_phase = [24, 48)`.
+* **Contact event**: `|τ_contact| ≥ 0.05 S_max` for ≥ 5 consecutive steps inside `[16, 48)`.
+* `windows.rule_insert = [6, 51)` (45 transitions).
+
+**E3 `SUSTAINED_EXTERNAL_LOAD`**
+
+* `q_ref ≡ q*`, `q0 = q*`.
+* Magnitude bin `n mod 3`: low `m ∈ [0.2, 0.5]`, mid `[0.5, 0.8]`, high `[0.8, 0.92]`. The high bin exercises #8.
+* `t_on ∈ {6, …, 10}`. Onset mode `n mod 2`:
+  * **step-on**: `τ_ext = 0` on `[0, t_on)` and `τ_L` on `[t_on, 64)`. Plateau start `p₀ = t_on`.
+  * **ramp-on**: linear `0 → τ_L` on `[t_on, t_on + 8)`, then `τ_L`. Plateau start `p₀ = t_on + 8 ≤ 18`.
+* Optional plateau drift for `n mod 4 = 3`: `τ_ext[t] = τ_L + β (t − p₀)` with `|β| ≤ 0.002 S_max`/step, keeping `|τ_ext|` within the effort bound `|u*| ≤ 0.92`. Per-step change ≤ 0.002 S_max, which is far below the 0.02 S_max edge threshold.
+* **The load is never released in E3.** Release belongs to E4, so the two regimes can't alias.
+* `windows.sustain = [p₀, 64)`, length **≥ 46 ≥ 25**. `windows.rule_insert = [p₀ + 4, p₀ + 38)` (34 transitions, ends ≤ 56). It starts 4 steps after plateau onset to skip the onset transient.
+
+**E4 `POST_LOAD_IMPULSE_RECOVERY`**
+
+* `q_ref ≡ q*`, `q0 = q*`, `m ∈ [0.3, 0.85]`. Step-on at `t = 4`: `τ_ext = τ_L` on `[4, t_rel)` with `t_rel ∈ {24, …, 32}`. The loaded phase is ≥ 20 steps.
+* **Release edge at `t_rel` (every E4 episode)**: `τ_ext[t_rel − 1] = τ_L` and `τ_ext[t] = 0` for `t ≥ t_rel`, except as follows.
+  * Variant `n mod 3 ∈ {0, 1}` (**R**, pure release): no further changes.
+  * Variant `n mod 3 = 2` (**RI**, release + counter-impulse): `τ_ext = −sgn(τ_L) ι S_max` on `[t_rel, t_rel + 2)` with `ι ∈ [0.3, 0.6]`, then 0.
+* `windows.recovery = [t_rel + r₀, 64)` with `r₀ = 0` (R) or `2` (RI). Length **≥ 64 − 34 = 30 ≥ 20**.
+* `windows.rule_insert = [t_rel − 6, t_rel + 28)` (34 transitions, ends ≤ 60): 6 loaded steps, the edge, then ≥ 26 quiet recovery steps.
+
+### 1.5 Window predicates (enforced twice: on the program at reset, and on simulator readback after rollout)
+
+All thresholds are in units of the config's `S_max`. `τ̃_t` is the external torque read back from the simulator's applied-force channel at step `t`, never the program array.
+
+| Event | Predicate (physics readback) | Required |
+|---|---|---|
+| Sustained load (E3) | `∀t ∈ W: |τ̃_t| ≥ 0.15` and `|τ̃_t − τ̃_{t−1}| ≤ 0.02`, with `W` contiguous | `|W| ≥ 25` |
+| Release edge (E4) | `|τ̃_{t_rel−1}| ≥ 0.15` and `|τ̃_{t_rel}| ≤ 0.01` (R), or the sign flips with a drop ≥ 0.15 (RI) | exactly 1 |
+| Recovery (E4) | `∀t ∈ W: |τ̃_t| ≤ 0.01`, `W` immediately follows the edge (or the impulse), constant `q_ref`, no contact | `|W| ≥ 20` |
+| Contact (E2) | `|τ_contact| ≥ 0.05` for ≥ 5 consecutive steps | ≥ 1 |
+| Stop-proximal start (E1) | true margin `< 0.05` at `t = 0` | yes |
+| Cross-regime exclusion | E0/E1/E2: `max |τ̃| ≤ 0.01`; E3: no release edge; E0/E1/E3/E4: no contact torque | yes |
+
+**`scene_sync_violation_count`** is the number of episodes whose readback predicates disagree with their label, in any direction (for example a label of E3 with a broken plateau, or a label of E0 with load present). It must be 0. Each episode contributes **at most one** count per event type. Overlapping sliding windows are never counted multiple times, which closes the "sliding window inflation" route to fabricated counts.
+
+**This resolves #1.** Label, torque schedule and windows come from one pure function. The predicates are checked on the program before rollout and on physics after rollout. Because E3/E4 episodes are never terminated early, the declared windows are guaranteed to be present in the physics regardless of what the behaviour policy does: the torque is open-loop and exogenous, and the policy can't remove it.
+
+### 1.6 Evaluation programs (resolves the generator half of #5)
+
+The frozen panel uses the same `make_program` with `domain = PANEL`. Panel keys are disjoint from every training key, and no reference generator runs: `q_ref` and `qd_ref` are not passed to the policy, which sees only the constant `z_hold(q*)` (§3.1). The panel scene programs are specified in §3.2.
+
+---
+
+## 2. Rule Calibration Wiring, Normalizer Contract, and Anti-Saturation Actor Loss
+
+### 2.1 Exact `rule_calibration` law
+
+$$
+\begin{aligned}
+e_t &= q_{\mathrm{ref},t} - q_{c,t}, \qquad \dot e_t = \dot q_{\mathrm{ref},t} - \dot q_{c,t},\\
+\hat\tau_{\mathrm{bias},t} &= -\bigl(\hat\tau_g(q_{c,t}) + \kappa\,\tau_{\mathrm{ext},t-1}\bigr),\\
+v_t &= \frac{\hat\tau_{\mathrm{bias},t} + J_{\mathrm{nom}}\bigl(k_p e_t + k_d \dot e_t\bigr) + \tau_{I,t}}{S_{\max}},\qquad
+u_{\mathrm{rule},t} = \operatorname{clip}\bigl(v_t + \varepsilon_t,\,-1,\,1\bigr),\\
+\tau_{I,t+1} &= \operatorname{clip}\Bigl(\tau_{I,t} + \mathbb 1[\neg\mathrm{freeze}_t]\, J_{\mathrm{nom}}\,k_i\, e_t\,\Delta t,\; -0.6\,S_{\max},\; 0.6\,S_{\max}\Bigr),\\
+\mathrm{freeze}_t &= \bigl(|v_t| \ge 1 \wedge \mathrm{sgn}(e_t) = \mathrm{sgn}(v_t)\bigr) \vee d_{\min,t} < 0.05 \vee d_{\max,t} < 0.05 \vee \mathrm{contact}_t .
+\end{aligned}
+$$
+
+* `J_nom = I_{D,zz} + n_g² J_rotor` comes from the config's nominal descriptor (Groups 7–12). `τ̂_g` is the nominal gravity model. The rule is a **training-time behaviour policy**: it may read privileged nominal plant data and `contact_t`, and it is never exported. The tripwire is that the deployment-export test asserts no `rule_calibration` symbol is reachable from the exported graph.
+* Gains: closed-loop natural frequency `ω_n = 15 rad/s`, `ζ = 0.9`, which gives `k_p = 225 s⁻²` and `k_d = 27 s⁻¹`. The integral pole is at `ω_n/5`, so `k_i = ω_n³/5 = 675 s⁻³`. Arithmetic check on the inertia-normalized double integrator with 20 ms ZOH: the max closed-loop eigenvalue modulus is **0.898** with no delay and **0.902** with a one-step compute delay, so it is stable with margin. The inertia scaling makes this bandwidth identical across all 36 geometry seeds, up to the nominal-vs-true inertia mismatch.
+* Feedforward flag `κ`: `κ = 1` (one-step-delayed, observer-like) in E3, which produces genuine equilibrium anchors. `κ = 0` in E4, so the integral has absorbed `τ_L` before release and the release produces a real wound-integrator recovery transient. A κ = 1 controller would cancel the release instantly and leave nothing to learn. `τ_ext = 0` in E0–E2 makes κ irrelevant there.
+* Exploration `ε_t ~ N(0, σ²)`: `σ = 0.01` inside `windows.hold`, `windows.sustain` and `windows.recovery`, and `σ = 0.05` elsewhere. Action diversity for F comes mainly from the policy partition. The rule partition's job is anchors.
+* `τ_I` is reset to 0 at the start of the pre-roll. Because the controller acts during the lock, the integral has already absorbed any `τ̂_g` model error by `t = 0`.
+
+### 2.2 Wiring into P0 and the rule partition (resolves #2)
+
+Proposed module contract. The names are illustrative; the binding requirement is the behaviour, mapped onto the existing legacy-sampler call sites.
+
+```text
+collector.collect_episode(program, behavior)          # behavior ∈ {RULE, MIXED(β), POLICY}
+  RULE   -> rule_calibration.RuleController(cfg_descriptor).act(state_priv, program, t)
+  MIXED  -> clip((1-β)·u_rule + β·π(x137, z) + ε)
+  POLICY -> clip(π(x137, z) + ε_explore)
+  "legacy_pd" / open-loop sampler -> raise LegacyBehaviorForbidden   # tripwire
+ledger: rule_controller_impl_sha256, rule_gain_table (per config: J_nom, k_p, k_d, k_i)
+```
+
+**P0 is redefined as two deterministic phases**, replacing the 800-transition legacy warmup.
+
+* **P0-R (rule fill)**: for each of 144 configs, run 6 rule episodes (E0, E1, E2, E3, E4-R, E4-RI) with `domain = TRAIN_RULE` and ordinal 0. Each episode inserts only its `windows.rule_insert` into that cell's rule slots: 45 + 34 + 45 + 34 + (34 + 34) = **226 transitions per config, 32,544 in total**. The remaining **224 reserve slots** are filled by 7 extra episodes of 32-step windows from E3/E4 cells chosen by a rotating pointer over the 288 E3/E4 cells. Cost: (864 + 7) × 80 = 69,680 simulator steps.
+* **P0-M (mixed warm start of the policy partition)**: one episode per cell (720 episodes, 46,080 transitions), with `β` cycling over `{0.25, 0.5, 0.75, 1.0}` by ordinal and tagged `MIXED(β)`. Gradient updates begin after P0-M. Cost: 720 × 80 = 57,600 simulator steps.
+* **Rule partition refresh during training**: every 64 updates, one config (round-robin) re-runs its 6 rule episodes at `ordinal += 1`. The new transitions overwrite that config's slots **slot-for-slot in place** as they are produced, so the per-cell counts never change and no staging copy is allocated (§2.6). A full refresh cycle takes 144 × 64 = 9,216 updates. This diversifies `q*`, load bins and modes without breaking quotas.
+* **Rule validity gate per config (fail-closed)**: after P0-R, every config's E3 rule window must show `RMS(q̇) ≤ 0.10 rad/s` and `|q − q*| ≤ 0.02 rad`. If it doesn't, the config is flagged `rule_infeasible`, which blocks `coverage_ready`. Nothing is dropped.
+
+### 2.3 Policy-side holding episodes
+
+In online collection, 25 % of the E0, E3 and E4 policy episodes use `z = z_hold(q*_program)` (§3.1), computed at reset with the current `B_ω` and normalizer. The other 75 % use the baseline z sampler unchanged. This puts on-policy holding attempts in exactly the cells the holding gate scores, without touching the FB objective.
+
+### 2.4 Stratified mini-batch sampler
+
+Each update draws `B_mb` transitions. `B_mb` is inherited from the baseline; the example uses 512.
+
+1. Partition split `⌈B_mb/3⌋` rule and the rest policy. For `B_mb = 512` that is 171 / 341.
+2. Within each partition, split across scenes by 20/15/20/15/30 using largest-remainder rounding. The remainder bonus rotates across updates, so long-run proportions are exact. For 512 this gives rule `34/26/34/26/51` and policy `68/51/68/51/103`.
+3. Within each scene slice, pick configs by sampling without replacement over the 144 configs (reshuffled per epoch), then pick a uniform slot within the cell.
+
+Side effect on #7, not claimed as a resolution: realized batch scene proportions now match the nominal quotas exactly, so the quota-deviation premise of #7 no longer occurs once P0-M completes. Inverse-probability weighting remains the subject of another packet.
+
+### 2.5 Normalizer contract (resolves #6)
+
+1. **Replay stores raw FP32 values.** The layout is unchanged; only the semantics change if the legacy path stored normalized values. Normalization happens at batch time with one shared normalizer, so the rule and policy slices of a batch are always normalized identically.
+2. **Statistics are ρ-weighted buffer moments, not rollout-stream moments.** For each normalized input coordinate `j` (all of `x137`, `g13`, and the retained/replaced `p5065` slots),
+
+   $$
+   \mu_j = \sum_i w_i\, v_{ij},\qquad \sigma_j^2 = \sum_i w_i (v_{ij}-\mu_j)^2,\qquad
+   w_i = \frac{\rho_{\mathrm{part}(i)}\,\rho_{\mathrm{scene}(i)}}{144\; n_{\mathrm{cell}(i),\mathrm{part}(i)}},
+   $$
+
+   with `ρ_rule = 1/3`, `ρ_policy = 2/3` and `ρ_scene = (0.20, 0.15, 0.20, 0.15, 0.30)`. These are exactly the marginal weights of the §2.4 sampler, so the normalizer describes the distribution the networks are trained on.
+   * Accumulation is an exact two-pass FP64 computation over resident slots, in chunks of 256 rows (256 × 10,418 × 8 B ≈ 21 MB of scratch, which is no larger than one batch's existing working set).
+   * Floor: `σ_j ← max(σ_j, 10⁻³ · max(|μ_j|, 1))`.
+   * Categorical and one-hot fields, plus `a` and `z`, are passed through unnormalized.
+   * Slots masked by `D-B01-001` stay frozen at `(0, 1)` and are excluded from updates.
+3. **Cadence**: one refresh at the end of P0-M, then every `K_norm = 2,048` updates. Running per-step updates are removed entirely.
+4. **Function-preserving refresh.** For every first linear layer `y = W x̂ + b` consuming normalized input `x̂ = (x − μ)/σ`, in `π_θ`, `B_ω`, `F_{η1}`, `F_{η2}` and their target copies, a change `(μ, σ) → (μ', σ')` is applied as
+
+   $$
+   W' = W\,\mathrm{diag}(\sigma'/\sigma),\qquad b' = b + W\bigl((\mu'-\mu)/\sigma\bigr),
+   $$
+
+   which makes `W' x̂' + b' ≡ W x̂ + b` for all `x`. A downstream LayerNorm sees identical pre-activations. Adam moments of `W` are rescaled column-wise: `m` by `σ'/σ`, and `v` by `(σ'/σ)²`.
+
+   Consequence: **a normalizer refresh changes no network output.** Normalizer drift therefore can't create covariate shift on either slice. What remains is the genuine rule/policy difference in raw data, which the stratified sampler presents at fixed proportions by design.
+5. **Test hooks**: `norm_refresh_max_rel_output_change` must be ≤ 10⁻⁵ (FP32) on a fixed probe set of 1,024 rule and 1,024 policy transitions. `norm_stats_recompute_rel_err` (ledger stats versus an independent recomputation) must be ≤ 10⁻⁶.
+
+### 2.6 Slot-addressed replay and memory accounting
+
+* **Rule partition** has 32,768 slots: 144 configs × 226 per-cell slots (E0 45, E1 34, E2 45, E3 34, E4 68) = 32,544, plus 224 reserve slots.
+* **Policy partition** has 65,536 slots: 144 × 455 per-cell slots (E0 91, E1 68, E2 91, E3 68, E4 137) = 65,520, plus 16 reserve slots that are never sampled (they hold the in-flight write cursor for rollback).
+
+Each policy cell is a FIFO ring over its own slots. Because the minimum cell capacity is 68 ≥ T = 64, **the most recent complete episode of every policy cell is always resident**, so a full E3 plateau or a full E4 release + recovery is always in the buffer for every config.
+
+Per-scene shares of the combined buffer are E0 19.9 %, E1 15.0 %, E2 19.9 %, E3 15.0 % and E4 30.1 % of rule slots, and 20.0 %, 14.9 %, 20.0 %, 14.9 % and 30.1 % of policy slots.
+
+| Item | Size | Notes |
+|---|---:|---|
+| Replay tensors (98,304 × 41,677 B) | 4.0969 × 10⁹ B | Inherited. 41,677 B ≈ 10,419 FP32, consistent with `2·(137+5065) + 1 + 13 = 10,418` plus one flag (inferred, not read from code) |
+| Sidecar `uint8 config, uint8 scene, uint8 step, uint8 flags, uint32 ordinal` | 0.79 MB | 8 B/transition. Programs are regenerated from keys, never stored |
+| Normalizer FP64 sums (3 × 10,418 × 8 B) | 0.25 MB | |
+| Coverage ledger (720 × 16 int64) | 0.09 MB | |
+| Rule refresh staging | 0 | In-place slot-for-slot writes |
+| **Tensor total** | **≈ 4.0980 × 10⁹ B ≤ 4.10 × 10⁹ B** | Headroom before additions was 3.0 MB (30.5 B/transition). Additions use 1.13 MB |
+
+Peak RSS: no new long-lived allocation exceeds 1.2 MB. The normalizer pass (21 MB scratch) and the evaluation panel run between updates, using no more scratch than one batch. The peak must still be measured. §6 gates it at ≤ 4.694 × 10⁹ B and treats exceeding it as a hard failure.
+
+### 2.7 Anti-saturation actor loss (resolves #8)
+
+Write `a = tanh(y)`, where `y` is the actor's pre-activation. The actor loss becomes
+
+$$
+\mathcal L_\pi = -\,\mathbb E\!\left[\frac{F_{\min}(x_{137}, p_{5065}, \tanh y, z)^\top z}{\overline{|F^\top z|}}\right]
+\;+\; \lambda_{\mathrm{pre}}\;\mathbb E\bigl[\operatorname{relu}(|y| - y_{\max})^2\bigr],
+\qquad y_{\max} = 2.0,\ \lambda_{\mathrm{pre}} = 0.1 .
+$$
+
+* `F_min` is the baseline's existing twin-critic reduction (unchanged). `F^⊤z` is divided by its running mean absolute value (EMA 0.99), so `λ_pre` doesn't depend on the scale of `F`.
+* Per B01 counterfactual hygiene, `p5065` is held at its causal pre-action value while `a` varies.
+* **Gradient bound**: for `|y| ≤ y_max`, `|∂L/∂y| ≥ sech²(2.0) · |∂(F^⊤z)/∂a| = 0.0707 · |…|`, which is at most a 14× attenuation. Without the penalty, an actor drifting to `y = 5` sees `sech² = 1.8 × 10⁻⁴`, roughly 5,500×. Once `|y| > y_max`, the penalty contributes the restoring gradient `2λ_pre(|y| − y_max)` regardless of `F`'s slope.
+* **Non-binding at holding optima**: every E3/E4 program has `|u*| ≤ 0.92 = tanh(1.589) < tanh(2.0) = 0.964` (§1.2). Exact static holding is therefore always achievable inside the penalty-free region. The authority cost is 3.6 % of `S_max`, and it applies only when the true optimum is beyond 0.964, which never happens for holding in the training distribution.
+* **TD target smoothing (secondary)**: the next action in the Bellman target is `a' = clip(tanh(y') + clip(N(0, 0.1²), ±0.25), −1, 1)`. This regularizes `F` along `a` near the ±1 boundaries, where the rule partition supplies real data at `|u| ∈ [0.8, 0.92]`.
+* **Logged metrics**: `sat_frac = P(|y| > y_max)`, `sat_frac_E3_high`, and the actor's `|∂L/∂y|` on the E3-high probe set.
+
+---
+
+## 3. Frozen Static-Holding Evaluation and 720-Cell Cross-Coverage Gate
+
+### 3.1 Static target vector `g13_hold(q*)` (resolves the target half of #5)
+
+For the baseline 02 layout (L13-A):
+
+$$
+g_{13}^{\mathrm{hold}}(q^\star) = \bigl[\cos q^\star,\ \sin q^\star,\ 0,\ 0,\ p_{\mathrm{tip}}^M(q^\star),\ 0_3,\ 0_3\bigr],
+\qquad
+p_{\mathrm{tip}}^M(q^\star) = o_J^M + L_D\bigl(\cos q^\star\, e_1^M + \sin q^\star\, e_2^M\bigr),
+$$
+
+with `q̇* = 0`, `q̈̂* = 0`, `v_tip = 0` and `â_tip = 0`. The tip position comes from the calibrated forward kinematics: joint axis `e_3^M`, encoder zero along `e_1^M`, joint origin `o_J^M`, all from the 8-D static descriptor and the calibration record. Every quantity is deployment-available, with no privileged fields. This assumes the baseline 01 calibration convention, which wasn't in my read set. The spike must assert agreement with the FK used to compute `g13` on the first 1,000 transitions (max error < 10⁻⁵ m).
+
+If the locked manifest uses variant **L13-U** (scalar effort `u_clip` replaces the constant out-of-plane tip coordinate), the effort slot is set to the deployable gravity-only value `u*_g = −τ̂_g(q*)/S_max`. Under E3/E4 load this slot is deliberately "wrong", because the upper layer can't know the load. The spike reports the RMSE sensitivity with the slot masked versus set. The manifest's actual layout must be recorded in the spike ledger.
+
+$$
+z_{\mathrm{hold}}(q^\star) = B_\omega\bigl(N_g^{\mathrm{snap}}(g_{13}^{\mathrm{hold}}(q^\star))\bigr) \in \mathcal S^{15}(4),
+$$
+
+where `N_g^snap` is the normalizer snapshot frozen with the evaluated checkpoint. `z` is held constant for the whole episode. The actor runs deterministically, with no exploration noise and no reference trajectory.
+
+### 3.2 Frozen panel
+
+The panel uses `domain = PANEL` and seed `PANEL_SEED = 0xB02A` (fixed and pre-registered).
+
+* **Targets**: per config, `q* ∈ {q_min + 0.25 Δq, q_min + 0.50 Δq, q_min + 0.75 Δq}`, subject to precondition F1; an F1 violation shifts the target by ±0.05 Δq up to 3 times, deterministically.
+* **Episodes**: per `(config, q*)`, 1 E0, 2 E3 (mid and high bins, opposite signs) and 2 E4 (one R, one RI).
+* **Size**: 144 × 3 × 5 = **2,160 episodes**. Each is `T_eval = 100` steps plus a 16-step locked pre-roll in which the joint is locked at `q0 = q*` and the **evaluated controller** runs, so its own history fills `x137`. Total 250,560 simulator steps. Panel rollouts don't compute `p5065`, because no `F` is evaluated.
+
+| Scene | `τ_ext` program (eval clock) | Scoring window `W_s` |
+|---|---|---|
+| E0 | `≡ 0` | `[10, 100)` (90 steps) |
+| E3 | `0` on `[0, 10)`, step to `τ_L` at 10, sustained to 100 | `[35, 100)` (65 steps; excludes the 25-step onset transient) |
+| E4 | `τ_L` on `[0, 40)` (also present during pre-roll), release (R or RI) at `t_rel = 40` | `[60, 100)` (40 steps, starting 20 steps after release) |
+
+**Metric.** `q̇_t` is the **simulator ground-truth** joint velocity; the calibrated `q̇_c` is also reported. With `𝒫_s` the panel episodes of scene `s`:
+
+$$
+\mathrm{zero\_vel\_rmse}_s = \sqrt{\frac{\sum_{e \in \mathcal P_s}\sum_{t \in W_s} \dot q_{e,t}^2}{|\mathcal P_s|\,|W_s|}},\qquad s \in \{E0, E3, E4\}.
+$$
+
+**Pass iff** `zero_vel_rmse_E0 < 0.35`, `zero_vel_rmse_E3 < 0.35` and `zero_vel_rmse_E4 < 0.35` rad/s, each separately. Pooling across scenes is not allowed. All 144 configs must be present, there must be no NaN or invalid episode, and the evaluation must use the frozen checkpoint and normalizer snapshot.
+
+Reported but not gating:
+
+* per-config max episode RMSE and its 95th percentile;
+* steady-state position error `|q − q*|` over `W_s`, which is required because of `C-B02-A-03`: a constant load can produce zero velocity at a wrong angle;
+* E4 peak `|q̇|` and 2 %-band settling time after release;
+* the same metrics stratified by `C_0` tier.
+
+**Positive control**: the rule controller (κ = 1 in E3, κ = 0 in E4) must score `< 0.10` rad/s on every scene of the panel. If it doesn't, the panel is declared infeasible and the policy result is void.
+
+This resolves #5. The panel contains no moving targets, no step perturbations of the reference, a constant `z` derived from an equilibrium outcome vector, scoring windows that exclude declared transients, and a positive control proving the panel is achievable by physics.
+
+### 3.3 `cross_coverage_144_x_5` (resolves #3)
+
+The coverage ledger is emitted at every checkpoint into the evaluation summary JSON and is recomputed from the replay sidecar plus readback event flags (each transition's flags byte carries the physics-verified event bits of §1.5):
+
+```json
+"cross_coverage_144_x_5": {
+  "schema": "B02-A-v1",
+  "cells": [ { "config": 0, "scene": "E3",
+      "rule_resident": 34, "policy_resident": 68, "rule_quota": 34, "policy_quota": 68,
+      "complete_policy_episodes_resident": 1,
+      "sustained_load_events": 2, "sustained_anchor_events": 1,
+      "release_events": 0, "recovery_events": 0, "contact_events": 0, "escape_events": 0,
+      "label_physics_mismatch": 0, "invalid_episodes": 0, "infeasible": false, "rule_infeasible": false }
+    /* … 720 records … */ ],
+  "sustained_load_hold_count": 0, "post_load_recovery_count": 0,
+  "limit_escape_rate_rule": 0.0, "scene_sync_violation_count": 0,
+  "starved_cells": [], "coverage_ready": false
+}
+```
+
+**Definitions** (resident data only; each episode counts at most once per event type):
+
+* `sustained_load_hold_count`: the number of resident E3 episodes, rule windows included, with a physics-verified sustained window ≥ 25. A rule insert window of 34 steps lies entirely inside the plateau, so it qualifies on its own.
+* `sustained_anchor_events`: the subset of those with `RMS(q̇) ≤ 0.35` rad/s over the window. This is the equilibrium-anchor count.
+* `post_load_recovery_count`: the number of resident E4 episodes or windows with a verified release edge followed by ≥ 20 quiet recovery steps.
+* `limit_escape_rate_rule`: the fraction of E1 rule windows with a verified escape event.
+
+**Hard per-cell gates**: every one of the 720 cells must pass all of these.
+
+| Gate | Requirement |
+|---|---|
+| GC-1 | `rule_resident = rule_quota` and `policy_resident = policy_quota` once policy rings are full. Before that, `policy_resident ≥ 64` (one P0-M episode) |
+| GC-2 | `complete_policy_episodes_resident ≥ 1` |
+| GC-3 | E3 cells: `sustained_load_events ≥ 2` (rule + policy) and `sustained_anchor_events ≥ 1` |
+| GC-4 | E4 cells: `release_events ≥ 3` and `recovery_events ≥ 3` (2 rule + ≥ 1 policy) |
+| GC-5 | E2 cells: `contact_events ≥ 2`. E1 cells: `escape_events ≥ 1` (rule) |
+| GC-6 | `label_physics_mismatch = 0`, `infeasible = false`, `rule_infeasible = false` |
+
+**Global gates**:
+
+* `sustained_load_hold_count ≥ 288`
+* `post_load_recovery_count ≥ 432`
+* `limit_escape_rate_rule ≥ 0.95`
+* `scene_sync_violation_count = 0`
+* the evaluator negative control of §6 S2 has passed on this build
+
+`coverage_ready = (all 720 cells pass GC-1..GC-6) ∧ (all global gates pass)`. Any failing cell is listed in `starved_cells` with the failing gate IDs. The online scheduler then moves that cell to the front of the queue until it passes. If legacy code defines lower thresholds, the stricter value applies.
+
+Why these gates can be met by construction rather than by luck:
+
+* GC-1 and GC-2 follow from slot addressing (§2.6).
+* The coverage events in GC-3, GC-4 and GC-5 come from exogenous open-loop programs that can't be terminated early (§1.4–1.5).
+* The anchor and escape events depend only on the rule controller, whose validity is separately gated (§2.2).
+
+None of these counts depends on policy competence. Policy competence is measured only by §3.2.
+
+---
+
+## 4. Serious Alternative Considered and Rejected
+
+**Rejected alternative: a global-FIFO replay with an event-driven scene state machine and coverage-driven top-up.** In this design, E3/E4 episodes run until a state-triggered predicate fires (for example, release once `|q̇| < ε` has held for K steps, which mimics "load held"). A coverage monitor detects starved cells and schedules extra episodes or rejects episodes without qualifying windows. The rule controller fills a FIFO rule partition with full episodes. This is the closest patch to the current V3 code, and it would plausibly drive the two marginal counters above zero. I reject it for four reasons.
+
+1. **It breaks the B01 causal contract.** A release triggered by robot state is an endogenous generator state. `D-B01-001` explicitly classifies state-triggered release progress counters as endogenous, so they can't be passed to `F` as exogenous `ξ_t`. The Group 18 timers would then have to be masked, which reintroduces the E4 phase aliasing that B01 was built to remove. A time-triggered release with jitter gives the same coverage with a fully exogenous `ξ_t`.
+2. **A FIFO can't provide a per-cell guarantee at this capacity.** With T = 64, the policy partition holds 1,024 episodes. Under i.i.d. scene/config draws at the nominal quotas, the expected number of resident episodes per cell is λ = 1.42 (E0/E2), 1.07 (E1/E3) and 2.13 (E4). The expected number of empty cells is `144 · Σ_s e^{−λ_s}` ≈ **185.6 of 720**. A 200-draw simulation gave mean 185.5 and range 161–207. These are arithmetic checks, not rollouts. A deterministic evenly spaced schedule rescues the FIFO only barely: the worst cell spacing is 960 episodes (E1/E3) against a 1,024-episode window, a slack of 6.25 % that any invalid-episode re-collection or top-up burst destroys. The rule partition can't hold full episodes for 720 cells at all, since 512 < 720 (`C-B02-A-01`).
+3. **Rejection on rollout outcomes biases the data.** Discarding episodes whose policy behaviour failed to produce a window (for example, a policy that never reached `|q̇| < ε`, so the release never fired) removes exactly the failure transitions the critic most needs. It also makes the coverage counts depend on policy competence, which conflates the coverage gate with the competence gate.
+4. **Coverage-driven top-up makes counts path-dependent and hard to audit.** Two runs with the same seed but different update timing would hold different cell mixtures. Under the proposed design, `cross_coverage_144_x_5` is a deterministic function of the scheduler pointer.
+
+**Also considered and rejected, with briefer reasons:**
+
+* **Freezing normalizers after P0** for #6. This is simple, but it fixes the statistics to warm-start data whose state distribution the online policy will leave, so they go stale as exploration expands. Function-preserving refresh gives the benefit of current statistics at zero output shift.
+* **A clipped-linear actor head** (`a = clip(y, −1, 1)`) for #8. It has a zero gradient beyond the clip, which is strictly worse than tanh plus a hinge.
+* **Shorter episodes (T ≤ 45)** so that full rule episodes fit per cell. This is arithmetically feasible, but it would shrink the E3 plateau to about 25–30 steps after settle and onset, leaving no margin over the 25-step requirement. It would also cut the E4 recovery window to about 20 steps with no tail for settling-time measurement.
+
+---
+
+## 5. Candidate Necessity Claims (Appendix B)
+
+### `C-B02-A-01` — Window-residency feasibility bound (Grade 1, lower bound)
+
+**Premises**:
+
+* A replay partition of capacity `N` transitions, `K` cells, and episodes of fixed length `T`.
+* A qualifying event of scene `s` needs a contiguous span of at least `ℓ_s` transitions to be resident.
+* Each cell must contain at least `m_s` such events at every audit time.
+
+**Conclusion**:
+
+* (a) A necessary condition is `N ≥ Σ_cells m_s ℓ_s`. Guaranteeing a complete resident episode per cell needs `N ≥ K T`.
+* (b) For the rule partition, `N = 32,768`, `K = 720` and `T = 64` give `K T = 46,080 > N`. Any rule design that covers every cell must therefore store sub-episode windows with mean length ≤ ⌊32,768/720⌋ = 45, or use T ≤ 45.
+* (c) For a global FIFO holding `N/T` episodes and filled by i.i.d. cell draws with probabilities `w_c`, the probability that every cell is resident is at most `∏_c (1 − (1 − w_c)^{N/T})`. At the B02 numbers this is effectively 0, with ≈ 185.6 cells expected empty. A deterministic schedule needs `max_c spacing_c ≤ N/T`.
+
+**Implementation independence**: this is pure counting, and it holds for any learner, buffer implementation or controller.
+
+**Falsification mode**: a demonstrated replay scheme that guarantees every cell event under strictly smaller capacity would refute the claim. Since the claim is a counting identity, such a scheme must violate a premise (for example, events sharing transitions across cells, or `ℓ_s` defined smaller), which would narrow the scope rather than refute the bound.
+
+**Use**: it rules out "full rule episodes for all 720 cells at T = 64" and "global FIFO with a hard per-cell gate", without a bake-off.
+
+### `C-B02-A-02` — Bounded saturation attenuation with a non-binding margin (Grade 1, narrow invariant)
+
+**Premises**:
+
+* A deterministic actor `a = tanh(y)`.
+* A critic differentiable in `a`.
+* A hinge penalty that keeps `|y| ≤ y_max` at stationarity of `L_π`.
+* Every training-distribution holding optimum has `|u*| ≤ u_bar < tanh(y_max)`.
+
+**Conclusion**:
+
+* (i) The actor gradient through the head satisfies `|∂(F^⊤z)/∂y| ≥ sech²(y_max) |∂(F^⊤z)/∂a|`. For `y_max = 2`, `sech²(y_max) = 0.0707`.
+* (ii) For `|y| > y_max`, the penalty contributes a restoring gradient that is independent of `F`.
+* (iii) The penalty's gradient is zero at every static holding optimum, because `atanh(u_bar) < y_max`, so the penalty cannot shift any holding fixed point.
+
+**Falsification mode**: a training-distribution holding program with `|u*| > tanh(y_max)` violates the premise, which shows up as `sat_frac_E3_high > 0` at the panel optimum. That would require either relaxing `y_max` or tightening the load generator. Part (iii) says nothing about non-holding optima, such as maximal-speed z directions.
+
+### `C-B02-A-03` — Internal-model role for load holding (Grade 2, structural; Candidate)
+
+**Premises**:
+
+* The plant of §1.1 under an unknown constant `τ_ext` (the E3 plateau).
+* The deployed controller `π_θ(x_137, z)` is memoryless apart from its 320 ms input window.
+* The task is zero steady-state angle error at `q*` for all `τ_ext` in the E3 bins.
+
+**Conclusion** (internal-model principle, Francis–Wonham): any controller achieving zero steady-state error against an arbitrary unknown constant disturbance must realize an integrating mode driven by the error. In `π_θ(x137, z)`, the only channel through which persistent state can survive beyond 320 ms is the closed loop through its own past outputs, `u_prev` and the `u_clip` fields in the fast and slow history. A law of the form `u_t ≈ u_{t−1} + k (q* − q_t) − d q̇_t` realizes the integrator.
+
+Corollary for gate design: `zero_vel_rmse` alone can't detect the absence of this role. A proportional-only policy reaches `q̇ = 0` at an offset angle `q* + Δ(τ_ext)`. This is why §3.2 reports position error.
+
+**Operational test (absence detection, B.2)**: at evaluation, replace the `u_prev` and history `u_clip` inputs with their panel-mean constants.
+
+* If the integrating role exists and is realized through this channel, E3 steady-state `|q − q*|` grows by ≥ 3× and becomes proportional to `|τ_ext|`, with slope R² ≥ 0.8 across load bins.
+* If it doesn't grow, either the role is absent (E3 position error was already ∝ `|τ_ext|` before the ablation) or it is realized another way (for example through the slow `q` and `q̇` segment means acting as a surrogate). Both outcomes are recorded.
+
+**Grade note**: the internal-model principle is Grade 1 for linear time-invariant plants. Its application to this nonlinear, stiction-bearing, saturating plant through a learned policy is claimed only at Grade 2 (an obligatory functional role), and it remains Candidate.
+
+---
+
+## 6. Pre-Registered Empirical Spike Protocol
+
+**Device honesty**: on the drafting host, `torch` isn't importable and no CUDA device is present. The spike runner records `device`, `torch.__version__`, `torch.get_num_threads()`, the CPU model, wall-clock time and peak RSS (`/proc/self/status VmHWM`). A CPU-only result is reported as CPU-only. Results are never extrapolated to longer runs, and no claim of converged control is made from any stage (Charter boundary 4).
+
+**Pre-registration**: this section, the `make_program` source and the gate constants are hashed with SHA-256 before execution. Seeds `{0, 1, 2}`, `PANEL_SEED = 0xB02A`. Every stage writes `VERDICT.json`, with each gate's value, threshold and `PASS`/`FAIL`, plus the raw per-cell ledger.
+
+### S0 — Program-generator audit (pure, no physics; minutes)
+
+Generate 720 cells × 64 ordinals × {TRAIN_RULE, TRAIN_POLICY} = 92,160 programs, plus the full panel.
+
+| Gate | Pass criterion |
+|---|---|
+| S0-1 | 0 predicate violations on program arrays (§1.5) |
+| S0-2 | Regeneration from keys is byte-identical (SHA-256 of all arrays) |
+| S0-3 | Group 18 carriers are functions of `(program, t)` only (static analysis + randomized re-evaluation) |
+| S0-4 | Panel keys are disjoint from training keys |
+| S0-5 | All E3/E4 programs have `|u*| ≤ 0.92`, and `|τ_ext| ≥ 0.25 S_max` on plateaus |
+| S0-6 | Per-config episode-round counts are exactly 4/3/4/3/6 |
+
+### S1 — Rule fill on real physics (P0-R, all 144 configs; CPU)
+
+| Gate | Pass criterion |
+|---|---|
+| S1-1 | `scene_sync_violation_count = 0` |
+| S1-2 | Exactly 144 verified E3 rule sustained windows (each ≥ 25 contiguous steps by physics readback) |
+| S1-3 | 288 verified E4 release + recovery windows |
+| S1-4 | E3 anchor quality: `RMS(q̇) ≤ 0.10` rad/s in ≥ 95 % of configs, and no config > 0.35. `|q − q*| ≤ 0.02` rad in ≥ 95 % of configs |
+| S1-5 | `limit_escape_rate_rule ≥ 0.95` |
+| S1-6 | E2 contact verified in 144/144 |
+| S1-7 | Rule positive control on the frozen panel: `zero_vel_rmse < 0.10` rad/s on E0, E3 and E4 separately |
+| S1-8 | Rule partition tensor = 32,768 × 41,677 B, and sidecar 8 B/transition |
+
+If S1-7 fails, the panel is infeasible: stop and report. Proceeding with an unachievable panel is not allowed.
+
+### S2 — Pipeline closure (P0-R + P0-M + 4,096 updates; 2 normalizer refreshes; 64 rule refreshes; CPU; seeds 0–2)
+
+| Gate | Pass criterion |
+|---|---|
+| S2-1 | **`coverage_ready = true`** at update 4,096 on all 3 seeds: all 720 cells pass GC-1..GC-6, `sustained_load_hold_count ≥ 288`, `post_load_recovery_count ≥ 432`, `limit_escape_rate_rule ≥ 0.95`, `scene_sync_violation_count = 0` |
+| S2-2 | `coverage_ready` remains true at every checkpoint (every 512 updates) after P0-M. No cell is ever below quota during rule refresh |
+| S2-3 | **Evaluator negative control**: on a copy of the build, inject (a) a 40-step left shift of E3 `τ_ext` on 10 % of programs and (b) label swaps E3↔E4 on 10 %. The evaluator must report `scene_sync_violation_count` equal to the injected count (±0) and `coverage_ready = false` |
+| S2-4 | **Legacy arm L** (legacy sampler + unsynchronized labels, otherwise identical) reproduces `sustained_load_hold_count = 0` or reports violations, which confirms the evaluator distinguishes the arms. A nonzero legacy count is reported as a finding and does not invalidate S2-1 |
+| S2-5 | Tensor allocation ≤ 4.10 × 10⁹ B. Peak RSS ≤ 4.694 × 10⁹ B |
+| S2-6 | `norm_refresh_max_rel_output_change ≤ 10⁻⁵` for π, B, F₁, F₂ and targets. `norm_stats_recompute_rel_err ≤ 10⁻⁶` |
+| S2-7 | Checkpoint at 2,048, resume to 2,560: `resume_diff_norm = 0.0` and an identical `cross_coverage_144_x_5` |
+| S2-8 | Deployment export contains no `rule_calibration` or `p5065` reachable symbols, and the parameter count is still 281,617 |
+| S2-9 (secondary, #8) | **Saturation probe**: set the actor head bias so `y ≈ 4` on the E3-high probe set, then train 256 updates. The penalty arm must bring `sat_frac_E3_high` below 5 % at least 3× faster, in updates, than the `λ_pre = 0` arm. If neither arm recovers within 256 updates, the result is INCONCLUSIVE |
+
+### S3 — Holding gate (all 144 configs; CPU budget-limited)
+
+* **Arms**:
+  * **Full**: S2 build. Seeds 0–2.
+  * **−AS** (`λ_pre = 0`, no target smoothing). Seed 0.
+  * **−R** (rule partition filled by the legacy sampler, but synchronized programs). Seed 0.
+* **Budget**: 20,000 updates per seed at `B_mb = 512`. The estimated cost is ~70 GFLOP per update (arithmetic estimate from the parameter shapes), and the runner records measured throughput. The cap is 12 h of wall-clock per seed on CPU. If the cap is reached first, the stage reports the last checkpoint with `budget_exhausted = true`.
+* **Evaluation**: the frozen panel (§3.2) every 2,500 updates, with the final value taken at the last checkpoint.
+* **Primary gate (H2 holding)**:
+  * **PASS** iff, for Full, `zero_vel_rmse_E0`, `_E3` and `_E4` are each < 0.35 rad/s **on all 3 seeds**.
+  * **FAIL** iff any scene is ≥ 0.35 on all 3 seeds.
+  * Otherwise **MIXED**, which counts as not passed.
+  * A FAIL with `budget_exhausted = true` is recorded as *"not reached within CPU budget"*. It is not evidence against H2, and it is not evidence for it.
+* **Attribution** (reported only, single seed): the Full − (−R) and Full − (−AS) differences in per-scene RMSE and E3 position error. No necessity is inferred from these scores (B.3.5).
+* **`C-B02-A-03` operational test**: apply the `u_prev`/`u_clip` ablation of §5 to the final Full checkpoint, and report E3 `|q − q*|` before and after, with the slope against `|τ_ext|` (pre-registered thresholds: ≥ 3× growth, R² ≥ 0.8).
+* **Reporting**: per-`C_0`-tier RMSE, per-config 95th percentile, E4 settling time and `sat_frac` trajectories.
+
+**What would falsify this proposal's engineering contract** (as opposed to H2 competence): any failure of S0, S1-1/2/3/5/6/8 or S2-1/2/3/5/6/7/8. Any of these means the synchronization, wiring, normalizer or coverage design is wrong as specified, regardless of training budget.
+
+exec
+/bin/bash -lc "nl -ba /srv/claude/research/motor-unit-representation/packets/B02/proposals/A.md | sed -n '100,295p'" in /srv/claude
+ succeeded in 0ms:
+   100	* **Contact event**: `|τ_contact| ≥ 0.05 S_max` for ≥ 5 consecutive steps inside `[16, 48)`.
+   101	* `windows.rule_insert = [6, 51)` (45 transitions).
+   102	
+   103	**E3 `SUSTAINED_EXTERNAL_LOAD`**
+   104	
+   105	* `q_ref ≡ q*`, `q0 = q*`.
+   106	* Magnitude bin `n mod 3`: low `m ∈ [0.2, 0.5]`, mid `[0.5, 0.8]`, high `[0.8, 0.92]`. The high bin exercises #8.
+   107	* `t_on ∈ {6, …, 10}`. Onset mode `n mod 2`:
+   108	  * **step-on**: `τ_ext = 0` on `[0, t_on)` and `τ_L` on `[t_on, 64)`. Plateau start `p₀ = t_on`.
+   109	  * **ramp-on**: linear `0 → τ_L` on `[t_on, t_on + 8)`, then `τ_L`. Plateau start `p₀ = t_on + 8 ≤ 18`.
+   110	* Optional plateau drift for `n mod 4 = 3`: `τ_ext[t] = τ_L + β (t − p₀)` with `|β| ≤ 0.002 S_max`/step, keeping `|τ_ext|` within the effort bound `|u*| ≤ 0.92`. Per-step change ≤ 0.002 S_max, which is far below the 0.02 S_max edge threshold.
+   111	* **The load is never released in E3.** Release belongs to E4, so the two regimes can't alias.
+   112	* `windows.sustain = [p₀, 64)`, length **≥ 46 ≥ 25**. `windows.rule_insert = [p₀ + 4, p₀ + 38)` (34 transitions, ends ≤ 56). It starts 4 steps after plateau onset to skip the onset transient.
+   113	
+   114	**E4 `POST_LOAD_IMPULSE_RECOVERY`**
+   115	
+   116	* `q_ref ≡ q*`, `q0 = q*`, `m ∈ [0.3, 0.85]`. Step-on at `t = 4`: `τ_ext = τ_L` on `[4, t_rel)` with `t_rel ∈ {24, …, 32}`. The loaded phase is ≥ 20 steps.
+   117	* **Release edge at `t_rel` (every E4 episode)**: `τ_ext[t_rel − 1] = τ_L` and `τ_ext[t] = 0` for `t ≥ t_rel`, except as follows.
+   118	  * Variant `n mod 3 ∈ {0, 1}` (**R**, pure release): no further changes.
+   119	  * Variant `n mod 3 = 2` (**RI**, release + counter-impulse): `τ_ext = −sgn(τ_L) ι S_max` on `[t_rel, t_rel + 2)` with `ι ∈ [0.3, 0.6]`, then 0.
+   120	* `windows.recovery = [t_rel + r₀, 64)` with `r₀ = 0` (R) or `2` (RI). Length **≥ 64 − 34 = 30 ≥ 20**.
+   121	* `windows.rule_insert = [t_rel − 6, t_rel + 28)` (34 transitions, ends ≤ 60): 6 loaded steps, the edge, then ≥ 26 quiet recovery steps.
+   122	
+   123	### 1.5 Window predicates (enforced twice: on the program at reset, and on simulator readback after rollout)
+   124	
+   125	All thresholds are in units of the config's `S_max`. `τ̃_t` is the external torque read back from the simulator's applied-force channel at step `t`, never the program array.
+   126	
+   127	| Event | Predicate (physics readback) | Required |
+   128	|---|---|---|
+   129	| Sustained load (E3) | `∀t ∈ W: |τ̃_t| ≥ 0.15` and `|τ̃_t − τ̃_{t−1}| ≤ 0.02`, with `W` contiguous | `|W| ≥ 25` |
+   130	| Release edge (E4) | `|τ̃_{t_rel−1}| ≥ 0.15` and `|τ̃_{t_rel}| ≤ 0.01` (R), or the sign flips with a drop ≥ 0.15 (RI) | exactly 1 |
+   131	| Recovery (E4) | `∀t ∈ W: |τ̃_t| ≤ 0.01`, `W` immediately follows the edge (or the impulse), constant `q_ref`, no contact | `|W| ≥ 20` |
+   132	| Contact (E2) | `|τ_contact| ≥ 0.05` for ≥ 5 consecutive steps | ≥ 1 |
+   133	| Stop-proximal start (E1) | true margin `< 0.05` at `t = 0` | yes |
+   134	| Cross-regime exclusion | E0/E1/E2: `max |τ̃| ≤ 0.01`; E3: no release edge; E0/E1/E3/E4: no contact torque | yes |
+   135	
+   136	**`scene_sync_violation_count`** is the number of episodes whose readback predicates disagree with their label, in any direction (for example a label of E3 with a broken plateau, or a label of E0 with load present). It must be 0. Each episode contributes **at most one** count per event type. Overlapping sliding windows are never counted multiple times, which closes the "sliding window inflation" route to fabricated counts.
+   137	
+   138	**This resolves #1.** Label, torque schedule and windows come from one pure function. The predicates are checked on the program before rollout and on physics after rollout. Because E3/E4 episodes are never terminated early, the declared windows are guaranteed to be present in the physics regardless of what the behaviour policy does: the torque is open-loop and exogenous, and the policy can't remove it.
+   139	
+   140	### 1.6 Evaluation programs (resolves the generator half of #5)
+   141	
+   142	The frozen panel uses the same `make_program` with `domain = PANEL`. Panel keys are disjoint from every training key, and no reference generator runs: `q_ref` and `qd_ref` are not passed to the policy, which sees only the constant `z_hold(q*)` (§3.1). The panel scene programs are specified in §3.2.
+   143	
+   144	---
+   145	
+   146	## 2. Rule Calibration Wiring, Normalizer Contract, and Anti-Saturation Actor Loss
+   147	
+   148	### 2.1 Exact `rule_calibration` law
+   149	
+   150	$$
+   151	\begin{aligned}
+   152	e_t &= q_{\mathrm{ref},t} - q_{c,t}, \qquad \dot e_t = \dot q_{\mathrm{ref},t} - \dot q_{c,t},\\
+   153	\hat\tau_{\mathrm{bias},t} &= -\bigl(\hat\tau_g(q_{c,t}) + \kappa\,\tau_{\mathrm{ext},t-1}\bigr),\\
+   154	v_t &= \frac{\hat\tau_{\mathrm{bias},t} + J_{\mathrm{nom}}\bigl(k_p e_t + k_d \dot e_t\bigr) + \tau_{I,t}}{S_{\max}},\qquad
+   155	u_{\mathrm{rule},t} = \operatorname{clip}\bigl(v_t + \varepsilon_t,\,-1,\,1\bigr),\\
+   156	\tau_{I,t+1} &= \operatorname{clip}\Bigl(\tau_{I,t} + \mathbb 1[\neg\mathrm{freeze}_t]\, J_{\mathrm{nom}}\,k_i\, e_t\,\Delta t,\; -0.6\,S_{\max},\; 0.6\,S_{\max}\Bigr),\\
+   157	\mathrm{freeze}_t &= \bigl(|v_t| \ge 1 \wedge \mathrm{sgn}(e_t) = \mathrm{sgn}(v_t)\bigr) \vee d_{\min,t} < 0.05 \vee d_{\max,t} < 0.05 \vee \mathrm{contact}_t .
+   158	\end{aligned}
+   159	$$
+   160	
+   161	* `J_nom = I_{D,zz} + n_g² J_rotor` comes from the config's nominal descriptor (Groups 7–12). `τ̂_g` is the nominal gravity model. The rule is a **training-time behaviour policy**: it may read privileged nominal plant data and `contact_t`, and it is never exported. The tripwire is that the deployment-export test asserts no `rule_calibration` symbol is reachable from the exported graph.
+   162	* Gains: closed-loop natural frequency `ω_n = 15 rad/s`, `ζ = 0.9`, which gives `k_p = 225 s⁻²` and `k_d = 27 s⁻¹`. The integral pole is at `ω_n/5`, so `k_i = ω_n³/5 = 675 s⁻³`. Arithmetic check on the inertia-normalized double integrator with 20 ms ZOH: the max closed-loop eigenvalue modulus is **0.898** with no delay and **0.902** with a one-step compute delay, so it is stable with margin. The inertia scaling makes this bandwidth identical across all 36 geometry seeds, up to the nominal-vs-true inertia mismatch.
+   163	* Feedforward flag `κ`: `κ = 1` (one-step-delayed, observer-like) in E3, which produces genuine equilibrium anchors. `κ = 0` in E4, so the integral has absorbed `τ_L` before release and the release produces a real wound-integrator recovery transient. A κ = 1 controller would cancel the release instantly and leave nothing to learn. `τ_ext = 0` in E0–E2 makes κ irrelevant there.
+   164	* Exploration `ε_t ~ N(0, σ²)`: `σ = 0.01` inside `windows.hold`, `windows.sustain` and `windows.recovery`, and `σ = 0.05` elsewhere. Action diversity for F comes mainly from the policy partition. The rule partition's job is anchors.
+   165	* `τ_I` is reset to 0 at the start of the pre-roll. Because the controller acts during the lock, the integral has already absorbed any `τ̂_g` model error by `t = 0`.
+   166	
+   167	### 2.2 Wiring into P0 and the rule partition (resolves #2)
+   168	
+   169	Proposed module contract. The names are illustrative; the binding requirement is the behaviour, mapped onto the existing legacy-sampler call sites.
+   170	
+   171	```text
+   172	collector.collect_episode(program, behavior)          # behavior ∈ {RULE, MIXED(β), POLICY}
+   173	  RULE   -> rule_calibration.RuleController(cfg_descriptor).act(state_priv, program, t)
+   174	  MIXED  -> clip((1-β)·u_rule + β·π(x137, z) + ε)
+   175	  POLICY -> clip(π(x137, z) + ε_explore)
+   176	  "legacy_pd" / open-loop sampler -> raise LegacyBehaviorForbidden   # tripwire
+   177	ledger: rule_controller_impl_sha256, rule_gain_table (per config: J_nom, k_p, k_d, k_i)
+   178	```
+   179	
+   180	**P0 is redefined as two deterministic phases**, replacing the 800-transition legacy warmup.
+   181	
+   182	* **P0-R (rule fill)**: for each of 144 configs, run 6 rule episodes (E0, E1, E2, E3, E4-R, E4-RI) with `domain = TRAIN_RULE` and ordinal 0. Each episode inserts only its `windows.rule_insert` into that cell's rule slots: 45 + 34 + 45 + 34 + (34 + 34) = **226 transitions per config, 32,544 in total**. The remaining **224 reserve slots** are filled by 7 extra episodes of 32-step windows from E3/E4 cells chosen by a rotating pointer over the 288 E3/E4 cells. Cost: (864 + 7) × 80 = 69,680 simulator steps.
+   183	* **P0-M (mixed warm start of the policy partition)**: one episode per cell (720 episodes, 46,080 transitions), with `β` cycling over `{0.25, 0.5, 0.75, 1.0}` by ordinal and tagged `MIXED(β)`. Gradient updates begin after P0-M. Cost: 720 × 80 = 57,600 simulator steps.
+   184	* **Rule partition refresh during training**: every 64 updates, one config (round-robin) re-runs its 6 rule episodes at `ordinal += 1`. The new transitions overwrite that config's slots **slot-for-slot in place** as they are produced, so the per-cell counts never change and no staging copy is allocated (§2.6). A full refresh cycle takes 144 × 64 = 9,216 updates. This diversifies `q*`, load bins and modes without breaking quotas.
+   185	* **Rule validity gate per config (fail-closed)**: after P0-R, every config's E3 rule window must show `RMS(q̇) ≤ 0.10 rad/s` and `|q − q*| ≤ 0.02 rad`. If it doesn't, the config is flagged `rule_infeasible`, which blocks `coverage_ready`. Nothing is dropped.
+   186	
+   187	### 2.3 Policy-side holding episodes
+   188	
+   189	In online collection, 25 % of the E0, E3 and E4 policy episodes use `z = z_hold(q*_program)` (§3.1), computed at reset with the current `B_ω` and normalizer. The other 75 % use the baseline z sampler unchanged. This puts on-policy holding attempts in exactly the cells the holding gate scores, without touching the FB objective.
+   190	
+   191	### 2.4 Stratified mini-batch sampler
+   192	
+   193	Each update draws `B_mb` transitions. `B_mb` is inherited from the baseline; the example uses 512.
+   194	
+   195	1. Partition split `⌈B_mb/3⌋` rule and the rest policy. For `B_mb = 512` that is 171 / 341.
+   196	2. Within each partition, split across scenes by 20/15/20/15/30 using largest-remainder rounding. The remainder bonus rotates across updates, so long-run proportions are exact. For 512 this gives rule `34/26/34/26/51` and policy `68/51/68/51/103`.
+   197	3. Within each scene slice, pick configs by sampling without replacement over the 144 configs (reshuffled per epoch), then pick a uniform slot within the cell.
+   198	
+   199	Side effect on #7, not claimed as a resolution: realized batch scene proportions now match the nominal quotas exactly, so the quota-deviation premise of #7 no longer occurs once P0-M completes. Inverse-probability weighting remains the subject of another packet.
+   200	
+   201	### 2.5 Normalizer contract (resolves #6)
+   202	
+   203	1. **Replay stores raw FP32 values.** The layout is unchanged; only the semantics change if the legacy path stored normalized values. Normalization happens at batch time with one shared normalizer, so the rule and policy slices of a batch are always normalized identically.
+   204	2. **Statistics are ρ-weighted buffer moments, not rollout-stream moments.** For each normalized input coordinate `j` (all of `x137`, `g13`, and the retained/replaced `p5065` slots),
+   205	
+   206	   $$
+   207	   \mu_j = \sum_i w_i\, v_{ij},\qquad \sigma_j^2 = \sum_i w_i (v_{ij}-\mu_j)^2,\qquad
+   208	   w_i = \frac{\rho_{\mathrm{part}(i)}\,\rho_{\mathrm{scene}(i)}}{144\; n_{\mathrm{cell}(i),\mathrm{part}(i)}},
+   209	   $$
+   210	
+   211	   with `ρ_rule = 1/3`, `ρ_policy = 2/3` and `ρ_scene = (0.20, 0.15, 0.20, 0.15, 0.30)`. These are exactly the marginal weights of the §2.4 sampler, so the normalizer describes the distribution the networks are trained on.
+   212	   * Accumulation is an exact two-pass FP64 computation over resident slots, in chunks of 256 rows (256 × 10,418 × 8 B ≈ 21 MB of scratch, which is no larger than one batch's existing working set).
+   213	   * Floor: `σ_j ← max(σ_j, 10⁻³ · max(|μ_j|, 1))`.
+   214	   * Categorical and one-hot fields, plus `a` and `z`, are passed through unnormalized.
+   215	   * Slots masked by `D-B01-001` stay frozen at `(0, 1)` and are excluded from updates.
+   216	3. **Cadence**: one refresh at the end of P0-M, then every `K_norm = 2,048` updates. Running per-step updates are removed entirely.
+   217	4. **Function-preserving refresh.** For every first linear layer `y = W x̂ + b` consuming normalized input `x̂ = (x − μ)/σ`, in `π_θ`, `B_ω`, `F_{η1}`, `F_{η2}` and their target copies, a change `(μ, σ) → (μ', σ')` is applied as
+   218	
+   219	   $$
+   220	   W' = W\,\mathrm{diag}(\sigma'/\sigma),\qquad b' = b + W\bigl((\mu'-\mu)/\sigma\bigr),
+   221	   $$
+   222	
+   223	   which makes `W' x̂' + b' ≡ W x̂ + b` for all `x`. A downstream LayerNorm sees identical pre-activations. Adam moments of `W` are rescaled column-wise: `m` by `σ'/σ`, and `v` by `(σ'/σ)²`.
+   224	
+   225	   Consequence: **a normalizer refresh changes no network output.** Normalizer drift therefore can't create covariate shift on either slice. What remains is the genuine rule/policy difference in raw data, which the stratified sampler presents at fixed proportions by design.
+   226	5. **Test hooks**: `norm_refresh_max_rel_output_change` must be ≤ 10⁻⁵ (FP32) on a fixed probe set of 1,024 rule and 1,024 policy transitions. `norm_stats_recompute_rel_err` (ledger stats versus an independent recomputation) must be ≤ 10⁻⁶.
+   227	
+   228	### 2.6 Slot-addressed replay and memory accounting
+   229	
+   230	* **Rule partition** has 32,768 slots: 144 configs × 226 per-cell slots (E0 45, E1 34, E2 45, E3 34, E4 68) = 32,544, plus 224 reserve slots.
+   231	* **Policy partition** has 65,536 slots: 144 × 455 per-cell slots (E0 91, E1 68, E2 91, E3 68, E4 137) = 65,520, plus 16 reserve slots that are never sampled (they hold the in-flight write cursor for rollback).
+   232	
+   233	Each policy cell is a FIFO ring over its own slots. Because the minimum cell capacity is 68 ≥ T = 64, **the most recent complete episode of every policy cell is always resident**, so a full E3 plateau or a full E4 release + recovery is always in the buffer for every config.
+   234	
+   235	Per-scene shares of the combined buffer are E0 19.9 %, E1 15.0 %, E2 19.9 %, E3 15.0 % and E4 30.1 % of rule slots, and 20.0 %, 14.9 %, 20.0 %, 14.9 % and 30.1 % of policy slots.
+   236	
+   237	| Item | Size | Notes |
+   238	|---|---:|---|
+   239	| Replay tensors (98,304 × 41,677 B) | 4.0969 × 10⁹ B | Inherited. 41,677 B ≈ 10,419 FP32, consistent with `2·(137+5065) + 1 + 13 = 10,418` plus one flag (inferred, not read from code) |
+   240	| Sidecar `uint8 config, uint8 scene, uint8 step, uint8 flags, uint32 ordinal` | 0.79 MB | 8 B/transition. Programs are regenerated from keys, never stored |
+   241	| Normalizer FP64 sums (3 × 10,418 × 8 B) | 0.25 MB | |
+   242	| Coverage ledger (720 × 16 int64) | 0.09 MB | |
+   243	| Rule refresh staging | 0 | In-place slot-for-slot writes |
+   244	| **Tensor total** | **≈ 4.0980 × 10⁹ B ≤ 4.10 × 10⁹ B** | Headroom before additions was 3.0 MB (30.5 B/transition). Additions use 1.13 MB |
+   245	
+   246	Peak RSS: no new long-lived allocation exceeds 1.2 MB. The normalizer pass (21 MB scratch) and the evaluation panel run between updates, using no more scratch than one batch. The peak must still be measured. §6 gates it at ≤ 4.694 × 10⁹ B and treats exceeding it as a hard failure.
+   247	
+   248	### 2.7 Anti-saturation actor loss (resolves #8)
+   249	
+   250	Write `a = tanh(y)`, where `y` is the actor's pre-activation. The actor loss becomes
+   251	
+   252	$$
+   253	\mathcal L_\pi = -\,\mathbb E\!\left[\frac{F_{\min}(x_{137}, p_{5065}, \tanh y, z)^\top z}{\overline{|F^\top z|}}\right]
+   254	\;+\; \lambda_{\mathrm{pre}}\;\mathbb E\bigl[\operatorname{relu}(|y| - y_{\max})^2\bigr],
+   255	\qquad y_{\max} = 2.0,\ \lambda_{\mathrm{pre}} = 0.1 .
+   256	$$
+   257	
+   258	* `F_min` is the baseline's existing twin-critic reduction (unchanged). `F^⊤z` is divided by its running mean absolute value (EMA 0.99), so `λ_pre` doesn't depend on the scale of `F`.
+   259	* Per B01 counterfactual hygiene, `p5065` is held at its causal pre-action value while `a` varies.
+   260	* **Gradient bound**: for `|y| ≤ y_max`, `|∂L/∂y| ≥ sech²(2.0) · |∂(F^⊤z)/∂a| = 0.0707 · |…|`, which is at most a 14× attenuation. Without the penalty, an actor drifting to `y = 5` sees `sech² = 1.8 × 10⁻⁴`, roughly 5,500×. Once `|y| > y_max`, the penalty contributes the restoring gradient `2λ_pre(|y| − y_max)` regardless of `F`'s slope.
+   261	* **Non-binding at holding optima**: every E3/E4 program has `|u*| ≤ 0.92 = tanh(1.589) < tanh(2.0) = 0.964` (§1.2). Exact static holding is therefore always achievable inside the penalty-free region. The authority cost is 3.6 % of `S_max`, and it applies only when the true optimum is beyond 0.964, which never happens for holding in the training distribution.
+   262	* **TD target smoothing (secondary)**: the next action in the Bellman target is `a' = clip(tanh(y') + clip(N(0, 0.1²), ±0.25), −1, 1)`. This regularizes `F` along `a` near the ±1 boundaries, where the rule partition supplies real data at `|u| ∈ [0.8, 0.92]`.
+   263	* **Logged metrics**: `sat_frac = P(|y| > y_max)`, `sat_frac_E3_high`, and the actor's `|∂L/∂y|` on the E3-high probe set.
+   264	
+   265	---
+   266	
+   267	## 3. Frozen Static-Holding Evaluation and 720-Cell Cross-Coverage Gate
+   268	
+   269	### 3.1 Static target vector `g13_hold(q*)` (resolves the target half of #5)
+   270	
+   271	For the baseline 02 layout (L13-A):
+   272	
+   273	$$
+   274	g_{13}^{\mathrm{hold}}(q^\star) = \bigl[\cos q^\star,\ \sin q^\star,\ 0,\ 0,\ p_{\mathrm{tip}}^M(q^\star),\ 0_3,\ 0_3\bigr],
+   275	\qquad
+   276	p_{\mathrm{tip}}^M(q^\star) = o_J^M + L_D\bigl(\cos q^\star\, e_1^M + \sin q^\star\, e_2^M\bigr),
+   277	$$
+   278	
+   279	with `q̇* = 0`, `q̈̂* = 0`, `v_tip = 0` and `â_tip = 0`. The tip position comes from the calibrated forward kinematics: joint axis `e_3^M`, encoder zero along `e_1^M`, joint origin `o_J^M`, all from the 8-D static descriptor and the calibration record. Every quantity is deployment-available, with no privileged fields. This assumes the baseline 01 calibration convention, which wasn't in my read set. The spike must assert agreement with the FK used to compute `g13` on the first 1,000 transitions (max error < 10⁻⁵ m).
+   280	
+   281	If the locked manifest uses variant **L13-U** (scalar effort `u_clip` replaces the constant out-of-plane tip coordinate), the effort slot is set to the deployable gravity-only value `u*_g = −τ̂_g(q*)/S_max`. Under E3/E4 load this slot is deliberately "wrong", because the upper layer can't know the load. The spike reports the RMSE sensitivity with the slot masked versus set. The manifest's actual layout must be recorded in the spike ledger.
+   282	
+   283	$$
+   284	z_{\mathrm{hold}}(q^\star) = B_\omega\bigl(N_g^{\mathrm{snap}}(g_{13}^{\mathrm{hold}}(q^\star))\bigr) \in \mathcal S^{15}(4),
+   285	$$
+   286	
+   287	where `N_g^snap` is the normalizer snapshot frozen with the evaluated checkpoint. `z` is held constant for the whole episode. The actor runs deterministically, with no exploration noise and no reference trajectory.
+   288	
+   289	### 3.2 Frozen panel
+   290	
+   291	The panel uses `domain = PANEL` and seed `PANEL_SEED = 0xB02A` (fixed and pre-registered).
+   292	
+   293	* **Targets**: per config, `q* ∈ {q_min + 0.25 Δq, q_min + 0.50 Δq, q_min + 0.75 Δq}`, subject to precondition F1; an F1 violation shifts the target by ±0.05 Δq up to 3 times, deterministically.
+   294	* **Episodes**: per `(config, q*)`, 1 E0, 2 E3 (mid and high bins, opposite signs) and 2 E4 (one R, one RI).
+   295	* **Size**: 144 × 3 × 5 = **2,160 episodes**. Each is `T_eval = 100` steps plus a 16-step locked pre-roll in which the joint is locked at `q0 = q*` and the **evaluated controller** runs, so its own history fills `x137`. Total 250,560 simulator steps. Panel rollouts don't compute `p5065`, because no `F` is evaluated.
+
+exec
+/bin/bash -lc 'for p in /AGENTS.md /srv/AGENTS.md /srv/claude/AGENTS.md /srv/claude/research/AGENTS.md /srv/claude/research/motor-unit-representation/AGENTS.md /srv/claude/research/motor-unit-representation/packets/AGENTS.md /srv/claude/research/motor-unit-representation/packets/B02/AGENTS.md; do if [ -f "$p" ]; then cat "$p"; fi; done' in /srv/claude
+ succeeded in 0ms:
+exec
+/bin/bash -lc "nl -ba /srv/claude/research/motor-unit-representation/packets/B02/proposals/A.md | sed -n '296,390p'" in /srv/claude
+ succeeded in 0ms:
+   296	
+   297	| Scene | `τ_ext` program (eval clock) | Scoring window `W_s` |
+   298	|---|---|---|
+   299	| E0 | `≡ 0` | `[10, 100)` (90 steps) |
+   300	| E3 | `0` on `[0, 10)`, step to `τ_L` at 10, sustained to 100 | `[35, 100)` (65 steps; excludes the 25-step onset transient) |
+   301	| E4 | `τ_L` on `[0, 40)` (also present during pre-roll), release (R or RI) at `t_rel = 40` | `[60, 100)` (40 steps, starting 20 steps after release) |
+   302	
+   303	**Metric.** `q̇_t` is the **simulator ground-truth** joint velocity; the calibrated `q̇_c` is also reported. With `𝒫_s` the panel episodes of scene `s`:
+   304	
+   305	$$
+   306	\mathrm{zero\_vel\_rmse}_s = \sqrt{\frac{\sum_{e \in \mathcal P_s}\sum_{t \in W_s} \dot q_{e,t}^2}{|\mathcal P_s|\,|W_s|}},\qquad s \in \{E0, E3, E4\}.
+   307	$$
+   308	
+   309	**Pass iff** `zero_vel_rmse_E0 < 0.35`, `zero_vel_rmse_E3 < 0.35` and `zero_vel_rmse_E4 < 0.35` rad/s, each separately. Pooling across scenes is not allowed. All 144 configs must be present, there must be no NaN or invalid episode, and the evaluation must use the frozen checkpoint and normalizer snapshot.
+   310	
+   311	Reported but not gating:
+   312	
+   313	* per-config max episode RMSE and its 95th percentile;
+   314	* steady-state position error `|q − q*|` over `W_s`, which is required because of `C-B02-A-03`: a constant load can produce zero velocity at a wrong angle;
+   315	* E4 peak `|q̇|` and 2 %-band settling time after release;
+   316	* the same metrics stratified by `C_0` tier.
+   317	
+   318	**Positive control**: the rule controller (κ = 1 in E3, κ = 0 in E4) must score `< 0.10` rad/s on every scene of the panel. If it doesn't, the panel is declared infeasible and the policy result is void.
+   319	
+   320	This resolves #5. The panel contains no moving targets, no step perturbations of the reference, a constant `z` derived from an equilibrium outcome vector, scoring windows that exclude declared transients, and a positive control proving the panel is achievable by physics.
+   321	
+   322	### 3.3 `cross_coverage_144_x_5` (resolves #3)
+   323	
+   324	The coverage ledger is emitted at every checkpoint into the evaluation summary JSON and is recomputed from the replay sidecar plus readback event flags (each transition's flags byte carries the physics-verified event bits of §1.5):
+   325	
+   326	```json
+   327	"cross_coverage_144_x_5": {
+   328	  "schema": "B02-A-v1",
+   329	  "cells": [ { "config": 0, "scene": "E3",
+   330	      "rule_resident": 34, "policy_resident": 68, "rule_quota": 34, "policy_quota": 68,
+   331	      "complete_policy_episodes_resident": 1,
+   332	      "sustained_load_events": 2, "sustained_anchor_events": 1,
+   333	      "release_events": 0, "recovery_events": 0, "contact_events": 0, "escape_events": 0,
+   334	      "label_physics_mismatch": 0, "invalid_episodes": 0, "infeasible": false, "rule_infeasible": false }
+   335	    /* … 720 records … */ ],
+   336	  "sustained_load_hold_count": 0, "post_load_recovery_count": 0,
+   337	  "limit_escape_rate_rule": 0.0, "scene_sync_violation_count": 0,
+   338	  "starved_cells": [], "coverage_ready": false
+   339	}
+   340	```
+   341	
+   342	**Definitions** (resident data only; each episode counts at most once per event type):
+   343	
+   344	* `sustained_load_hold_count`: the number of resident E3 episodes, rule windows included, with a physics-verified sustained window ≥ 25. A rule insert window of 34 steps lies entirely inside the plateau, so it qualifies on its own.
+   345	* `sustained_anchor_events`: the subset of those with `RMS(q̇) ≤ 0.35` rad/s over the window. This is the equilibrium-anchor count.
+   346	* `post_load_recovery_count`: the number of resident E4 episodes or windows with a verified release edge followed by ≥ 20 quiet recovery steps.
+   347	* `limit_escape_rate_rule`: the fraction of E1 rule windows with a verified escape event.
+   348	
+   349	**Hard per-cell gates**: every one of the 720 cells must pass all of these.
+   350	
+   351	| Gate | Requirement |
+   352	|---|---|
+   353	| GC-1 | `rule_resident = rule_quota` and `policy_resident = policy_quota` once policy rings are full. Before that, `policy_resident ≥ 64` (one P0-M episode) |
+   354	| GC-2 | `complete_policy_episodes_resident ≥ 1` |
+   355	| GC-3 | E3 cells: `sustained_load_events ≥ 2` (rule + policy) and `sustained_anchor_events ≥ 1` |
+   356	| GC-4 | E4 cells: `release_events ≥ 3` and `recovery_events ≥ 3` (2 rule + ≥ 1 policy) |
+   357	| GC-5 | E2 cells: `contact_events ≥ 2`. E1 cells: `escape_events ≥ 1` (rule) |
+   358	| GC-6 | `label_physics_mismatch = 0`, `infeasible = false`, `rule_infeasible = false` |
+   359	
+   360	**Global gates**:
+   361	
+   362	* `sustained_load_hold_count ≥ 288`
+   363	* `post_load_recovery_count ≥ 432`
+   364	* `limit_escape_rate_rule ≥ 0.95`
+   365	* `scene_sync_violation_count = 0`
+   366	* the evaluator negative control of §6 S2 has passed on this build
+   367	
+   368	`coverage_ready = (all 720 cells pass GC-1..GC-6) ∧ (all global gates pass)`. Any failing cell is listed in `starved_cells` with the failing gate IDs. The online scheduler then moves that cell to the front of the queue until it passes. If legacy code defines lower thresholds, the stricter value applies.
+   369	
+   370	Why these gates can be met by construction rather than by luck:
+   371	
+   372	* GC-1 and GC-2 follow from slot addressing (§2.6).
+   373	* The coverage events in GC-3, GC-4 and GC-5 come from exogenous open-loop programs that can't be terminated early (§1.4–1.5).
+   374	* The anchor and escape events depend only on the rule controller, whose validity is separately gated (§2.2).
+   375	
+   376	None of these counts depends on policy competence. Policy competence is measured only by §3.2.
+   377	
+   378	---
+   379	
+   380	## 4. Serious Alternative Considered and Rejected
+   381	
+   382	**Rejected alternative: a global-FIFO replay with an event-driven scene state machine and coverage-driven top-up.** In this design, E3/E4 episodes run until a state-triggered predicate fires (for example, release once `|q̇| < ε` has held for K steps, which mimics "load held"). A coverage monitor detects starved cells and schedules extra episodes or rejects episodes without qualifying windows. The rule controller fills a FIFO rule partition with full episodes. This is the closest patch to the current V3 code, and it would plausibly drive the two marginal counters above zero. I reject it for four reasons.
+   383	
+   384	1. **It breaks the B01 causal contract.** A release triggered by robot state is an endogenous generator state. `D-B01-001` explicitly classifies state-triggered release progress counters as endogenous, so they can't be passed to `F` as exogenous `ξ_t`. The Group 18 timers would then have to be masked, which reintroduces the E4 phase aliasing that B01 was built to remove. A time-triggered release with jitter gives the same coverage with a fully exogenous `ξ_t`.
+   385	2. **A FIFO can't provide a per-cell guarantee at this capacity.** With T = 64, the policy partition holds 1,024 episodes. Under i.i.d. scene/config draws at the nominal quotas, the expected number of resident episodes per cell is λ = 1.42 (E0/E2), 1.07 (E1/E3) and 2.13 (E4). The expected number of empty cells is `144 · Σ_s e^{−λ_s}` ≈ **185.6 of 720**. A 200-draw simulation gave mean 185.5 and range 161–207. These are arithmetic checks, not rollouts. A deterministic evenly spaced schedule rescues the FIFO only barely: the worst cell spacing is 960 episodes (E1/E3) against a 1,024-episode window, a slack of 6.25 % that any invalid-episode re-collection or top-up burst destroys. The rule partition can't hold full episodes for 720 cells at all, since 512 < 720 (`C-B02-A-01`).
+   386	3. **Rejection on rollout outcomes biases the data.** Discarding episodes whose policy behaviour failed to produce a window (for example, a policy that never reached `|q̇| < ε`, so the release never fired) removes exactly the failure transitions the critic most needs. It also makes the coverage counts depend on policy competence, which conflates the coverage gate with the competence gate.
+   387	4. **Coverage-driven top-up makes counts path-dependent and hard to audit.** Two runs with the same seed but different update timing would hold different cell mixtures. Under the proposed design, `cross_coverage_144_x_5` is a deterministic function of the scheduler pointer.
+   388	
+   389	**Also considered and rejected, with briefer reasons:**
+   390	
+
+codex
+The proposal has useful synchronization and audit mechanisms, but its coverage guarantee has gaps. In particular, an in-progress replay write can evict the previous complete episode, and the contact gates still depend on controller behavior. I’m checking the counting claims and spike criteria before writing the review.
+
+exec
+/bin/bash -lc "python - <<'PY'
+import math
+N=98304
+print('replay_bytes',N*41677)
+print('additions_bytes',N*8+3*10418*8+720*16*8)
+print('tensor_total',N*41677+N*8+3*10418*8+720*16*8)
+print('mean_rule_capacity',32768/720)
+print('empty_cells_exact',144*sum((1-p/144)**1024 for p in [.2,.15,.2,.15,.3]))
+print('atanh_092',math.atanh(.92))
+for cap in (68,91,137):
+    ring=[None]*cap
+    ptr=0
+    for ep in range(3):
+        for t in range(64):
+            ring[ptr]=(ep,t)
+            ptr=(ptr+1)%cap
+    first_gap=None
+    for t in range(64):
+        ring[ptr]=(3,t)
+        ptr=(ptr+1)%cap
+        complete=[e for e in range(4) if sum(x is not None and x[0]==e for x in ring)==64]
+        if not complete and first_gap is None:first_gap=t+1
+    print('capacity',cap,'first_new_episode_write_with_no_complete_episode',first_gap)
+PY" in /srv/claude
+ exited 127 in 0ms:
+/bin/bash: line 1: python: command not found
+
+exec
+/bin/bash -lc "sed -n '1,99p' /srv/claude/research/motor-unit-representation/packets/B02/proposals/A.md" in /srv/claude
+exec
+/bin/bash -lc "sed -n '390,560p' /srv/claude/research/motor-unit-representation/packets/B02/proposals/A.md" in /srv/claude
+ succeeded in 0ms:
+# Proposal A (Packet B02): E0–E4 Scene Synchronization, Inertia-Scaled Rule Calibration Wiring, and Coverage Gate Closure
+
+**Packet ID**: `B02`
+**Author Slot**: Primary Author A
+**Method Version**: v1.0 (`1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7`)
+**Inherited Ledger Snapshot**: `X-BASE-001`..`X-BASE-005`, plus `D-B01-001` (causal `p_5065` partition, merged norms in `synthesis/B01-synthesis.md`)
+**Frozen Context Read**: `PROGRAM_CHARTER.md`, `packets/B02/brief.md`, `baseline/02`, `baseline/03`, `packets/B01/decision.md`, `synthesis/B01-synthesis.md`
+**Audit Issues Addressed**: #1, #2, #3, #5, #6, #8 (#4 is inherited as solved by `D-B01-001`; #7 and #9 are out of scope, but §2.4 notes a side effect on #7)
+**Status of Every Claim Below**: `Candidate` (Appendix B.4). Nothing in this draft is empirical evidence. §6 is a pre-registration, not a result. The only numbers computed while drafting are arithmetic checks (buffer residency, memory headroom, discrete PID eigenvalues, `tanh` derivatives). They are labelled as arithmetic wherever they appear.
+
+---
+
+## 0. Summary of Position
+
+1. **Issue #1 has one root cause: two independent samplers.** The scene label and the step-level torque generator are drawn separately, so they can disagree. The fix is a single pure function `make_program(run_seed, config_id, scene, ordinal) → SceneProgram`. It emits the label, the full open-loop `τ_ext[0:T]` array, the reference trajectory, the initial state and the declared event windows together. The environment only reads from the program. The label is a field of the program, not a separate draw. Episodes are never terminated early, so a declared window can't be truncated.
+2. **The episode clock is fixed at T = 64 control steps (1.28 s) for every scene, plus a 16-step unstored history pre-roll.** E3 has a plateau of ≥ 46 steps (≥ 25 required). E4 has a time-triggered release edge at `t_rel ∈ [24, 32]` and ≥ 30 quiet recovery steps (≥ 20 required). Release is time-triggered, never state-triggered, so all of Group 18 stays exogenous in the sense of `D-B01-001`.
+3. **Both replay partitions are slot-addressed by (config, scene) cell, not global FIFOs.** Each cell has a fixed capacity: rule `45/34/45/34/68` and policy `91/68/91/68/137` transitions per config for E0..E4. Every policy cell can hold at least one complete 64-step episode (minimum capacity 68 ≥ 64). The 720-cell minimum quota is therefore structural, not statistical. A global FIFO under i.i.d. scheduling leaves about 186 of 720 cells empty at any time (arithmetic, §4).
+4. **The rule partition can't store a complete episode for every cell**, because 32,768 / 64 = 512 < 720 (Claim `C-B02-A-01`). It stores declared windows of 34–45 transitions cut from complete rule rollouts. The windows are anchored to the program's event times, so every E3 rule window lies inside the load plateau and every E4 rule window contains the release edge plus ≥ 26 recovery steps.
+5. **Normalizers (#6)**: replay stores raw FP32. Statistics are recomputed exactly over the resident buffer with the sampling weights ρ (1/3 rule, 2/3 policy, scene quotas). Every refresh is applied through a function-preserving re-parameterization of each network's first linear layer. Both slices of every mini-batch see the same normalizer, and no refresh changes any network output.
+6. **Anti-saturation (#8)**: a pre-activation hinge penalty on `y` (with `a = tanh(y)`) beyond `y_max = 2.0` bounds gradient attenuation at `sech²(2.0) = 0.0707` instead of letting it go to zero. All E3/E4 load programs are built so the required static holding effort satisfies `|u*| ≤ 0.92 < tanh(2.0) = 0.964`, so the penalty never binds at a holding optimum (Claim `C-B02-A-02`).
+7. **Static-holding panel (#5)**: z is constant per episode, `z_hold(q*) = B_ω(N_g(g13_hold(q*)))`, and no reference generator runs during evaluation. RMSE is computed on simulator-truth `q̇` over fixed scoring windows, separately for E0, E3 and E4, and each must be < 0.35 rad/s. The rule controller must pass the same panel at < 0.10 rad/s as a positive control, otherwise the panel itself is invalid.
+8. **Cross-coverage (#3)**: `cross_coverage_144_x_5` is a 720-record JSON matrix. Its event counts are computed from simulator readbacks (applied external torque and contact torque), not from labels. `coverage_ready` is the AND of all per-cell gates, a zero `scene_sync_violation_count`, and a passing evaluator negative control.
+
+---
+
+## 1. Synchronized E0–E4 Step-Level Generator Contract
+
+### 1.1 Plant convention and timing
+
+Control step Δt = 20 ms with four 5 ms physics substeps and zero-order hold on `u_clip,t` over `[t, t+1)`. The joint equation used for the schedule definitions (simulator ground truth) is
+
+$$
+J\,\ddot q \;=\; S_{\max}\,u_{\mathrm{clip}} \;+\; \tau_g(q) \;+\; \tau_{\mathrm{ext}} \;-\; b\,\dot q \;-\; \tau_c\,\mathrm{sgn}(\dot q) \;+\; \tau_{\mathrm{stop}} \;+\; \tau_{\mathrm{contact}},
+\qquad S_{\max} = 1.25\,C_0 .
+$$
+
+The static holding effort at target `q*` under external torque `τ_ext` is
+
+$$
+u^\star(q^\star,\tau_{\mathrm{ext}}) \;=\; -\,\frac{\tau_g(q^\star) + \tau_{\mathrm{ext}}}{S_{\max}}\qquad(\text{ignoring stiction, which only helps}).
+$$
+
+`τ_ext[t]` is held constant across all four substeps of step `t` and is written to the simulator before substep 1. Every load edge therefore falls exactly on a control boundary.
+
+### 1.2 The `SceneProgram` object (single source of truth)
+
+```text
+SceneProgram (frozen, immutable):
+  config_id ∈ [0,144)   scene ∈ {E0..E4}   ordinal n ∈ ℕ   domain ∈ {TRAIN_RULE, TRAIN_POLICY, PANEL}
+  T = 64, T_pre = 16
+  q0, qd0                                  # initial state at end of pre-roll
+  q_ref[0:T], qd_ref[0:T]                  # used by rule controller and z_hold episodes only
+  tau_ext[0:T]                             # open-loop external torque (N·m), exogenous
+  obstacle: {q_obs, side, k_c, zeta_c, e_rest} | None     # E2 only
+  mode, t_on, t_rel, plateau_level, impulse  # generator parameters → Group 18 timers/modes
+  windows: {hold:[a,b), sustain:[a,b), release_edge:t_rel, recovery:[a,b),
+            contact_phase:[a,b), escape_cmd_onset:t, rule_insert:[a,b)}
+  kappa                                    # rule feedforward flag (§2.1)
+make_program(run_seed, config_id, scene, n, domain) -> SceneProgram   # pure function
+```
+
+* **Randomness**: Philox-4x32 counter RNG keyed by `(run_seed, domain, config_id, scene, n, draw_index)`. No global RNG state is consumed. A program is reproducible from its 4-tuple key, so the replay sidecar stores only the key (§2.6) and checkpoint/resume parity (`resume_diff_norm = 0.0`) is preserved: the scheduler pointer is the only collector state.
+* **Feasibility redraw**: if a drawn `q*` violates a feasibility precondition (below), `make_program` redraws with `draw_index += 1`, up to 16 attempts, and otherwise raises `ProgramInfeasible(config_id, scene)`. The cell is marked `infeasible` in the coverage ledger, which forces `coverage_ready = false`; nothing is dropped silently. The redraw depends only on exogenous parameters. It is not rejection on rollout outcomes.
+* **Self-check at reset (fail-closed)**: `env.reset(program)` evaluates the window predicates of §1.5 on the program arrays themselves and raises on any violation.
+* **No early termination**: episodes run all 64 steps. Stop contact, saturation or large velocity never terminate an episode. Only a NaN or solver failure terminates, in which case the episode is tagged `invalid`, its inserted transitions are rolled back slot-for-slot (§2.6), and the cell is re-collected with `n+1`. `invalid_episode_count` is a ledger field.
+* **Pre-roll** (`t = −16..−1`, not stored, not counted): the joint is kinematically locked at `q0` and `τ_ext = τ_ext[0]`. The behaviour controller (rule or policy) runs, so the 160 ms fast and 320 ms slow windows of `x137` are valid at `t = 0`. The lock is released at `t = 0`.
+* **Group 18 exogenous carriers** (compatible with `D-B01-001`): `scene one-hot`, `mode`, `t − t_on`, `t_rel − t` (clipped at 0), `plateau_level / S_max`, `impulse flag` and `impulse amplitude`. All of them are functions of `(program, t)` only. Because the release is time-triggered, there are no state-triggered release counters in this design.
+
+Common draws (all uniform on the stated range via Philox unless stated otherwise):
+
+* `q*` ∈ `[q_min + 0.15 Δq, q_max − 0.15 Δq]`.
+* **Feasibility precondition F1**: `|u*(q*, 0)| = |τ_g(q*)| / S_max ≤ 0.70`. This leaves load headroom for E3/E4.
+* **Load magnitude** is drawn as a target holding effort, not a raw torque. Draw sign `σ ∈ {+1, −1}` (`σ = +1` if `n mod 2 = 0`) and magnitude `m` from the scene bin, then set `τ_ext = −σ m S_max − τ_g(q*)`. If `|τ_ext| < 0.15 S_max`, flip `σ`. This gives `|τ_ext| ≥ 2m S_max − 0.15 S_max ≥ 0.25 S_max` for `m ≥ 0.2`. By construction `|u*| = m ≤ 0.92`, which is the feasibility margin used by §2.5.
+
+### 1.3 Episode-level allocation (exact scene quotas)
+
+Per configuration, scenes are allocated in **20-episode rounds**: E0 ×4, E1 ×3, E2 ×4, E3 ×3, E4 ×6, which is exactly 20/15/20/15/30 %. A global round is 144 × 20 = 2,880 episodes, ordered by a fixed low-discrepancy interleave. The episode at round position `j` is the `j`-th entry of a van der Corput permutation of the 2,880 `(config, scene, k)` tuples, so each cell's episodes are spread evenly through the round. Under slot addressing (§2.6) this ordering is not required for correctness. It only equalizes data age across cells. The policy-episode ordinal for cell `(c, s)` is a monotone counter `n_{c,s}`.
+
+### 1.4 Step-level schedules (T = 64; indices are control steps; ranges half-open)
+
+**E0 `FREE_SPACE_NOMINAL`** (`τ_ext ≡ 0`, no obstacle)
+
+* `n mod 4 = 0` (**pure hold**): `q_ref ≡ q*`, `q0 = q* + δ` with `δ ∈ [−0.05, 0.05]` rad. `windows.hold = [12, 64)`.
+* Otherwise (**hold–move–hold**): `q_ref = q*₁` on `[0, 24)`, min-jerk to `q*₂` on `[24, 40)`, `q*₂` on `[40, 64)`, with `|q*₂ − q*₁| ≥ 0.2 Δq`. `windows.hold = [12, 24) ∪ [48, 64)`.
+* `windows.rule_insert = [10, 55)` (45 transitions).
+
+**E1 `BOUNDARY_LIMIT_ESCAPE`** (`τ_ext ≡ 0`)
+
+* Stop side alternates with `n`. `q0` is placed so that the stop margin is `d ∈ [0, 0.04]` (schema units of `d_min`/`d_max`, so `< 0.05` always holds).
+* `n mod 3 = 0` (**press-then-escape**): outward `q_ref` 0.05 rad beyond the stop on `[0, 16)`, then inward `q_ref = stop ± 0.30 Δq` (min-jerk over 8 steps) on `[16, 64)`. `escape_cmd_onset = 16`.
+* Otherwise (**escape**): the inward command starts at `0`. `escape_cmd_onset = 0`.
+* **Escape event** (physics-verified): within 25 steps of `escape_cmd_onset`, the true margin exceeds 0.10 and does not fall back below 0.01 before `t = 64`.
+* `windows.rule_insert = [escape_cmd_onset, escape_cmd_onset + 34)` (34 transitions; ends ≤ 50).
+
+**E2 `COMPLIANT_AND_RIGID_CONTACT`** (`τ_ext ≡ 0`)
+
+* `q_obs ∈ [q_min + 0.3 Δq, q_max − 0.3 Δq]`, approach side alternating.
+* Stiffness bin `n mod 3`: compliant `k_c ∈ [10, 100]`, medium `[100, 1000]`, rigid `[1000, 10000]` N·m/rad (log-uniform), with `ζ_c ∈ [0.1, 1.0]` and restitution `e ∈ [0, 0.5]`.
+* `q0 = q_obs ∓ 0.25 Δq` (free side). `q_ref`: hold `q0` on `[0, 8)`, min-jerk to `q_obs ± 0.10` rad (0.10 rad into the surface) on `[8, 24)`, hold on `[24, 48)`, min-jerk back to `q0` on `[48, 64)`. `contact_phase = [24, 48)`.
+
+ succeeded in 0ms:
+
+* **Freezing normalizers after P0** for #6. This is simple, but it fixes the statistics to warm-start data whose state distribution the online policy will leave, so they go stale as exploration expands. Function-preserving refresh gives the benefit of current statistics at zero output shift.
+* **A clipped-linear actor head** (`a = clip(y, −1, 1)`) for #8. It has a zero gradient beyond the clip, which is strictly worse than tanh plus a hinge.
+* **Shorter episodes (T ≤ 45)** so that full rule episodes fit per cell. This is arithmetically feasible, but it would shrink the E3 plateau to about 25–30 steps after settle and onset, leaving no margin over the 25-step requirement. It would also cut the E4 recovery window to about 20 steps with no tail for settling-time measurement.
+
+---
+
+## 5. Candidate Necessity Claims (Appendix B)
+
+### `C-B02-A-01` — Window-residency feasibility bound (Grade 1, lower bound)
+
+**Premises**:
+
+* A replay partition of capacity `N` transitions, `K` cells, and episodes of fixed length `T`.
+* A qualifying event of scene `s` needs a contiguous span of at least `ℓ_s` transitions to be resident.
+* Each cell must contain at least `m_s` such events at every audit time.
+
+**Conclusion**:
+
+* (a) A necessary condition is `N ≥ Σ_cells m_s ℓ_s`. Guaranteeing a complete resident episode per cell needs `N ≥ K T`.
+* (b) For the rule partition, `N = 32,768`, `K = 720` and `T = 64` give `K T = 46,080 > N`. Any rule design that covers every cell must therefore store sub-episode windows with mean length ≤ ⌊32,768/720⌋ = 45, or use T ≤ 45.
+* (c) For a global FIFO holding `N/T` episodes and filled by i.i.d. cell draws with probabilities `w_c`, the probability that every cell is resident is at most `∏_c (1 − (1 − w_c)^{N/T})`. At the B02 numbers this is effectively 0, with ≈ 185.6 cells expected empty. A deterministic schedule needs `max_c spacing_c ≤ N/T`.
+
+**Implementation independence**: this is pure counting, and it holds for any learner, buffer implementation or controller.
+
+**Falsification mode**: a demonstrated replay scheme that guarantees every cell event under strictly smaller capacity would refute the claim. Since the claim is a counting identity, such a scheme must violate a premise (for example, events sharing transitions across cells, or `ℓ_s` defined smaller), which would narrow the scope rather than refute the bound.
+
+**Use**: it rules out "full rule episodes for all 720 cells at T = 64" and "global FIFO with a hard per-cell gate", without a bake-off.
+
+### `C-B02-A-02` — Bounded saturation attenuation with a non-binding margin (Grade 1, narrow invariant)
+
+**Premises**:
+
+* A deterministic actor `a = tanh(y)`.
+* A critic differentiable in `a`.
+* A hinge penalty that keeps `|y| ≤ y_max` at stationarity of `L_π`.
+* Every training-distribution holding optimum has `|u*| ≤ u_bar < tanh(y_max)`.
+
+**Conclusion**:
+
+* (i) The actor gradient through the head satisfies `|∂(F^⊤z)/∂y| ≥ sech²(y_max) |∂(F^⊤z)/∂a|`. For `y_max = 2`, `sech²(y_max) = 0.0707`.
+* (ii) For `|y| > y_max`, the penalty contributes a restoring gradient that is independent of `F`.
+* (iii) The penalty's gradient is zero at every static holding optimum, because `atanh(u_bar) < y_max`, so the penalty cannot shift any holding fixed point.
+
+**Falsification mode**: a training-distribution holding program with `|u*| > tanh(y_max)` violates the premise, which shows up as `sat_frac_E3_high > 0` at the panel optimum. That would require either relaxing `y_max` or tightening the load generator. Part (iii) says nothing about non-holding optima, such as maximal-speed z directions.
+
+### `C-B02-A-03` — Internal-model role for load holding (Grade 2, structural; Candidate)
+
+**Premises**:
+
+* The plant of §1.1 under an unknown constant `τ_ext` (the E3 plateau).
+* The deployed controller `π_θ(x_137, z)` is memoryless apart from its 320 ms input window.
+* The task is zero steady-state angle error at `q*` for all `τ_ext` in the E3 bins.
+
+**Conclusion** (internal-model principle, Francis–Wonham): any controller achieving zero steady-state error against an arbitrary unknown constant disturbance must realize an integrating mode driven by the error. In `π_θ(x137, z)`, the only channel through which persistent state can survive beyond 320 ms is the closed loop through its own past outputs, `u_prev` and the `u_clip` fields in the fast and slow history. A law of the form `u_t ≈ u_{t−1} + k (q* − q_t) − d q̇_t` realizes the integrator.
+
+Corollary for gate design: `zero_vel_rmse` alone can't detect the absence of this role. A proportional-only policy reaches `q̇ = 0` at an offset angle `q* + Δ(τ_ext)`. This is why §3.2 reports position error.
+
+**Operational test (absence detection, B.2)**: at evaluation, replace the `u_prev` and history `u_clip` inputs with their panel-mean constants.
+
+* If the integrating role exists and is realized through this channel, E3 steady-state `|q − q*|` grows by ≥ 3× and becomes proportional to `|τ_ext|`, with slope R² ≥ 0.8 across load bins.
+* If it doesn't grow, either the role is absent (E3 position error was already ∝ `|τ_ext|` before the ablation) or it is realized another way (for example through the slow `q` and `q̇` segment means acting as a surrogate). Both outcomes are recorded.
+
+**Grade note**: the internal-model principle is Grade 1 for linear time-invariant plants. Its application to this nonlinear, stiction-bearing, saturating plant through a learned policy is claimed only at Grade 2 (an obligatory functional role), and it remains Candidate.
+
+---
+
+## 6. Pre-Registered Empirical Spike Protocol
+
+**Device honesty**: on the drafting host, `torch` isn't importable and no CUDA device is present. The spike runner records `device`, `torch.__version__`, `torch.get_num_threads()`, the CPU model, wall-clock time and peak RSS (`/proc/self/status VmHWM`). A CPU-only result is reported as CPU-only. Results are never extrapolated to longer runs, and no claim of converged control is made from any stage (Charter boundary 4).
+
+**Pre-registration**: this section, the `make_program` source and the gate constants are hashed with SHA-256 before execution. Seeds `{0, 1, 2}`, `PANEL_SEED = 0xB02A`. Every stage writes `VERDICT.json`, with each gate's value, threshold and `PASS`/`FAIL`, plus the raw per-cell ledger.
+
+### S0 — Program-generator audit (pure, no physics; minutes)
+
+Generate 720 cells × 64 ordinals × {TRAIN_RULE, TRAIN_POLICY} = 92,160 programs, plus the full panel.
+
+| Gate | Pass criterion |
+|---|---|
+| S0-1 | 0 predicate violations on program arrays (§1.5) |
+| S0-2 | Regeneration from keys is byte-identical (SHA-256 of all arrays) |
+| S0-3 | Group 18 carriers are functions of `(program, t)` only (static analysis + randomized re-evaluation) |
+| S0-4 | Panel keys are disjoint from training keys |
+| S0-5 | All E3/E4 programs have `|u*| ≤ 0.92`, and `|τ_ext| ≥ 0.25 S_max` on plateaus |
+| S0-6 | Per-config episode-round counts are exactly 4/3/4/3/6 |
+
+### S1 — Rule fill on real physics (P0-R, all 144 configs; CPU)
+
+| Gate | Pass criterion |
+|---|---|
+| S1-1 | `scene_sync_violation_count = 0` |
+| S1-2 | Exactly 144 verified E3 rule sustained windows (each ≥ 25 contiguous steps by physics readback) |
+| S1-3 | 288 verified E4 release + recovery windows |
+| S1-4 | E3 anchor quality: `RMS(q̇) ≤ 0.10` rad/s in ≥ 95 % of configs, and no config > 0.35. `|q − q*| ≤ 0.02` rad in ≥ 95 % of configs |
+| S1-5 | `limit_escape_rate_rule ≥ 0.95` |
+| S1-6 | E2 contact verified in 144/144 |
+| S1-7 | Rule positive control on the frozen panel: `zero_vel_rmse < 0.10` rad/s on E0, E3 and E4 separately |
+| S1-8 | Rule partition tensor = 32,768 × 41,677 B, and sidecar 8 B/transition |
+
+If S1-7 fails, the panel is infeasible: stop and report. Proceeding with an unachievable panel is not allowed.
+
+### S2 — Pipeline closure (P0-R + P0-M + 4,096 updates; 2 normalizer refreshes; 64 rule refreshes; CPU; seeds 0–2)
+
+| Gate | Pass criterion |
+|---|---|
+| S2-1 | **`coverage_ready = true`** at update 4,096 on all 3 seeds: all 720 cells pass GC-1..GC-6, `sustained_load_hold_count ≥ 288`, `post_load_recovery_count ≥ 432`, `limit_escape_rate_rule ≥ 0.95`, `scene_sync_violation_count = 0` |
+| S2-2 | `coverage_ready` remains true at every checkpoint (every 512 updates) after P0-M. No cell is ever below quota during rule refresh |
+| S2-3 | **Evaluator negative control**: on a copy of the build, inject (a) a 40-step left shift of E3 `τ_ext` on 10 % of programs and (b) label swaps E3↔E4 on 10 %. The evaluator must report `scene_sync_violation_count` equal to the injected count (±0) and `coverage_ready = false` |
+| S2-4 | **Legacy arm L** (legacy sampler + unsynchronized labels, otherwise identical) reproduces `sustained_load_hold_count = 0` or reports violations, which confirms the evaluator distinguishes the arms. A nonzero legacy count is reported as a finding and does not invalidate S2-1 |
+| S2-5 | Tensor allocation ≤ 4.10 × 10⁹ B. Peak RSS ≤ 4.694 × 10⁹ B |
+| S2-6 | `norm_refresh_max_rel_output_change ≤ 10⁻⁵` for π, B, F₁, F₂ and targets. `norm_stats_recompute_rel_err ≤ 10⁻⁶` |
+| S2-7 | Checkpoint at 2,048, resume to 2,560: `resume_diff_norm = 0.0` and an identical `cross_coverage_144_x_5` |
+| S2-8 | Deployment export contains no `rule_calibration` or `p5065` reachable symbols, and the parameter count is still 281,617 |
+| S2-9 (secondary, #8) | **Saturation probe**: set the actor head bias so `y ≈ 4` on the E3-high probe set, then train 256 updates. The penalty arm must bring `sat_frac_E3_high` below 5 % at least 3× faster, in updates, than the `λ_pre = 0` arm. If neither arm recovers within 256 updates, the result is INCONCLUSIVE |
+
+### S3 — Holding gate (all 144 configs; CPU budget-limited)
+
+* **Arms**:
+  * **Full**: S2 build. Seeds 0–2.
+  * **−AS** (`λ_pre = 0`, no target smoothing). Seed 0.
+  * **−R** (rule partition filled by the legacy sampler, but synchronized programs). Seed 0.
+* **Budget**: 20,000 updates per seed at `B_mb = 512`. The estimated cost is ~70 GFLOP per update (arithmetic estimate from the parameter shapes), and the runner records measured throughput. The cap is 12 h of wall-clock per seed on CPU. If the cap is reached first, the stage reports the last checkpoint with `budget_exhausted = true`.
+* **Evaluation**: the frozen panel (§3.2) every 2,500 updates, with the final value taken at the last checkpoint.
+* **Primary gate (H2 holding)**:
+  * **PASS** iff, for Full, `zero_vel_rmse_E0`, `_E3` and `_E4` are each < 0.35 rad/s **on all 3 seeds**.
+  * **FAIL** iff any scene is ≥ 0.35 on all 3 seeds.
+  * Otherwise **MIXED**, which counts as not passed.
+  * A FAIL with `budget_exhausted = true` is recorded as *"not reached within CPU budget"*. It is not evidence against H2, and it is not evidence for it.
+* **Attribution** (reported only, single seed): the Full − (−R) and Full − (−AS) differences in per-scene RMSE and E3 position error. No necessity is inferred from these scores (B.3.5).
+* **`C-B02-A-03` operational test**: apply the `u_prev`/`u_clip` ablation of §5 to the final Full checkpoint, and report E3 `|q − q*|` before and after, with the slope against `|τ_ext|` (pre-registered thresholds: ≥ 3× growth, R² ≥ 0.8).
+* **Reporting**: per-`C_0`-tier RMSE, per-config 95th percentile, E4 settling time and `sat_frac` trajectories.
+
+**What would falsify this proposal's engineering contract** (as opposed to H2 competence): any failure of S0, S1-1/2/3/5/6/8 or S2-1/2/3/5/6/7/8. Any of these means the synchronization, wiring, normalizer or coverage design is wrong as specified, regardless of training budget.
+
+exec
+/bin/bash -lc "python3 - <<'PY'
+import math
+N=98304
+extra=N*8+3*10418*8+720*16*8
+print('replay_bytes',N*41677,'additions_bytes',extra,'total',N*41677+extra)
+print('mean_rule_capacity',32768/720)
+print('empty_cells_exact',144*sum((1-p/144)**1024 for p in [.2,.15,.2,.15,.3]))
+print('atanh_092',math.atanh(.92))
+for cap in (68,91,137):
+    ring=[None]*cap
+    ptr=0
+    for ep in range(3):
+        for t in range(64):
+            ring[ptr]=(ep,t)
+            ptr=(ptr+1)%cap
+    first_gap=None
+    for t in range(64):
+        ring[ptr]=(3,t)
+        ptr=(ptr+1)%cap
+        complete=[e for e in range(4) if sum(x is not None and x[0]==e for x in ring)==64]
+        if not complete and first_gap is None:first_gap=t+1
+    print('capacity',cap,'first_write_without_complete_episode',first_gap)
+PY" in /srv/claude
+ succeeded in 0ms:
+replay_bytes 4097015808 additions_bytes 1128624 total 4098144432
+mean_rule_capacity 45.51111111111111
+empty_cells_exact 185.46939492916158
+atanh_092 1.589026915173973
+capacity 68 first_write_without_complete_episode 5
+capacity 91 first_write_without_complete_episode 28
+capacity 137 first_write_without_complete_episode None
+
+codex
+The arithmetic supports the stated replay allocation, but the specification does not account for storing overwritten transitions needed for rollback. I also found conflicts in the E4 program keys, load thresholds, and rule-validation gates. The review will identify these as specification defects and keep them separate from untested empirical claims.
+
+exec
+/bin/bash -lc 'mkdir -p /srv/claude/research/motor-unit-representation/packets/B02/reviews' in /srv/claude
+ succeeded in 0ms:
+apply patch
+patch: completed
+/srv/claude/research/motor-unit-representation/packets/B02/reviews/review-B-on-A.md
+diff --git a/research/motor-unit-representation/packets/B02/reviews/review-B-on-A.md b/research/motor-unit-representation/packets/B02/reviews/review-B-on-A.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1938cab2cfaf504afbb86e9dd84fcb00c0dbe17b
+--- /dev/null
++++ b/research/motor-unit-representation/packets/B02/reviews/review-B-on-A.md
+@@ -0,0 +1,100 @@
++# Blind Review B on Proposal A (Packet B02)
++
++Reviewed against the frozen `PROGRAM_CHARTER.md`, `packets/B02/brief.md`, and `packets/B02/proposals/A.md` only. No other review or draft was read. References below are to Proposal A's sections unless stated otherwise. Baseline layouts and the inherited B01 decision were not independently inspected; assertions about them remain conditional.
++
++**Recommendation: major revision; do not accept the claimed readiness guarantee as specified.** The single-source scene program, physics readback, stratified replay, and separation of pipeline verification from competence are useful. However, several proposed invariants are false or mutually inconsistent before any physics experiment. A bounded storage allocation does not guarantee bounded-time closure of behavior-dependent gates.
++
++## 1. Gate & Hard-Constraint Audit
++
++| Requirement | Assessment | Reason |
++|---|---|---|
++| Deployment proprioceptive purity | Conditional pass in architecture; verification incomplete | Actor and backward-map signatures respect the charter, and privileged rule control is training-only. The holding-target construction still depends on an unverified layout/calibration convention (§3.1). Symbol-name exclusion alone cannot establish data provenance. |
++| Causal privileged forward inputs | Consistent in the proposed open-loop schedule | Time-triggered loads and timers are exogenous. Current contact/force observations must retain their endogenous classification. Compatibility with the unread B01 artifact is not independently established. |
++| Real physics coverage; no fabricated metrics | Good stated intent, inadequate residency proof | Readbacks and episode deduplication are appropriate. In-place replacement, incomplete event evidence, and duplicate E4 keys can invalidate the proposed resident-event ledger. No rollouts have been presented. |
++| Smoke verification versus converged control | Pass | The candidate labels, CPU/device honesty, and separation of S2 from S3 comply with the charter. No convergence evidence is claimed from the 101-update run. |
++| 32,768 rule + 65,536 policy CPU FP32 transitions | Arithmetic passes; implementation unresolved | The nominal slot allocation fits exactly. Transactional rollback and atomic replacement are not provided by a write cursor and may require additional storage. |
++| Tensor memory ≤ 4.10 GB; peak RSS ≤ 4.694 GB | Conditional tensor pass; RSS unverified | Using the proposal's inherited row size, replay is 4,097,015,808 B; listed sidecar, moments, and ledger add 1,128,624 B, totaling 4,098,144,432 B. This leaves 1,855,568 B under the tensor cap before unlisted additions. RSS must be measured. |
++| All 144 configurations × five scenes | Allocated, not guaranteed to qualify | F1 redraws can fail; contact, escape, and anchoring require successful behavior. There is no finite retry or closure bound. |
++| Exact static target and holding threshold | Threshold explicit; target incomplete | Per-scene RMSE < 0.35 rad/s is explicit. The L13-A/L13-U branch leaves the requested exact target unresolved. |
++
++The calculations above are reviewer arithmetic checks, not physical evidence. A small synthetic ring-buffer check also verifies the residency counterexample in objection B02-B-04 below.
++
++## 2. Rubric-Keyed Technical Objections
++
++The rubric weights below are those in the brief. Severity denotes impact on the specified contract, not an empirical claim that the eventual implementation cannot work.
++
++### Resolution of Audit Issues #1, #2, #3, #5, #6, #8 — 35%
++
++**B02-B-01 [CRITICAL] — The generator contradicts its own S0 predicates (#1; §§1.2–1.5, S0-1/S0-5).** The sign-flip argument proves a ≥ 0.25 S_max load only on draws that actually flip. For example, m = 0.20, σ = +1, and τ_g(q*) = −0.02 S_max satisfy F1 and produce τ_ext = −0.18 S_max. No flip occurs, so S0-5 fails. This is a counterexample within the stated parameter constraints; whether the fixed morphology set realizes it requires physics/configuration inspection. Likewise, E3 drift is constrained by the upper effort limit but lacks an explicit lower load-magnitude constraint, so it can erode the sustained-load threshold.
++
++The declared E3 sustain window begins at p₀. For step-on, its first sample compares τ_L with zero and violates the ≤ 0.02 S_max increment predicate. Later subwindows can qualify, but the declared window does not. Define the onset edge separately and start the stable-window predicate after it. Finally, contact and escape cannot be checked on torque/program arrays at reset; S0 must distinguish schedule checks from S1 physical predicates. Specify a generator that satisfies exactly the same predicates used by the evaluator, including lower load bounds under drift.
++
++**B02-B-02 [MAJOR] — Rule calibration is wired conceptually, but its initialization and recovery argument are wrong (#2; §§1.2, 2.1–2.2).** During locked pre-roll at q₀ = q*, with a static reference, e = 0. The stated integral update is therefore zero regardless of gravity-model error or applied load. The lock supplies the missing reaction; the integral has not “absorbed” model error as claimed. E4 training then has only 20–28 loaded control steps, κ = 0, and integral authority limited to 0.6 S_max even when the required holding effort reaches 0.85. Proportional error may supply the remainder, but neither absorbed load nor near-zero position error follows by construction. The idealized linear eigenvalue calculation does not establish the noisy, saturated, contact-bearing controller's performance across all configurations. Define controller state initialization and validate loaded settling and post-release behavior rather than assuming them. Also specify whether exploration noise is disabled for the rule positive control.
++
++**B02-B-03 [MAJOR] — Anti-saturation is a plausible intervention, not the claimed bound (#8; §2.7, C-B02-A-02).** A finite squared hinge with λ = 0.1 does not enforce |y| ≤ 2. For a scalar normalized critic objective Q(tanh y), stationary points above 2 satisfy Q_a sech²(y) = 0.2(y − 2); the assumptions do not exclude such points. Normalizing objective magnitude does not bound its action derivative. The derivative lower bound is valid conditional on |y| ≤ 2, but the loss does not establish that condition. The §2.7 bound for the full loss also omits the objective normalization factor and cannot generally survive batch-gradient cancellation. Restrict the theorem to the head Jacobian, treat the penalty as empirical recovery assistance, and make recovery a required audit-#8 result. Feasible static effort at q* does not prove transient feasibility, or establish that shared-network learning preserves every holding fixed point.
++
++**B02-B-04 [CRITICAL] — Slot counts do not preserve complete resident episodes during writes (#3; §§2.2, 2.6, 3.3).** In a full 68-slot policy ring, four transitions preceding the latest 64-step episode can be overwritten safely. The fifth write of the next episode evicts the previous episode's first transition, while the new episode has only five transitions. Neither episode is complete. GC-2 therefore fails during writes 5–63. A 91-slot ring similarly loses its complete episode beginning at write 28. Capacity ≥ T proves residency after a completed commit, not “always.”
++
++The rule case is more direct: overwriting a 34-step E3 window creates fragments from different episodes, which cannot jointly establish one contiguous 25-step event. Constant occupancy is not constant qualifying coverage. Specify audit/sampling boundaries, episode identity, validation, and an atomic commit protocol. If guarantees are only at episode boundaries, say so and prohibit reads of intermediate states. Failed episodes still need a real recovery mechanism; see B02-B-09.
++
++**B02-B-05 [MAJOR] — Normalizer output preservation is sound only under explicit architectural conditions; optimizer handling is not justified (#6; §2.5).** The affine W′, b′ formulas correctly preserve a first-layer preactivation for an unclipped affine normalizer and unchanged raw inputs. Enumerate all consumers, bypasses, clipping operations, and targets, and update them atomically. Shared statistics align preprocessing, not the underlying rule/policy distributions.
++
++Adam moments are gradient statistics, not parameter values. Multiplying them by the same factors as W does not follow from this reparameterization; the bias shift also couples weight and bias coordinates. Even a pure scaling gives inverse scaling for gradients under the corresponding coordinate change. State whether optimizer state is reset or approximately transformed, and test subsequent updates, not merely instantaneous forward equality. The sampler's fixed 171/341 split is also not exactly 1/3 versus 2/3; use realized long-run probabilities in the “exact marginal weights” claim or rotate that rounding too.
++
++**B02-B-06 [MAJOR] — The exact holding target remains conditional (#5; §3.1).** The proposal explicitly assumes a calibration convention outside its read set and gives two incompatible g13 layouts. Resolve the frozen manifest before registration, including units, normalized coordinates, housing-frame origin/axes, and availability of every descriptor used by FK or gravity estimation. An L13-U effort target based on gravity alone is not an equilibrium outcome under unknown E3 load; sensitivity reporting does not make it exact. The 1,000-transition FK check is useful but must cover all configurations and the actual feature encoding, not just raw position in meters. The final target construction must demonstrably use only deployment-permitted data.
++
++### 720-Cell Cross-Coverage Guarantee — 25%
++
++**B02-B-07 [CRITICAL] — The two E4 rule events have the same deterministic key (§§1.2, 1.4, 2.2).** P0-R requests E4-R and E4-RI at ordinal 0, but make_program takes no variant argument and n mod 3 = 0 selects R. Identical keys produce identical programs; the claimed RI episode cannot be generated as specified. Repeated keys also leave the sidecar unable to distinguish independent episode identities for deduplication. Give the two streams unique ordinals selecting the intended variants, or add a persistent variant/episode identifier to the key and memory budget. Specify how these identities advance during refresh and for reserve windows.
++
++**B02-B-08 [CRITICAL] — GC-5 depends on policy competence; open-loop forcing cannot guarantee it (§§1.4–1.5, 3.3).** An E2 obstacle does not force the robot to approach it. The single rule contact event is insufficient for GC-5's two events if the resident policy episode stays on the free side. A moving q_ref cannot fix this for a policy receiving an unrelated sampled z. E4's no-contact recovery predicate can also fail under uncontrolled motion. Thus §3.3's statement that none of the counts depends on policy competence is false. Top-up may improve the odds but provides no finite bound, and changes the nominal episode quotas.
++
++There are additional gate inconsistencies: GC-5 requires a rule escape in every E1 cell, effectively 144/144, while S1-5 allows only 95%. Section 2.2 requires every E3 rule anchor below 0.10 rad/s and 0.02 rad, while S1-4 permits 5% to fail those limits. Separate scheduled opportunities, physically realized events, and competence metrics. Either admit conditional closure or supply a feasible acquisition mechanism and bounded failure/retry contract. Preserve unsuccessful valid rollouts rather than silently selecting only successes.
++
++### Memory & Compute Compliance — 20%
++
++**B02-B-09 [CRITICAL] — Rollback has no storage for overwritten data (§§1.2, 2.2, 2.6).** A cursor restores an address, not the old FP32 transition. In-place writes destroy the data needed by the promised slot-for-slot rollback after a late NaN or solver failure. The 16 policy reserve slots cannot back up a 64-transition episode. A 64-row staging copy alone costs 2,667,328 B, exceeding the 1,855,568 B nominal tensor headroom if added without reclaiming storage. This does not prove that an atomic design is impossible; it shows that the specified zero-staging design is incomplete. Provide a concrete storage/commit layout within both partition caps and measure memory including normalizer scratch, optimizer state, evaluation, and rollback. Deterministic regeneration would require the old behavior state and physics replay, not merely the program key.
++
++**B02-B-10 [MAJOR] — There is no bounded compute-to-closure argument (§§1.2, 1.3, 3.3, 6).** Failed-rollout retries and front-of-queue repairs can continue indefinitely. The episode-to-gradient-update ratio is unspecified, so 4,096 updates do not imply policy rings are full or all load/variant strata are refreshed. Sixty-four rule refreshes cover only 64 of 144 configurations; a full cycle takes 9,216 updates. A scheduler pointer alone does not capture per-cell ordinals, repair queues, ring cursors, behavior/exploration randomness, or in-flight histories. Freeze the complete schedule and checkpoint state, bound retries and wall time for S0–S2 as well as S3, and report unresolved cells as failure to meet the engineering budget.
++
++### Spike Falsifiability — 20%
++
++**B02-B-11 [MAJOR] — Some required fixes can fail without falsifying the advertised engineering contract (§6).** The concluding falsification list omits S1-4, S1-7, and S2-9, even though rule anchors, a usable static panel, and saturation recovery support the claimed resolutions. A failed rule positive control does not prove physical infeasibility: it could expose bad gains, integral initialization, noise, or a controller bug. Record CONTROL_FAIL separately from proven INFEASIBLE and mark the proposal unvalidated. An inconclusive saturation probe must leave #8 unresolved. Section 4 below details changes needed for decisive outcomes.
++
++## 3. Audit of Rejected Alternative & Necessity Claim
++
++**C-B02-A-01: accept the narrow full-episode counting bound; reject its use to rule out global FIFO replay in general.**
++
++1. **Valid result.** If every one of 720 mutually exclusive cells must simultaneously retain a complete 64-transition episode in the rule partition, 720 × 64 = 46,080 > 32,768 makes that requirement impossible. This is independent of learner quality. The event bound N ≥ Σ m_s ℓ_s additionally needs distinct resident witnesses with no shared transition support between counted events; make that explicit. The proposal's once-per-episode rule can support such an assumption for the relevant same-type events.
++
++2. **Overstated conclusion [MAJOR].** A mean retained length need only be ≤ 32,768/720 = 45.511…, not ≤ floor(32,768/720) = 45. Integer individual lengths can have a fractional mean. The floor applies to a uniform per-cell allocation. Further, the bound concerns simultaneous residency, not cumulative coverage from full physical rollouts, and does not uniquely require contiguous windows for cells whose gate is only transition occupancy.
++
++3. **IID occupancy is not FIFO impossibility [MAJOR].** The exact expected empty-cell count for 1,024 IID policy episodes is 144 Σ_s(1 − p_s/144)^1024 ≈ 185.469; the stated ≈ 185.6 is a reasonable Poisson approximation. The bound on joint occupancy needs a justification for occupancy dependence, rather than being described solely as counting. Regardless, it applies to IID insertion, not all FIFO schedules. The proposal itself acknowledges that a deterministic schedule with maximum gap ≤ 1,024 episodes can preserve policy-cell residency at commit boundaries. A simple 720-cell cycle already disproves an unconditional FIFO impossibility claim, though that particular cycle does not satisfy the scene percentages. Any quota-preserving version must separately prove its maximum gaps. A 64-episode gap margin is not destroyed by every single retry or top-up.
++
++4. **The rejected alternative bundles independent decisions [MAJOR].** FIFO storage does not require endogenous release, and event-triggered release does not require leaking a future realized release time into F. Under the charter, current/historical state of an endogenous release mechanism can be represented causally; falsely calling a realized future time exogenous is the problem. This review cannot verify the stronger unread B01 restriction. Compare storage policies under the same causal generator, event definitions, quotas, and transactional boundaries. The narrow full-rule-episode version is already excluded by capacity; other FIFO/window or hybrid designs are not.
++
++5. **The objections partly apply to A itself.** A also uses coverage-driven top-up, outcome-dependent retry, and physical event flags. Its ledger is therefore not a function of the scheduler pointer alone. Discarding invalid solver output is reasonable, but its retry policy and valid failure retention must be explicit in either design.
++
++Retain C-B02-A-01 as a conditional capacity lemma. Remove the universal “global FIFO with a hard per-cell gate” exclusion and any claim that it establishes the necessity of A's particular slot design without a matched comparison.
++
++## 4. Spike Protocol Critique
++
++The proposed spike has worthwhile safeguards: three Full seeds, explicit thresholds, real-physics readbacks, independent panel keys, memory measurements, and a negative control. It can become decisive after the following corrections.
++
++1. **Freeze one executable contract before S0.** Resolve g13, E4 keys, the sustain-window boundary, drift/load bounds, variant selection, rule noise, and the exact normalizer initialization. Include collector/evaluator/manifest hashes and the config-to-capacity mapping, not just make_program and gate constants. Distinguish tests of exogenous arrays from tests requiring physical trajectories.
++
++2. **Add adversarial replay tests before expensive physics.** Fill every cell, interleave reads with each replacement write, and inject failures immediately before and after overwritten event evidence. Recompute events using unique episode IDs and contiguous resident steps. Assert rollback restores old data byte-for-byte. Checkpoint/resume during a refresh and repair cycle, as well as at a clean update boundary. Event flags must not allow fragments of different episodes to masquerade as one witness.
++
++3. **Make the coverage oracle independently auditable.** Save actual applied torques, contact observations, and event intervals for validation outside the training replay, with provenance and storage/RSS accounting. An event bit alone cannot independently reproduce the readback predicate. E1's no-return condition extends to t = 64, beyond its stored 34-step window; explicitly distinguish an audited whole-rollout certificate from a fully resident event witness. Include counterexamples with sufficient slot occupancy but zero qualifying events.
++
++4. **Repair the negative-control injection.** A “40-step left shift” needs padding/truncation semantics. Edge-padding can leave an E3 plateau satisfying the label-level predicate, whereas zero-padding can force a release; exact injected-count detection is not specified until this is settled. Define whether detection checks the prescribed onset time or only regime eligibility. Use disjoint, enumerated affected episode IDs, guarantee each injection violates a named predicate, and count each mismatching episode once. Section 1.5 currently alternates between episodes and counts per event type. Also include untouched controls to measure false positives.
++
++5. **Reconcile every S1/S2 threshold.** Use one rule-anchor and escape standard across §2.2, GC-1–GC-6, and S1. Explain how reserve windows affect S1-2's “exactly 144” E3 events: seven extra E3/E4 episodes can increase the count. Define base-cell versus reserve accounting and sampling weights. A 512-update checkpoint cadence cannot prove uninterrupted coverage during writes; either instrument commits/writes or narrow the assertion. Run at least one complete 144-config refresh cycle, with all intended E4 variants and E3 load bins exercised, before claiming refresh-wide stability.
++
++6. **Prevent a low velocity score from becoming a false holding claim.** Per-scene RMSE matches the brief's numerical criterion, but aggregation across configs can hide large local failures. A single 3 rad/s configuration among 143 perfect ones contributes only 3/√144 = 0.25 rad/s to an equally weighted scene aggregate. Preserve the specified aggregate metric, report every config, and pre-register a per-config guard if the claim is all-config competence. Require target-position and unintended-stop/contact checks for a stronger equilibrium-holding claim: a joint immobilized at the wrong angle can pass the velocity gate. This is a limitation of the claim, not an assertion that the brief already mandated a position threshold.
++
++7. **Make controls and budget outcomes decisive.** A rule-control failure is a failed validation, not a license to declare the task physically impossible. Specify outcomes if the 12-hour cap arrives before the first scheduled evaluation, and include evaluation/collection time in the cap. Missing metrics and mixed seeds are NOT PASSED. Budget exhaustion does not refute asymptotic H2, but it does fail a claim of closure within the registered budget. Keep coverage_ready and holding PASS separate and require both for an overall B02 success.
++
++8. **Tighten the mechanism probes.** Define recovery time and censoring when only one saturation arm recovers; both arms need identical smoothing unless smoothing is the treatment. S3's −AS removes both penalty and smoothing, so it identifies the combined intervention, not the penalty alone. Freezing action-history channels in C-B02-A-03 disrupts feedback and observability as well as any integrating role. The proposed 3× and R² criteria are an exploratory signature, not proof of a necessary internal model. Include matched perturbation controls and avoid inferring necessity from a single-seed ablation.
++
++Acceptance should require a corrected specification followed by the registered physical and memory results. The current document supports a promising design direction and a valid narrow capacity bound; it does not yet establish the claimed 720-cell readiness guarantee or resolution of all six audit issues.
+
+exec
+/bin/bash -lc "python3 - <<'PY'
+from pathlib import Path
+p=Path('/srv/claude/research/motor-unit-representation/packets/B02/reviews/review-B-on-A.md')
+s=p.read_text()
+required=['# Blind Review B on Proposal A (Packet B02)','## 1. Gate & Hard-Constraint Audit','## 2. Rubric-Keyed Technical Objections','## 3. Audit of Rejected Alternative & Necessity Claim','## 4. Spike Protocol Critique']
+assert all(s.count(h)==1 for h in required)
+assert 'C-B02-A-01' in s
+print(f'Validated review: {len(s.split())} words; all five required headings present.')
+PY" in /srv/claude
+ succeeded in 0ms:
+Validated review: 3197 words; all five required headings present.
+
+codex
+Completed the [blind review](/srv/claude/research/motor-unit-representation/packets/B02/reviews/review-B-on-A.md) with all required sections.
+
+Recommendation: major revision. No other reviews or drafts were read.
+tokens used
+45,974
+Completed the [blind review](/srv/claude/research/motor-unit-representation/packets/B02/reviews/review-B-on-A.md) with all required sections.
+
+Recommendation: major revision. No other reviews or drafts were read.

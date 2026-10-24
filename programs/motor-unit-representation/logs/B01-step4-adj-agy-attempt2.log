@@ -1,0 +1,27 @@
+The Independent Cross-Family Adjudication Report for Packet `B01` (Order 1) has been written to [adjudication-agy-order1.md](file:///srv/claude/research/motor-unit-representation/packets/B01/adjudication-agy-order1.md).
+
+### Summary of Adjudication
+
+1. **Eligibility Gate Check**: Both [Candidate P](file:///srv/claude/research/motor-unit-representation/packets/B01/anonymized/order1_P.md) and [Candidate Q](file:///srv/claude/research/motor-unit-representation/packets/B01/anonymized/order1_Q.md) **PASS** all Hard Technical Boundaries in [PROGRAM_CHARTER.md](file:///srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md), the deliverables and schema constraints in [brief.md](file:///srv/claude/research/motor-unit-representation/packets/B01/brief.md), Methodology v1.0 §11.5, and Appendix B.5 gates.
+
+2. **Rubric-Weighted Scores**:
+
+| Dimension | Weight | Candidate P | Candidate Q |
+|---|---:|---:|---:|
+| Action-Jacobian Degeneracy Proof | 35% | `85.0` (`29.75`) | `84.0` (`29.40`) |
+| Completeness of 22-Group Audit | 25% | `90.0` (`22.50`) | `78.0` (`19.50`) |
+| Preservation of E0–E4 Disambiguation | 20% | `88.0` (`17.60`) | `82.0` (`16.40`) |
+| Spike Falsifiability | 20% | `86.0` (`17.20`) | `88.0` (`17.60`) |
+| **Total Weighted Score** | **100%** | **`87.05 / 100.00`** | **`82.90 / 100.00`** |
+
+3. **Principle Claim Adjudication (Appendix B.9)**:
+   - `C-B01-P-01` (Grade 1 Impossibility): **`Candidate` (`tighten-premises`)** — require $\omega_{t+1}^{\mathrm{phys}} \perp \omega_{t+1}^{\mathrm{exo}} \mid Z_t$ or full $Z_{t+1}$-sufficiency in (P3), separate the interior-support zeroing branch from the singleton-support non-identifiability branch (restricting Theorem 2(d) $z$-collapse to interior support), and use $\|J_{\mathrm{fut}} Y_a\|_2 / \|J_a\|_2 \ge 4$ in Gate G-1.
+   - `C-B01-P-02` (Grade 1 Invariant): **`Candidate` (`tighten-premises`)** — restrict the exact identity and $\mathrm{AEV}$ decomposition to a common fixed Bellman target $T_t$ under nested sigma-algebras $\mathcal{F}_t^{\mathrm{causal}} \subset \mathcal{F}_t^{\mathrm{leaky}}$, evaluated against Candidate Q's shared reference target $Y_{\mathrm{ref}}$.
+   - `C-B01-P-03` (Grade 2 Functional Role / Lower Bound): **`Candidate` (`stay` at Grade 2, `tighten-premises`)** — define target separation in the projected $B_\omega(g_{13})$ successor-feature space and restrict Gate G-7 timer permutations to hold-age-matched states.
+   - `C-B01-Q-01` (Grade 1 Impossibility): **`Candidate` (`tighten-premises` & merge with `C-B01-P-01` Branch B)** — replace the circular phrasing in Premise (iv) with a standard $C^1$ linear-extension closure premise and add an empirical $\widehat{\operatorname{Var}}(L \mid S, a)$ branch check.
+   - `C-B01-Q-02` (Grade 1 Lower Bound): **`Candidate` (`stay`)** — mathematically sound conditional MSE lower bound $(u-v)^2/4$, paired with Candidate P's Arms `Z` and `C-ξ` for empirical verification.
+
+4. **Disposition**:
+   - **`Recommend`**: **`P`** *(Lead Track: `87.05` vs `82.90`, $\Delta = +4.15$; within the `5.0`-point Tie Margin in [brief.md](file:///srv/claude/research/motor-unit-representation/packets/B01/brief.md), triggering mandatory synthesis with Candidate `P` as primary architectural base)*
+   - **`Alternate`**: **`Q`**
+   - **Mandatory Merge Items**: Full 5-item synthesis list and confounds analysis are recorded in §4 of [adjudication-agy-order1.md](file:///srv/claude/research/motor-unit-representation/packets/B01/adjudication-agy-order1.md).

@@ -1,0 +1,18 @@
+I have completed the independent cross-family adjudication for Packet `B04` and written the full report to [adjudication-agy-order1.md](file:///srv/claude/research/motor-unit-representation/packets/B04/adjudication-agy-order1.md).
+
+### Summary of Adjudication
+
+1. **Eligibility Gate Check**: Both [order1_P.md](file:///srv/claude/research/motor-unit-representation/packets/B04/anonymized/order1_P.md) (**Candidate P**) and [order1_Q.md](file:///srv/claude/research/motor-unit-representation/packets/B04/anonymized/order1_Q.md) (**Candidate Q**) pass all hard charter boundaries in [PROGRAM_CHARTER.md](file:///srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md) and constraint gates in [brief.md](file:///srv/claude/research/motor-unit-representation/packets/B04/brief.md) (`ELIGIBLE`).
+2. **Rubric Scores**:
+   - **Candidate P**: **`71.0 / 100.0`** (`23.0/30` Coupling Reduction, `19.0/25` Ablation Fairness, `15.0/25` Morphology-Transfer Falsifiability, `14.0/20` Benchmark Reproducibility)
+   - **Candidate Q**: **`65.0 / 100.0`** (`19.0/30` Coupling Reduction, `20.0/25` Ablation Fairness, `14.0/25` Morphology-Transfer Falsifiability, `12.0/20` Benchmark Reproducibility)
+3. **Principle Claim Adjudication (Appendix B.9)**:
+   - `C-B04-P-01`: **Partial Accept** (Split into a narrowed Grade-1 Conditional Lemma on counterfactual law distinction + sampled-data delayed-servo inertia-ratio instability, and a Grade-2 Preregistered Diagnostic Protocol for the 5-code certificate).
+   - `C-B04-P-02`: **Accept** (Grade-1 Analytical Identity for terminal/distal single-rigid-body joints, paired with Q's exact Schur-reduced free-flight gravity cancellation $G(q) - g a(q) \equiv 0$).
+   - `C-B04-P-03`: **Accept with Qualification** (Grade-1 Conditional Lemma in linearized pinned-foot stance with explicit deviation coordinates and local integral action).
+   - `C-B04-Q-01`: **Downgrade to Operational Audit Gate** (Stage-1 Determinism & Leakage Unit Test).
+   - `C-B04-Q-02`: **Accept** (Grade-1 Methodological Principle on marginal-vs-joint support for coupled transition certificates).
+4. **Disposition**:
+   - **Recommend**: **`P`** (`+6.0` points over `Q`, exceeding the `5.0`-point tie margin)
+   - **Alternate**: **`Q`**
+   - **Mandatory Merge Items & Confounds**: Detailed in §4 of [adjudication-agy-order1.md](file:///srv/claude/research/motor-unit-representation/packets/B04/adjudication-agy-order1.md), integrating P's physically feasible `LIMB2-REF` plant, pelvis-mounted payload, 7-arm controls, and closed-form $\mathcal{K}_c$ Mode B completion with Q's Schur-complement coupling reduction, isolated-link $J_{0j}$ convention, deterministic 140,000-parameter masking, float64 $0.25\text{ ms}$ integrator, blocking inverse-dynamics feasibility gate, controller-independent cell eligibility, and positive-scale transfer retention contrasts.

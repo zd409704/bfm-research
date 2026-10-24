@@ -1,0 +1,937 @@
+Reading prompt from stdin...
+OpenAI Codex v0.163.0
+--------
+workdir: /srv/claude
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: high
+reasoning summaries: none
+session id: 01a16c0b-c309-7191-93db-23add7545da2
+--------
+user
+You are Primary Author B on Packet B04 of the research program at `/srv/claude/research/motor-unit-representation`.
+
+Read the following frozen context files before writing your proposal:
+1. `/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/motor-unit-representation/packets/B04/brief.md`
+3. `/srv/claude/research/motor-unit-representation/baseline/01-motor-unit-proprioception-and-representation-design.md`
+4. `/srv/claude/research/motor-unit-representation/baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md`
+5. `/srv/claude/research/motor-unit-representation/packets/B01/decision.md`
+6. `/srv/claude/research/motor-unit-representation/packets/B02/decision.md` (if present; else skip)
+7. `/srv/claude/research/motor-unit-representation/packets/B03/decision.md` (if present; else skip)
+
+Isolation & Firewall Rules:
+- Do NOT read or list any directory under `packets/B04/drafts/` other than your own directory `/srv/claude/research/motor-unit-representation/packets/B04/drafts/B/`.
+- Write your complete proposal to `/srv/claude/research/motor-unit-representation/packets/B04/drafts/B/proposal.md`.
+
+Required Sections:
+1. `# Proposal B (Packet B04): Composing Frozen Local Motor-Unit Representations into Multi-Joint Limb Controllers Under Coupled Loads`
+2. `## 1. Multi-Body Coupling Dynamics Reduction` for a 2-DoF serial limb (hip j=1, knee j=2) with foot contact; map coupling torques into the local unit EOM and compare to E0-E4 envelopes
+3. `## 2. Upper-Layer Calling Architecture Comparison` Modes A/B vs raw-torque baseline C with fair controls
+4. `## 3. Standardized 2-DoF Transfer Benchmark Specification` closing Audit Issue #9
+5. `## 4. Serious Alternative Considered and Rejected`
+6. `## 5. Candidate Necessity Claims` with `C-B04-B-01`
+7. `## 6. Pre-Registered Empirical Spike Protocol`
+
+Keep each local (B, pi) frozen during downstream multi-joint control.
+
+codex
+I’ll read the frozen context and repository instructions, then write Proposal B in the designated directory without accessing other B04 drafts.
+exec
+/bin/bash -lc "pwd; rg --files -g AGENTS.md -g '"'!research/motor-unit-representation/packets/B04/drafts/**'"' /srv/claude /srv 2>/dev/null | head -80" in /srv/claude
+ succeeded in 0ms:
+/srv/claude
+
+exec
+/bin/bash -lc 'for p in /AGENTS.md /srv/AGENTS.md /srv/claude/AGENTS.md /srv/claude/research/AGENTS.md /srv/claude/research/motor-unit-representation/AGENTS.md /srv/claude/research/motor-unit-representation/packets/AGENTS.md /srv/claude/research/motor-unit-representation/packets/B04/AGENTS.md /srv/claude/research/motor-unit-representation/packets/B04/drafts/B/AGENTS.md; do if [ -f "$p" ]; then printf '"'\\n%s\\n' \""'$p"; cat "$p"; fi; done' in /srv/claude
+ succeeded in 0ms:
+exec
+/bin/bash -lc "if [ -f '/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md' ]; then cat '/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md'; else printf 'NOT PRESENT\\n'; fi" in /srv/claude
+ succeeded in 0ms:
+# Program Charter: Single-Actuator Two-Link Local Behavioral Representation
+
+## 1. Mission Statement
+
+Establish a mathematically rigorous, physically causal, and empirically verified local behavioral representation for a single active rotary joint and its two adjacent links ($P$ and $D$), resolving the 9 open V3 audit defects, closing the `coverage_ready` multi-regime training gates (E0–E4), and defining a falsifiable protocol for composing frozen local motor representations into multi-joint limb controllers.
+
+---
+
+## 2. Hard Technical Boundaries
+
+1. **Deployment Proprioceptive Purity**: At deployment time, only the calibrated 137-D proprioceptive history $x_{137}$ and 13-D single-step outcome $g_{13}$ may be accessed by $\pi_\theta(x_{137}, z_{16})$ and $B_\omega(g_{13})$. No privileged force, contact, or environment solver fields from $p_{5065}$ may leak into deployed modules.
+2. **Causal Integrity of Privileged Forward Inputs**: Even during training, the privileged context $p_{5065}$ fed to $F_{\eta_1, \eta_2}(x_{137,t}, p_{5065,t}, a_t, z_{16})$ must represent the physical regime, active load/contact state, and historical disturbance generator state at time $t$—or explicitly separate exogenous environment schedule parameters from endogenous future robot reactions.
+3. **Zero Fabricated Coverage Metrics**: Coverage gates (`sustained_load_hold_count`, `post_load_recovery_count`, `limit_escape_rate`, `zero_vel_rmse`) must be computed on real physics rollouts across all 144 morphology/stroke configurations (`36` geometry seeds $\times$ `4` stroke profiles) and all 5 scene regimes (E0–E4).
+4. **Strict Separation of Short-Run Pipeline Verification vs Converged Control**: No document may claim that the 101-update V3 smoke run demonstrates converged motor control.
+
+---
+
+## 3. Core Falsifiable Hypotheses
+
+- **H1 (Causal Privileged Disambiguation)**: Replacing acausal future force lookahead in $p_{5065}$ with causal exogenous disturbance generator parameters + current/historical contact-force states preserves $> 95\%$ of $F$'s TD target explained variance while eliminating temporal causality violations.
+- **H2 (Synchronized E3/E4 Load-Hold and Rule Calibration)**: Synchronizing the step-level external load schedule with `E3_SUSTAINED_LOAD` / `E4_POST_LOAD_RECOVERY` labels and routing P0 warmup + rule-replay quotas through the inertia-scaled PD + static-bias + anti-windup rule controller drives `sustained_load_hold_count` and `post_load_recovery_count` past their minimum readiness gates and reduces $\dot{q}=0$ RMSE below `0.35 rad/s`.
+- **H3 (Rank-16 Cross-Morphology Factorizability)**: Although 144 completely orthogonal transition matrices would bound rank-16 Frobenius approximation error at $\sqrt{1 - 16/144} \approx 0.943$, conditioning $F(x_{137}, p_{5065}, a, z_{16})$ on explicit geometry/capacity features while keeping $g_{13}$ in normalized housing-frame coordinates allows a shared 16-D $B(g_{13})$ to achieve relative successor approximation error $< 0.20$ across all 144 configurations.
+- **H4 (Multi-Joint Composition Gain)**: An upper-level 2-DoF or 6-DoF limb controller commanding $z_{16}^{(k)}$ across coupled local V3 motor units achieves faster sample convergence under payload/link-length perturbations than a flat torque policy of equal parameter count, provided inter-joint coupling forces are represented inside each unit's E2/E3 training distribution.
+
+exec
+/bin/bash -lc "if [ -f '/srv/claude/research/motor-unit-representation/packets/B04/brief.md' ]; then cat '/srv/claude/research/motor-unit-representation/packets/B04/brief.md'; else printf 'NOT PRESENT\\n'; fi" in /srv/claude
+ succeeded in 0ms:
+# Brief B04: Composing Frozen Local Motor-Unit Representations (`B/actor`) into Multi-Joint Limb Controllers Under Coupled Loads
+
+**Packet ID**: `B04`
+**Status**: `IN_PROGRESS`
+**Method Version**: v1.0 (`1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7`)
+**Inherited Ledger Snapshot**: `X-BASE-001`..`X-BASE-005`
+**Tie Margin**: `5.0` points out of `100.0`
+**Baseline References**: `baseline/01-motor-unit-proprioception-and-representation-design.md` (§4), `baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md` (Audit Issue #9)
+
+---
+
+## 1. Problem Statement
+
+The foundational motivation of the `motor-unit-representation` program is that a converged, frozen single-actuator module $(B_\omega, \pi_\theta)$ (`281,617` parameters) can be instantiated at every joint $j \in \{1, \dots, N_J\}$ of a multi-joint robot (such as a 2-DoF planar leg or a multi-DoF bipedal limb), allowing an upper-level coordinator $\Pi_{\mathrm{upper}}$ to output local latent commands $z_{16}^{(1)}, \dots, z_{16}^{(N_J)}$ rather than raw joint torques.
+
+However, Audit Issue #9 (`baseline/03`) notes that a critical physical discrepancy arises when transitioning from a single-actuator testbed (where housing link $P$ is inertially fixed or undergoes only quasi-static gravity rotation) to a serial multi-joint kinematic chain:
+- In a serial chain (e.g., hip joint $j=1$ and knee joint $j=2$), the knee's housing link $P_2$ is the hip's driven link $D_1$, which undergoes large linear accelerations $a_{P_2}$, angular velocities $\omega_{P_2}$, and angular accelerations $\dot{\omega}_{P_2}$.
+- Consequently, joint $j=2$ experiences **inter-joint inertial coupling, Coriolis/centrifugal torques, and multi-joint ground reaction forces** through its distal link $D_2$.
+
+**Core Question**: Under what conditions do the E2 (contact), E3 (sustained external load), and E4 (impulse recovery) regimes of the single-actuator training distribution cover the inter-joint coupling torques of a serial multi-joint limb, and what minimal 2-DoF serial-limb benchmark falsifies or validates the composition hypothesis?
+
+---
+
+## 2. Hard Constraints & Non-Goals
+
+- Must keep each local unit's deployed $(B_\omega, \pi_\theta)$ weights **frozen** during downstream multi-joint control to test true modular reuse.
+- Must compare against a fair baseline: an upper-level controller outputting raw torques $u \in [-1, 1]^{N_J}$ with access to the exact same joint proprioception.
+
+---
+
+## 3. Deliverables Required from Primary Authors
+
+1. **Multi-Body Coupling Dynamics Reduction**: Write the exact Euler-Lagrange equations of a 2-DoF serial limb (hip $j=1$, knee $j=2$ with foot contact) and express the coupling torques $(\tau_{\mathrm{inertial}}^{(j)}, \tau_{\mathrm{Coriolis}}^{(j)}, \tau_{\mathrm{grav}}^{(j)}, \tau_{\mathrm{contact}}^{(j)})$ acting on joint $j$ in the local unit equation of motion (`baseline/01` §3.1). Determine when those coupling torques fall inside vs outside the single-unit E0–E4 training envelope.
+2. **Upper-Layer Calling Architecture Comparison**: Compare the three upper-layer calling modes from `baseline/01` §4 on the 2-DoF limb:
+   - Mode A: Direct latent policy $\Pi_{\mathrm{upper}}(O_{\mathrm{limb}}) \to (z_{16}^{(1)}, z_{16}^{(2)})$.
+   - Mode B: Target local outcome decoding $\Pi_{\mathrm{upper}}(O_{\mathrm{limb}}) \to (g_{13}^{\mathrm{des},(1)}, g_{13}^{\mathrm{des},(2)}) \xrightarrow{B_\omega} (z_{16}^{(1)}, z_{16}^{(2)})$.
+   - Baseline C: Direct raw torque policy $\Pi_{\mathrm{raw}}(O_{\mathrm{limb}}) \to (u^{(1)}, u^{(2)})$.
+3. **Standardized 2-DoF Transfer Benchmark Specification (Closing Audit Issue #9)**: Specify the exact 2-DoF serial limb tasks (free-space tracking, payload squat/hold, and ground-impact hopping/landing), sample-efficiency metrics, and zero-shot morphology-transfer tests (changing link length $L_2$ or actuator capacity $C_0$).
+
+---
+
+## 4. Adjudication Rubric
+
+| Dimension | Weight | Scoring Standard |
+|---|---:|---|
+| Exactness of Serial-Chain Coupling Reduction | 30% | Quantifies inertial/Coriolis coupling relative to E3/E4 torque amplitudes. |
+| Fairness of Modular vs Raw-Torque Ablation | 25% | Controls for observation history, control rate (50 Hz), and update budget. |
+| Morphology-Transfer Falsifiability | 25% | Tests zero-shot or few-shot adaptation when $L_D$ or $C_0$ is swapped. |
+| Benchmark Reproducibility | 20% | Provides a complete, self-contained specification closing Audit Issue #9. |
+
+exec
+/bin/bash -lc "if [ -f '/srv/claude/research/motor-unit-representation/baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md' ]; then cat '/srv/claude/research/motor-unit-representation/baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md'; else printf 'NOT PRESENT\\n'; fi" in /srv/claude
+ succeeded in 0ms:
+# Baseline 03: V3 Engineering Status, Empirical Verification Ledgers, and the 9 Open Audit Issues
+
+## 1. Empirical Comparison: V2 Full Run vs V3 Short-Run Verification
+
+| Metric / Verification Field | V2 Baseline Run (`SYM_PROPRIO_V2`) | V3 Short-Run Verification (`LOCAL_RESPONSE_ASYM_FB_V3`) | Status & Interpretation |
+|---|---|---|---|
+| **Total Valid Control Transitions ($W$)** | `20,032,000` | `8,096` (including `P0 = 800` warmup) | V3 run is a short pipeline verification smoke test, not a full training run. |
+| **Total Gradient Updates** | `77,218` | `101` (CUDA) | Confirms forward/backward/actor optimization step execution. |
+| **Replay Memory Footprint** | Unbounded / host-dependent | **`4.097 GB` tensor / `4.694 GB` peak RSS** (`98,304` CPU FP32 transitions) | Strictly within bounded host memory budget. |
+| **Checkpoint Resume Parity** | Not bitwise audited | **`resume_diff_norm = 0.0`** (bitwise exact) | Verified deterministic state restoration. |
+| **Deployment Export** | None | **Verified** (`B` + `actor` = `281,617` params) | Confirms $p_{5065}$ and $F_{1,2}$ are cleanly stripped at deployment. |
+| **Zero-Velocity Holding ($\dot{q}=0$) RMSE** | Unvalidated (`post_gate_eval = null`) | **`5.89` – `13.88 rad/s`** (after 101 updates) | Far above target holding threshold; controller has not yet learned static holding. |
+| **`sustained_load_hold_count`** | `0` | **`0`** | Gate failed (`coverage_ready = false`). |
+| **`post_load_recovery_count`** | `0` | **`0`** | Gate failed (`coverage_ready = false`). |
+| **Overall Validation Flag** | `validated = false` | **`coverage_ready = false`** | Pipeline is verified; scientific convergence and coverage remain open. |
+
+---
+
+## 2. Detailed Specification of the 9 Open V3 Audit Issues
+
+A rigorous code-and-specification audit of the V3 implementation identified **9 concrete discrepancies** between the theoretical V3 design (`baseline/01` and `baseline/02`) and the current implementation. Resolving these 9 issues is the prerequisite for launching full-scale V3 training.
+
+### Issue 1: Scene Label vs Step-Level External Torque Schedule Desynchronization
+- **Mechanism**: Episodes labeled `E3_SUSTAINED_LOAD` or `E4_POST_LOAD_RECOVERY` at the scene-allocation level do not consistently enforce the step-level external torque generator to sustain load for $\ge 25$ consecutive steps (`0.5 s`) or trigger a deterministic release edge followed by a quiet recovery window.
+- **Consequence**: The coverage evaluator scans rollout trajectories for valid sustained-load and post-load recovery windows, finds zero qualifying segments (`sustained_load_hold_count = 0`, `post_load_recovery_count = 0`), and permanently latches `coverage_ready = false`.
+
+### Issue 2: `rule_calibration` Implemented in Standalone Helper Module but Not Wired into Main Collector
+- **Mechanism**: The inertia-scaled PD + static gravity/load bias + anti-windup integral controller (`rule_calibration`) is implemented and unit-tested in its helper module, but the main rollout collector (`P0` warmup and the `32,768` rule replay partition) still falls back to a legacy uncalibrated open-loop/simple PD sampler.
+- **Consequence**: The `rule` partition of the replay buffer lacks genuine static load-holding ($\dot{q} \approx 0, \widehat{\ddot{q}} \approx 0$ under non-zero gravity/external torque) transitions across the 144 morphology configurations, starving $B_\omega(g_{13})$ and $\pi_\theta$ of equilibrium anchors.
+
+### Issue 3: Cross-Coverage Ledger Field Missing (`cross_coverage_144_x_5`)
+- **Mechanism**: While marginal counts per scene (`E0..E4`) and per morphology seed are logged separately, the joint $144 \times 5 = 720$-cell cross-coverage matrix (`configuration_group x scene_regime`) is either omitted or not enforced as a hard readiness gate in the evaluation summary JSON.
+- **Consequence**: Rare configuration-scene pairs (especially high-capacity $C_0 = 9\text{ N}\cdot\text{m}$ units under E3/E4) can be under-sampled without triggering a cell-starvation alert.
+
+### Issue 4: Acausal Future External Force Window Inside Privileged Input $p_{5065}$
+- **Mechanism**: Within Groups 18–21 of $p_{5065}$, the privileged tensor packs future external disturbance torque values $\tau_{\mathrm{ext}, t+1:t+K}$ alongside current solver states, without cleanly separating **exogenous open-loop generator parameters** (which are causally fixed at episode/regime sampling time) from **state-dependent contact/reaction forces** at future steps $t+1..t+K$.
+- **Consequence**: Feeding endogenous future reaction forces into $F_{\eta}(x_{137,t}, p_{5065,t}, a_t, z_{16})$ violates temporal causality in the Bellman backup and inflates training-time critic accuracy on transitions that cannot be predicted causally.
+
+### Issue 5: Frozen Evaluation Panel Samples Non-Stationary Target Trajectories for $\dot{q}=0$ Holding Diagnostics
+- **Mechanism**: In the frozen diagnostic evaluation panel, the zero-velocity holding metric (`zero_vel_rmse`) is evaluated on trajectories where the reference generator continues to inject step perturbations or moving target angles rather than clamping $g_{13}^{\mathrm{des}}$ to a pure static equilibrium target ($\dot{q}^\star = 0, \widehat{\ddot{q}}^\star = 0$) across all 5 regimes.
+- **Consequence**: Conflates trajectory-tracking lag with static holding drift (`5.89–13.88 rad/s`).
+
+### Issue 6: Batch Normalizer Update Asymmetry Between Rule Partition and Policy Partition
+- **Mechanism**: Running mean/variance normalizers for $x_{137}$, $g_{13}$, and $p_{5065}$ are updated on every online policy rollout step before replay insertion, whereas transitions drawn from the `32,768` rule partition during mini-batch updates experience shifting normalizer statistics without balanced re-normalization.
+- **Consequence**: Induces covariate shift on the `1/3` rule mini-batch slice as online policy exploration expands the state distribution.
+
+### Issue 7: Orthonormalization Loss $\mathcal{L}_{\mathrm{orth}}$ Computed on Unstratified Sub-Batches
+- **Mechanism**: The Gram matrix penalty $\mathcal{L}_{\mathrm{orth}}(B_\omega)$ is evaluated over raw mini-batch samples without inverse-probability weighting when scene quotas deviate from the nominal `(20%, 15%, 20%, 15%, 30%)` distribution during early P0/P1 ramp-up.
+- **Consequence**: Early E0 free-space motions dominate the 16-D spherical subspace of $B_\omega(g_{13})$, compressing the angular distance allocated to E2 contact and E3/E4 load-holding outcomes.
+
+### Issue 8: Action-Gradient Saturation Near $\tanh$ Boundaries in $\pi_\theta(x_{137}, z_{16})$
+- **Mechanism**: Under heavy E3 loads requiring $|u_{\mathrm{clip}}| > 0.9$, the deterministic $\tanh$ output head of $\pi_\theta$ saturates, causing the policy gradient $\nabla_\theta F_{\eta}(x_{137}, p_{5065}, \pi_\theta(x_{137}, z_{16}), z_{16})^\top z_{16}$ to vanish ($\operatorname{sech}^2(\cdot) \to 0$) if $F_{\eta}$ has not yet learned a steep negative slope outside $[-1, 1]$.
+- **Consequence**: Slows recovery once the actor saturates against a mechanical stop or heavy load.
+
+### Issue 9: Absence of a Standardized 2-DoF / Multi-Joint Downstream Transfer Benchmark
+- **Mechanism**: Although the stated goal of the project is to provide a reusable local behavioral interface for multi-joint limbs and bipedal locomotion, the repository currently contains only the single-actuator environment and lacks a canonical 2-DoF serial link (hip-knee or shoulder-elbow) benchmark that tests frozen $(B_\omega, \pi_\theta)$ under inter-joint inertial and Coriolis coupling.
+- **Consequence**: Prevents direct empirical falsification of whether single-unit representations transfer when parent link $P$ undergoes large dynamic accelerations.
+
+exec
+/bin/bash -lc "if [ -f '/srv/claude/research/motor-unit-representation/packets/B01/decision.md' ]; then cat '/srv/claude/research/motor-unit-representation/packets/B01/decision.md'; else printf 'NOT PRESENT\\n'; fi" in /srv/claude
+exec
+/bin/bash -lc "if [ -f '/srv/claude/research/motor-unit-representation/baseline/01-motor-unit-proprioception-and-representation-design.md' ]; then cat '/srv/claude/research/motor-unit-representation/baseline/01-motor-unit-proprioception-and-representation-design.md'; else printf 'NOT PRESENT\\n'; fi" in /srv/claude
+exec
+/bin/bash -lc "if [ -f '/srv/claude/research/motor-unit-representation/packets/B03/decision.md' ]; then cat '/srv/claude/research/motor-unit-representation/packets/B03/decision.md'; else printf 'NOT PRESENT\\n'; fi" in /srv/claude
+ succeeded in 0ms:
+# Packet B01 Decision — Privileged Forward Input Causality, Exogenous vs Endogenous Future Load Boundaries, and 22-Group Schema Audit
+
+- **Decision ID**: `D-B01-001`
+- **Packet ID**: `B01`
+- **Method Version**: v1.0 (`1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7`)
+- **Adjudicators**:
+  1. `agy` (Order 1: `P=A, Q=B`): `packets/B01/adjudication-agy-order1.md`
+  2. `claude` (`sonnet`, Order 2: `P=B, Q=A`): `packets/B01/adjudication-sonnet-order2.md`
+- **Pre-Registered Empirical Spike**: `packets/B01/spikes/B01-SPIKE/VERDICT.json` (`PASS`, CPU)
+
+---
+
+## 1. Consolidated Order-Swapped Rubric Scores
+
+| Proposal Track | Author Model | Order 1 (`agy`: P=A, Q=B) | Order 2 (`sonnet`: P=B, Q=A) | Mean Score |
+|---|---|---:|---:|---:|
+| **Proposal A** (`proposals/A.md`) | `claude` Opus | `87.05 / 100.0` | `77.0 / 100.0` (as Q) | **82.025 / 100.0** |
+| **Proposal B** (`proposals/B.md`) | `codex` `gpt-6-astra` | `82.90 / 100.0` | `71.0 / 100.0` (as P) | **76.95 / 100.0** |
+
+- **Winning Track**: **Proposal A (`claude` Opus)** by mean margin **+5.075** (≥ tie margin `5.0`).
+- **Order notes**: Order 1 raw Δ=`+4.15` is inside the tie band (A primary / B mandatory merge); Order 2 recommends A (`Q`) by `+6.0`. Cross-order mean clears the win threshold.
+- **Disposition**: **`Recommend: Proposal A` with Mandatory Merges from Proposal B and Blind Reviews**.
+
+---
+
+## 2. Key Adjudication Findings & Mandatory Merges
+
+1. **Causal partition of `p_5065` (base = Proposal A)**:
+   - Adopt A's per-group retain / replace / mask table with width-preserving replacements: lagged impulse-average + final-substep forces (contact block), Group 18 exogenous timers/modes, Group 20 open-loop envelope `Ψ_t=ψ(ξ_t,k)`, Group 21 past-reaction mirror, Group 6 masked with frozen normalizer `(0,1)`.
+   - **Merge from B**: Explicit 5,065-slot manifest join schema `(group_id,start,stop,source,sample_time,action_latch_time,update_order,frame,units,normalization,R/G/M)` and `[0:40)` Group-18 flag/timer/phase/mode layout; classify state-triggered release progress counters as endogenous generator state, not exogenous `ξ_t`.
+
+2. **Action-Jacobian degeneracy**:
+   - Keep A's bypass identity / linear-Gaussian attenuation and stop-gradient no-op lemma.
+   - **Tighten**: Theorem 2(a) premise must require sufficiency of the full target-generating state (including `ξ_{t+1}`), not physical `s'` alone (verified counterexample from Review B-on-A). Split interior-support zeroing vs singleton-support non-identifiability. Gate G-1 uses composed ratio `‖J_fut Y_a‖₂ / ‖J_a‖₂`, not the submultiplicative product of norms.
+
+3. **Spike protocol (merged)**:
+   - Keep A's arms L / C / L-sg / Z / C−ξ / X plus Step-0 BAIA.
+   - **Merge from B**: Stage-A analytic FP64 `F_c` control, independent branch-return `D_ref`, EXO-PREVIEW arm, underpowered-subset rules, factual vs counterfactual residual panels, shared reference target for AEV/BIR.
+
+4. **Hard constraints preserved**: Deployed `B_ω`, `π_θ` remain 100% free of privileged inputs; E0–E4 Markov observability retained via causal `ξ_t` + current/historical contact/load carriers.
+
+---
+
+## 3. Principle Claim Rulings (Appendix B.9)
+
+- **`C-B01-A-01`**: `tighten-premises` (withdraw Grade-1 lock until full target-state sufficiency premise repaired; stay Candidate).
+- **`C-B01-A-02`**: `tighten-premises` (restrict AEV identity to common fixed target + nested information sets).
+- **`C-B01-A-03`**: `Candidate` stay Grade 2 (correct EMA saturation premise ~21% residual at 320 ms / 25 steps).
+- **`C-B01-B-01`**: `tighten-premises` (remove circular premise (iv); merge with A-01 singleton-support branch).
+- **`C-B01-B-02`**: `Candidate` stay (sound `(u−v)²/4` lower bound).
+
+---
+
+## 4. Empirical Verification Summary (`B01-SPIKE`)
+
+Executed via `/srv/claude/research/motor-unit-representation/gpu_experiments/run_b01_future_force_jacobian_spike.py` (`VERDICT.json`, status `PASS`, device `cpu`; CUDA unavailable on this host):
+
+- G1 leak ratio `‖∂F/∂p_future‖/‖∂F/∂a‖ ≈ 12.97 ≥ 5` (`PASS`)
+- G2 causal ratio `≈ 0.012 ≤ 1` (`PASS`)
+- G3 Bellman residual bias reduction `≈ 9.77× ≥ 2×` (`PASS`)
+- G4 deployed modules structurally free of `p` (`PASS`)
+
+Colab/GPU package path reserved under `gpu_experiments/` for re-run when CUDA is available; CPU results are honest and gate-complete for this packet.
+
+ succeeded in 0ms:
+# Baseline 01: Single-Actuator Proprioception, Calibrated Two-Link Kinematics, and Upper-Layer Calling Interface
+
+## 1. Motivation: Bottom-Up Modularity from the Single Actuator Unit
+
+In physical robots, every whole-body motion ultimately reduces to local rotary actuators applying torque between two adjacent links against gravity, link inertia, joint friction, mechanical end-stops, and external contact or payload forces. If each **single-actuator two-link unit** (consisting of a fixed housing link $P$, an active rotary joint with axis $\hat{u}$, and a driven output link $D$) is equipped with a standardized local behavioral representation $(B_\omega, \pi_\theta)$, then:
+1. **Morphology Standardization**: Hardware differences (encoder zero offset, positive rotation sign, torque constant, link length $L_D$, and center-of-mass offset) are absorbed at the local unit boundary.
+2. **Low-Dimensional Upper Interface**: Instead of learning raw torque commands from scratch for every new morphology, an upper-level controller or planner specifies desired local physical responses via a 16-dimensional latent vector $z_{16} \in \mathcal{S}^{15}(4)$ (or blends encoded target responses $z = \operatorname{proj}(B_\omega(g_{\mathrm{des}}))$).
+
+---
+
+## 2. Coordinate Frames, Encoder Calibration, and Causal Kinematics
+
+### 2.1 Local Coordinate Frame Contract ($M$, $P$, $D$)
+- **Motor Housing Frame $M$**: Origin at the rotary joint center; $z_M$-axis aligned with the calibrated positive rotation axis $\hat{u}$; $x_M$-axis aligned with the zero-angle reference line fixed to housing link $P$; $y_M = z_M \times x_M$.
+- **Parent / Housing Link $P$**: Rigidly attached to the motor stator/housing. Its orientation relative to world gravity is captured by the local gravity unit vector $g^M \in \mathbb{R}^3$ (or parent attitude available to the unit).
+- **Driven / Output Link $D$**: Rigidly attached to the motor rotor/output flange of length $L_D$, with tip position $p_{\mathrm{tip},D}^M \in \mathbb{R}^3$ expressed in housing frame $M$.
+
+### 2.2 Encoder Direction and Zero-Offset Calibration
+Raw motor encoders report uncalibrated angle $q_e$ and velocity $\dot{q}_e$ with hardware-dependent sign $s \in \{-1, +1\}$ and zero offset $\beta \in (-\pi, \pi]$. Before entering any representation or control buffer, raw readings are mapped to calibrated joint coordinates $(q_c, \dot{q}_c)$:
+$$
+q_c = \operatorname{wrap}_{(-\pi, \pi]}\bigl(s \cdot q_e + \beta\bigr), \qquad \dot{q}_c = s \cdot \dot{q}_e.
+$$
+The distance to lower and upper mechanical stops $(q_{\min}, q_{\max})$ is normalized into margins:
+$$
+d_{\min} = \operatorname{clip}\!\left(\frac{q_c - q_{\min}}{q_{\max} - q_{\min}}, 0, 1\right), \qquad d_{\max} = \operatorname{clip}\!\left(\frac{q_{\max} - q_c}{q_{\max} - q_{\min}}, 0, 1\right).
+$$
+
+### 2.3 Causal 5-Point Linear-Fit Angular Acceleration $\widehat{\ddot{q}}_t$
+Single-step finite differences $(\dot{q}_t - \dot{q}_{t-1})/\Delta t$ amplify encoder quantization noise, whereas non-causal central differences leak future information. At $200\text{ Hz}$ sampling ($\Delta \tau = 5\text{ ms}$, so 5 samples span a $20\text{ ms}$ control interval / $40\text{ ms}$ causal window), the angular acceleration $\widehat{\ddot{q}}_t$ is computed via causal ordinary least-squares linear regression over the 5 most recent calibrated velocities $\{\dot{q}_{t-4}, \dot{q}_{t-3}, \dot{q}_{t-2}, \dot{q}_{t-1}, \dot{q}_t\}$:
+$$
+\widehat{\ddot{q}}_t = \frac{-2\,\dot{q}_{t-4} - \dot{q}_{t-3} + \dot{q}_{t-1} + 2\,\dot{q}_t}{10\,\Delta \tau}.
+$$
+This filter is strictly causal, linear, zero-bias for constant acceleration, and suppresses high-frequency encoder jitter by $5\times$ compared to 2-point differencing.
+
+### 2.4 Driven Link Tip Position, Velocity, and Causal Acceleration in Frame $M$
+Given calibrated joint angle $q_c$, angular velocity $\dot{q}_c$, causal angular acceleration $\widehat{\ddot{q}}_t$, and link tip vector $r_D(q_c) = p_{\mathrm{tip},D}^M(q_c) \in \mathbb{R}^3$ rotating about axis $\hat{u} = [0, 0, 1]^\top$:
+$$
+p_{\mathrm{tip},D}^M(q_c) = R_z(q_c)\,r_D^0, \qquad v_{\mathrm{tip},D}^M = (\dot{q}_c\,\hat{u}) \times p_{\mathrm{tip},D}^M(q_c),
+$$
+$$
+\widehat{a}_{\mathrm{tip},D}^M = (\widehat{\ddot{q}}_t\,\hat{u}) \times p_{\mathrm{tip},D}^M(q_c) + (\dot{q}_c\,\hat{u}) \times \bigl((\dot{q}_c\,\hat{u}) \times p_{\mathrm{tip},D}^M(q_c)\bigr).
+$$
+Notice that $v_{\mathrm{tip},D}^M$ and $\widehat{a}_{\mathrm{tip},D}^M$ couple the angular response $(\dot{q}_c, \widehat{\ddot{q}}_t)$ with the physical lever arm $L_D = \|r_D^0\|_2$, naturally encoding linear momentum and centripetal/tangential tip kinematics across varying link lengths.
+
+---
+
+## 3. Observability Boundaries and the Need for Asymmetric Training
+
+### 3.1 What Proprioception Alone Can and Cannot See
+From a single transition $(q_c, \dot{q}_c, \widehat{\ddot{q}}_t, u_{\mathrm{clip}})$, the net generalized load torque $\tau_{\mathrm{load}}$ can be inferred implicitly via the rotor/link equation of motion:
+$$
+J_{\mathrm{eff}}\,\widehat{\ddot{q}}_t + b\,\dot{q}_c + \tau_{\mathrm{fric}}(\dot{q}_c) + \tau_{\mathrm{grav}}(q_c) - \tau_{\mathrm{ext},t} = S \cdot u_{\mathrm{clip},t},
+$$
+so the short-term history $x_{137}$ (spanning $160\text{ ms}$ at full $20\text{ ms}$ resolution plus $320\text{ ms}$ of slow summaries) allows an online actor $\pi_\theta(x_{137}, z_{16})$ to estimate current inertia, gravity bias, and persistent external torque.
+
+However, during **Bellman bootstrapping of the multi-step successor representation $F$**, a purely proprioceptive forward network $F(x_{137}, a, z_{16})$ faces fundamental observability aliasing:
+1. It cannot distinguish whether a sudden stall ($\dot{q} \approx 0, \widehat{\ddot{q}} \approx 0$ under high torque $u$) is caused by a rigid mechanical end-stop, an elastic spring-damper contact obstacle, or a temporary external disturbance pulse that is about to release.
+2. It cannot see the exact contact geometry, friction coefficients, or solver constraint states of the surrounding physical scene.
+
+### 3.2 Asymmetric Resolution (`LOCAL_RESPONSE_ASYM_FB_V3`)
+To prevent representation collapse without sacrificing deployment autonomy:
+- **Deployed Modules ($B_\omega$ and $\pi_\theta$)**: Strictly restricted to local observable vectors $g_{13}$ and $x_{137}$.
+- **Training-Only Dual Forward Critics ($F_{\eta_1}, F_{\eta_2}$)**: Provided with both $x_{137}$ and the full 5,065-dimensional privileged physical context $p_{5065}$ so that Bellman targets accurately separate free-space motion (E0), boundary stops (E1), elastic/rigid contact (E2), sustained external loading (E3), and post-load recovery (E4).
+
+---
+
+## 4. Upper-Layer Calling Modes Over the Frozen Local Unit
+
+Once $(B_\omega, \pi_\theta)$ are trained and frozen, an upper-level controller can drive the motor unit through three mathematically equivalent interfaces:
+1. **Direct Latent Policy Mode**: Upper planner outputs $z_{16} \in \mathcal{S}^{15}(4)$ at $50\text{ Hz}$, which $\pi_\theta(x_{137}, z_{16})$ translates into $u_{\mathrm{clip}} \in [-1, 1]$.
+2. **Target Outcome Encoding Mode**: Upper planner specifies a desired next-step local kinematic/torque state $g_{13}^{\mathrm{des}}$ (e.g., target angle $q^\star$, zero velocity $\dot{q}^\star = 0$, zero acceleration $\widehat{\ddot{q}}^\star = 0$) and queries $z_{16} = B_\omega(g_{13}^{\mathrm{des}})$.
+3. **Weighted Multi-Objective Blending Mode**: Given a set of candidate outcome features $\{g_{13}^{(m)}\}_{m=1}^M$ with weights $\{w_m\}$, the upper layer commands:
+   $$
+   z_{16} = \sqrt{16}\,\frac{\sum_{m=1}^M w_m B_\omega(g_{13}^{(m)})}{\bigl\|\sum_{m=1}^M w_m B_\omega(g_{13}^{(m)})\bigr\|_2 + 10^{-8}}.
+   $$
+
+ succeeded in 0ms:
+# Packet B03 Decision — Rank-16 Bilinear Bottleneck Across 144 Morphology-Stroke Regimes and Orthonormalization Regularization
+
+- **Decision ID**: `D-B03-001`
+- **Packet ID**: `B03`
+- **Method Version**: v1.0 (`1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7`)
+- **Adjudicators**:
+  1. `agy` (Order 1: `P=A, Q=B`): `packets/B03/adjudication-agy-order1.md`
+  2. `claude` (`sonnet`, Order 2: `P=B, Q=A`): `packets/B03/adjudication-sonnet-order2.md`
+- **Pre-Registered Empirical Spike**: `packets/B03/spikes/B03-SPIKE/VERDICT.json` (`PASS`, CPU; reused after Step-1 freeze)
+
+---
+
+## 1. Consolidated Order-Swapped Rubric Scores
+
+| Proposal Track | Author Model | Order 1 (`agy`: P=A, Q=B) | Order 2 (`sonnet`: P=B, Q=A) | Mean Score |
+|---|---|---:|---:|---:|
+| **Proposal A** (`proposals/A.md`) | `claude` Opus | `83.25 / 100.0` | `76.0 / 100.0` (as Q) | **79.625 / 100.0** |
+| **Proposal B** (`proposals/B.md`) | `codex` `gpt-6-astra` | `75.75 / 100.0` | `72.0 / 100.0` (as P) | **73.875 / 100.0** |
+
+- **Winning Track**: **Proposal A (`claude` Opus)** by mean margin **+5.750** (≥ tie margin `5.0`).
+- **Order notes**: Order 1 recommends P(=A) by `+7.50` (clears win). Order 2 recommends Tie with Q(=A) leading by `+4.0` inside the margin; carrier preference Q(=A). Cross-order mean clears the win threshold for A.
+- **Disposition**: **`Recommend: Proposal A` with Mandatory Merges from Proposal B and Blind Reviews**.
+
+---
+
+## 2. Key Adjudication Findings & Mandatory Merges
+
+1. **Core math (base = Proposal A)**:
+   - Adopt A's Ky Fan floor (Theorem 1), Corollary 1a (F-conditioning cannot lower the right-span floor), and Corollary 1b / `C-B03-A-01` as a **conditional** lemma under explicit regularity assumptions (pooled HS reference; distinct lever-arm shells). Do **not** lock the numeric `0.745` figure or the absolute claim “H3 unreachable as V3 is specified” until a premise audit on the calibrated V3 reference is filed.
+   - Adopt Theorem 2: configuration-matched FB reference measure removes the cross-shell orthogonality floor and turns per-configuration isotropy / rank into an identification requirement.
+   - Merge B's exact length-congruence / shared-right-span spectral-tail statements into the same conditional rank-floor claim family.
+
+2. **Orthonormalization / Audit Issue #7**:
+   - Replace unhinged exact-isotropy `(Û_k − 16)` with a **rank-floor hinge** (e.g. `(Û_k − 256/13)_+` or isotropy only on the 15-D subspace orthogonal to any linear λ-anchor). Resolves Σ→I vs tip-scale decode conflict flagged by both adjudicators.
+   - Adopt B's hierarchical IPW with 10% direct target-law mixture (weights bounded ≤10 without biased clipping), `INSUFFICIENT_SUPPORT` instead of silent stratum drop, and two-batch cross estimator; keep A's within-block stratified U-statistic as an allowed alternate plug-in.
+   - Synchronize FB negative sampling with configuration-matched `ν_k`.
+
+3. **Nondimensionalization `T_κ` + tip preservation**:
+   - Adopt A's parameter-free invertible `T_κ` (divide tip block by `ρ̂`, allometric time factor, write `λ = log(ρ̂/ρ_ref)` into the dead `v_tip,z` slot) with training-only λ-anchor (or subspace-orthogonal orth if anchor retained).
+   - Merge B's `SCHEMA_INCOMPATIBLE` guards, centered effective-rank checks, and length-relative tip decoding thresholds.
+   - Ablation hygiene: isolate `T_κ` from normalizer fitting and from the λ-anchor (`A3` vs `A4-λ`).
+
+4. **Spike protocol repairs (mandatory before locking H3)**:
+   - Common physical outcome dictionary across strokes (no manufactured 144×N disjoint cells by config ID; no coarse pooled dictionary that is blind to length or floor-bound). Report pooled-reference and configuration-matched errors separately.
+   - Fix G3 to test pooled-reference algebraic consistency; remove invalid `ε_cm ≥ 0.70` requirements and “W must fail” gating.
+   - Hold out geometry seeds completely from FB / orth / anchor / κ / normalizer; cycle only over training seeds.
+   - Existing CPU `B03-SPIKE` VERDICT (`PASS`: worst nondim erank ≥12, tip decode retains lever arm) is retained as **Candidate-level** mechanism verification. Full H3 lock requires re-run after B02 collector integration + the repaired protocol above.
+
+5. **Hard constraints preserved**: `d_z=16`; deployed budget `281,617`; `B_ω`/`π_θ` proprioception-only; zero new deployed parameters from `T_κ` / IPW / hinges.
+
+---
+
+## 3. Principle Claim Rulings (Appendix B.9)
+
+- **`C-B03-A-01` / `C-B03-P-01` (Order1) / `C-B03-Q-01` (Order2)**: `Candidate` Grade 1 — ACCEPT AS CONDITIONAL LEMMA (tighten premises; do not lock 0.745 / “H3 impossible”).
+- **`C-B03-A-02`**: `Candidate` Grade 1 — ACCEPT WITH TIGHTNESS CORRECTION; merge with B's pooled-isotropy-cannot-certify-conditional-resolution claim.
+- **`C-B03-A-03`**: Downgrade from “obligatory” to **testable hypothesis** until sphere-projected feature model is repaired or A3 vs A4 spike decides.
+- **`C-B03-B-01`**: `Candidate` Grade 1 — ACCEPT WITH overlap-boundary amendment; merge into conditional per-group measurement claim.
+- **`C-B03-B-02`**: `Candidate` Grade 1 — ACCEPT / MERGE into shared rank-floor statement.
+- **`C-B03-B-03`**: `Candidate` Grade 1 — ACCEPT ON NARROW PREPROCESSING SCOPE.
+
+---
+
+## 4. Empirical Verification Summary (`B03-SPIKE`)
+
+Reused `packets/B03/spikes/B03-SPIKE/VERDICT.json` (`PASS`, device `cpu`, `elapsed_sec≈0.93`):
+
+- G1 worst nondim erank ≥ 12: `PASS` (`worst≈13.58`)
+- G2 global raw collapse check: `PASS` (`worst_raw≈10.29`)
+- G3 tip decode retains lever arm: `PASS` (`tip_rmse≈0.223` vs ang-only `≈0.954`)
+- Summary: `mean_erank_raw≈11.62`, `mean_erank_nd≈13.78`
+
+Status: Candidate-level surrogate evidence supporting nondimensionalization + stratified capacity diagnostics. Not yet a lock of Charter H3 under the repaired protocol.
+
+exec
+/bin/bash -lc "if [ -f '/srv/claude/research/motor-unit-representation/packets/B02/decision.md' ]; then cat '/srv/claude/research/motor-unit-representation/packets/B02/decision.md'; else printf 'NOT PRESENT\\n'; fi" in /srv/claude
+ succeeded in 0ms:
+# Packet B02 Decision — E0–E4 Scene Sync, Rule Calibration, Coverage Gates
+
+- **Decision ID**: `D-B02-001`
+- **Packet ID**: `B02`
+- **Method Version**: v1.0 (`1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7`)
+- **Adjudicators**:
+  1. `agy` (Order 1: `P=A, Q=B`): `packets/B02/adjudication-agy-order1.md`
+  2. `claude` (`sonnet`, Order 2: `P=B, Q=A`): `packets/B02/adjudication-sonnet-order2.md`
+- **Pre-Registered Empirical Spike**: `packets/B02/spikes/B02-SPIKE/VERDICT.json` (`PASS`, CPU)
+
+---
+
+## 1. Consolidated Order-Swapped Rubric Scores
+
+| Proposal Track | Author Model | Order 1 (`agy`: P=A, Q=B) | Order 2 (`sonnet`: P=B, Q=A) | Mean Score |
+|---|---|---:|---:|---:|
+| **Proposal A** (`proposals/A.md`) | `claude` Opus | `78.00 / 100.0` | `71.0 / 100.0` (as Q) | **74.50 / 100.0** |
+| **Proposal B** (`proposals/B.md`) | `codex` `gpt-6-astra` | `78.00 / 100.0` | `80.0 / 100.0` (as P) | **79.00 / 100.0** |
+
+- **Winning Track**: **Tie / Hybrid** (mean margin `+4.50` for B, strictly inside tie margin `5.0`).
+- **Order notes**: Order 1 exact numerical tie `78.00` vs `78.00` with P(=A) as Primary Generative / Adaptive-Normalizer / Rule-Transient Base and Q(=B) as Co-Primary Atomic-Storage / Net-Feasibility / Evaluation-Gate Base. Order 2 recommends P(=B) by `+9.0`. Cross-order mean does not clear the win threshold.
+- **Disposition**: **`Recommend: Tie / Hybrid`** — merge both scaffolds with mandatory fixes listed below. Treat B as slight mean-score primary for atomic storage / evaluation gates; keep A's generative schedule, adaptive normalizer, and rule-transient scaffolding.
+
+---
+
+## 2. Key Adjudication Findings & Mandatory Merges
+
+1. **E0–E4 generator (hybrid)**:
+   - Adopt A's explicit 80-step half-open interval tables and full-rollout certificate with failed-attempt rule.
+   - Adopt B's pure `make_program(run_seed, config_id, scene, n, domain, variant)` Philox-4x32 key (add explicit `variant` / `episode_id` so E4-R and E4-RI never collide at ordinal 0).
+   - External load: B's net-equilibrium $\tau_{\mathrm{ext}} = -\tau_g(q^\star) - \sigma m S_{\max}$ with $m \in [0.25, 0.92]$; **alternate $\sigma$ deterministically in training** via $\sigma = (-1)^{c+n}$ (or equivalent), redrawing when $|\tau_{\mathrm{ext}}| < 0.25 S_{\max}$ or $|u^\star| > 0.92$ (flag `INFEASIBLE_CONFIG`). Fixes A's single-sign training and B's sign-flip underflow / step-on onset.
+
+2. **Rule calibration wiring**:
+   - Adopt A's inertia-scaled PID + bias with explicit $J_{\mathrm{nom}}(c) = I_{D,zz}(c) + n_g(c)^2 J_{\mathrm{rotor}}(c)$.
+   - Regime-dependent feedforward: $\kappa=1$ (one-step-delayed $\tau_{\mathrm{ext},t-1}$) in E3; $\kappa=0$ in E4 so the integrator winds during the loaded phase and produces a true post-release recovery (fixes zero-latency feedforward tautology).
+   - Pre-roll history fill before `t=0` (from B) so early-window validity masks do not discard rows.
+   - Lag rule `τ_ext` knowledge by pre-registered `d` intervals at release edges; exclude k post-edge intervals from logit-imitation.
+
+3. **720-cell coverage gate**:
+   - Hard gate on the joint `144×5` array (not marginals). Accept Grade-1 claim that equal marginals do not certify joint coverage.
+   - De-synchronize sub-cases: anchor `(j+c) mod 3`, tier `(⌊j/3⌋+⌊c/3⌋) mod 3`; add resident `(scene, anchor, λ, σ)` marginal alongside the 720-cell array.
+   - Require ≥1 resident rule witness at `λ=0.92` per configuration (tier-qualified).
+   - Window-residency counting: $720×64 = 46{,}080 > 32{,}768$ ⇒ mean witness length ≤ `45.51`; use atomic commit / staging when cell capacity `< 2ℓ_s`.
+
+4. **Normalizer & saturation (#6, #8)**:
+   - Dual-partition BN contract with fail-closed refresh; function-preserving normalizer refresh is a registered alternate arm (fix Adam-state transform before later packets).
+   - Pre-activation hinge / logit path required: bounded action derivative alone cannot prevent `sech²` squash decay (Grade-1 claim accepted).
+   - Saturation-recovery probe as a registered arm with identical smoothing in both arms.
+
+5. **Static-hold panel (#5)**:
+   - Single canonical 13-field `g_hold` with zero velocity/acceleration (A); both load signs; position + contact guards.
+   - Evaluator negative control + rule positive control (from B); `CONTROL_FAIL` ≠ physical infeasibility.
+   - Physics-readback event predicates with `scene_sync_violation_count` (≤1 count per episode per event type).
+   - Bounded initialization retries + dedicated reason code; stop-contact alone must not abort.
+
+6. **Memory compliance**:
+   - Produce 512-slot provenance audit before sealing memory claims; compute model/target/optimizer bytes from frozen architecture; keep a lossless fallback that needs no slot assumption.
+
+---
+
+## 3. Principle Claim Rulings (Appendix B.9)
+
+- **`C-B02-A-01` / `C-B02-P-01` (window-residency / counting)**: `Candidate` Grade 1 — ACCEPT WITH NARROWED SCOPE (explicit disjoint-witness premise; mean bound `45.511`; narrow FIFO impossibility to i.i.d. insertion).
+- **`C-B02-A-02` / `C-B02-P-02` (saturation attenuation)**: `Candidate` Grade 1 — REVISE PREMISE (remove claim that finite hinge forces `|y|≤y_max` at stationarity; keep head-Jacobian lower bound inside region + non-binding at holding optima).
+- **`C-B02-B-01` / `C-B02-Q-01` (marginal ≠ joint coverage)**: `Candidate` Grade 1 — ACCEPT / ENDORSE (gate must use joint array).
+- **`C-B02-B-02` / `C-B02-Q-02` (squash gradient decay)**: `Candidate` Grade 1 — ACCEPT / ENDORSE (bounded critic TD path alone cannot guarantee exit from deep `tanh` saturation).
+
+---
+
+## 4. Empirical Verification Summary (`B02-SPIKE`)
+
+Executed via `gpu_experiments/run_b02_scene_sync_coverage_spike.py` (`VERDICT.json`, status `PASS`, device `cpu`):
+
+- G1 E3 sustained ≥25: `PASS`
+- G2 E4 release + recovery ≥20: `PASS`
+- G3 144×5 min quota (`filled_min=136`, budget `98,304`): `PASS`; `coverage_ready=true`
+- G4 static-hold RMSE < 0.35: E0 `0.0`, E3 rule `≈0.020`, E4 rule `≈0.030` (`PASS`)
+
+Counts: `sustained_load_hold_count=288`, `post_load_recovery_count=288`. Full physics collector wiring remains the engineering merge target; CPU scheduler + rule-calibration RMSE surrogate is gate-complete for this packet.
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/motor-unit-representation/baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md' in /srv/claude
+ succeeded in 0ms:
+# Baseline 03: V3 Engineering Status, Empirical Verification Ledgers, and the 9 Open Audit Issues
+
+## 1. Empirical Comparison: V2 Full Run vs V3 Short-Run Verification
+
+| Metric / Verification Field | V2 Baseline Run (`SYM_PROPRIO_V2`) | V3 Short-Run Verification (`LOCAL_RESPONSE_ASYM_FB_V3`) | Status & Interpretation |
+|---|---|---|---|
+| **Total Valid Control Transitions ($W$)** | `20,032,000` | `8,096` (including `P0 = 800` warmup) | V3 run is a short pipeline verification smoke test, not a full training run. |
+| **Total Gradient Updates** | `77,218` | `101` (CUDA) | Confirms forward/backward/actor optimization step execution. |
+| **Replay Memory Footprint** | Unbounded / host-dependent | **`4.097 GB` tensor / `4.694 GB` peak RSS** (`98,304` CPU FP32 transitions) | Strictly within bounded host memory budget. |
+| **Checkpoint Resume Parity** | Not bitwise audited | **`resume_diff_norm = 0.0`** (bitwise exact) | Verified deterministic state restoration. |
+| **Deployment Export** | None | **Verified** (`B` + `actor` = `281,617` params) | Confirms $p_{5065}$ and $F_{1,2}$ are cleanly stripped at deployment. |
+| **Zero-Velocity Holding ($\dot{q}=0$) RMSE** | Unvalidated (`post_gate_eval = null`) | **`5.89` – `13.88 rad/s`** (after 101 updates) | Far above target holding threshold; controller has not yet learned static holding. |
+| **`sustained_load_hold_count`** | `0` | **`0`** | Gate failed (`coverage_ready = false`). |
+| **`post_load_recovery_count`** | `0` | **`0`** | Gate failed (`coverage_ready = false`). |
+| **Overall Validation Flag** | `validated = false` | **`coverage_ready = false`** | Pipeline is verified; scientific convergence and coverage remain open. |
+
+---
+
+## 2. Detailed Specification of the 9 Open V3 Audit Issues
+
+A rigorous code-and-specification audit of the V3 implementation identified **9 concrete discrepancies** between the theoretical V3 design (`baseline/01` and `baseline/02`) and the current implementation. Resolving these 9 issues is the prerequisite for launching full-scale V3 training.
+
+### Issue 1: Scene Label vs Step-Level External Torque Schedule Desynchronization
+- **Mechanism**: Episodes labeled `E3_SUSTAINED_LOAD` or `E4_POST_LOAD_RECOVERY` at the scene-allocation level do not consistently enforce the step-level external torque generator to sustain load for $\ge 25$ consecutive steps (`0.5 s`) or trigger a deterministic release edge followed by a quiet recovery window.
+- **Consequence**: The coverage evaluator scans rollout trajectories for valid sustained-load and post-load recovery windows, finds zero qualifying segments (`sustained_load_hold_count = 0`, `post_load_recovery_count = 0`), and permanently latches `coverage_ready = false`.
+
+### Issue 2: `rule_calibration` Implemented in Standalone Helper Module but Not Wired into Main Collector
+- **Mechanism**: The inertia-scaled PD + static gravity/load bias + anti-windup integral controller (`rule_calibration`) is implemented and unit-tested in its helper module, but the main rollout collector (`P0` warmup and the `32,768` rule replay partition) still falls back to a legacy uncalibrated open-loop/simple PD sampler.
+- **Consequence**: The `rule` partition of the replay buffer lacks genuine static load-holding ($\dot{q} \approx 0, \widehat{\ddot{q}} \approx 0$ under non-zero gravity/external torque) transitions across the 144 morphology configurations, starving $B_\omega(g_{13})$ and $\pi_\theta$ of equilibrium anchors.
+
+### Issue 3: Cross-Coverage Ledger Field Missing (`cross_coverage_144_x_5`)
+- **Mechanism**: While marginal counts per scene (`E0..E4`) and per morphology seed are logged separately, the joint $144 \times 5 = 720$-cell cross-coverage matrix (`configuration_group x scene_regime`) is either omitted or not enforced as a hard readiness gate in the evaluation summary JSON.
+- **Consequence**: Rare configuration-scene pairs (especially high-capacity $C_0 = 9\text{ N}\cdot\text{m}$ units under E3/E4) can be under-sampled without triggering a cell-starvation alert.
+
+### Issue 4: Acausal Future External Force Window Inside Privileged Input $p_{5065}$
+- **Mechanism**: Within Groups 18–21 of $p_{5065}$, the privileged tensor packs future external disturbance torque values $\tau_{\mathrm{ext}, t+1:t+K}$ alongside current solver states, without cleanly separating **exogenous open-loop generator parameters** (which are causally fixed at episode/regime sampling time) from **state-dependent contact/reaction forces** at future steps $t+1..t+K$.
+- **Consequence**: Feeding endogenous future reaction forces into $F_{\eta}(x_{137,t}, p_{5065,t}, a_t, z_{16})$ violates temporal causality in the Bellman backup and inflates training-time critic accuracy on transitions that cannot be predicted causally.
+
+### Issue 5: Frozen Evaluation Panel Samples Non-Stationary Target Trajectories for $\dot{q}=0$ Holding Diagnostics
+- **Mechanism**: In the frozen diagnostic evaluation panel, the zero-velocity holding metric (`zero_vel_rmse`) is evaluated on trajectories where the reference generator continues to inject step perturbations or moving target angles rather than clamping $g_{13}^{\mathrm{des}}$ to a pure static equilibrium target ($\dot{q}^\star = 0, \widehat{\ddot{q}}^\star = 0$) across all 5 regimes.
+- **Consequence**: Conflates trajectory-tracking lag with static holding drift (`5.89–13.88 rad/s`).
+
+### Issue 6: Batch Normalizer Update Asymmetry Between Rule Partition and Policy Partition
+- **Mechanism**: Running mean/variance normalizers for $x_{137}$, $g_{13}$, and $p_{5065}$ are updated on every online policy rollout step before replay insertion, whereas transitions drawn from the `32,768` rule partition during mini-batch updates experience shifting normalizer statistics without balanced re-normalization.
+- **Consequence**: Induces covariate shift on the `1/3` rule mini-batch slice as online policy exploration expands the state distribution.
+
+### Issue 7: Orthonormalization Loss $\mathcal{L}_{\mathrm{orth}}$ Computed on Unstratified Sub-Batches
+- **Mechanism**: The Gram matrix penalty $\mathcal{L}_{\mathrm{orth}}(B_\omega)$ is evaluated over raw mini-batch samples without inverse-probability weighting when scene quotas deviate from the nominal `(20%, 15%, 20%, 15%, 30%)` distribution during early P0/P1 ramp-up.
+- **Consequence**: Early E0 free-space motions dominate the 16-D spherical subspace of $B_\omega(g_{13})$, compressing the angular distance allocated to E2 contact and E3/E4 load-holding outcomes.
+
+### Issue 8: Action-Gradient Saturation Near $\tanh$ Boundaries in $\pi_\theta(x_{137}, z_{16})$
+- **Mechanism**: Under heavy E3 loads requiring $|u_{\mathrm{clip}}| > 0.9$, the deterministic $\tanh$ output head of $\pi_\theta$ saturates, causing the policy gradient $\nabla_\theta F_{\eta}(x_{137}, p_{5065}, \pi_\theta(x_{137}, z_{16}), z_{16})^\top z_{16}$ to vanish ($\operatorname{sech}^2(\cdot) \to 0$) if $F_{\eta}$ has not yet learned a steep negative slope outside $[-1, 1]$.
+- **Consequence**: Slows recovery once the actor saturates against a mechanical stop or heavy load.
+
+### Issue 9: Absence of a Standardized 2-DoF / Multi-Joint Downstream Transfer Benchmark
+- **Mechanism**: Although the stated goal of the project is to provide a reusable local behavioral interface for multi-joint limbs and bipedal locomotion, the repository currently contains only the single-actuator environment and lacks a canonical 2-DoF serial link (hip-knee or shoulder-elbow) benchmark that tests frozen $(B_\omega, \pi_\theta)$ under inter-joint inertial and Coriolis coupling.
+- **Consequence**: Prevents direct empirical falsification of whether single-unit representations transfer when parent link $P$ undergoes large dynamic accelerations.
+
+exec
+/bin/bash -lc 'if [ -d /srv/claude/research/motor-unit-representation/packets/B04/drafts/B ]; then rg --files /srv/claude/research/motor-unit-representation/packets/B04/drafts/B; fi' in /srv/claude
+ exited 1 in 0ms:
+codex
+The frozen decisions establish constraints but do not yet demonstrate converged local control. I’ll make the proposal distinguish torque-envelope overlap from actual transfer evidence, and specify a passive vertical hip rail so the hopping task includes real flight and landing while retaining two actuated joints.
+exec
+/bin/bash -lc 'mkdir -p /srv/claude/research/motor-unit-representation/packets/B04/drafts/B' in /srv/claude
+ succeeded in 0ms:
+exec
+/bin/bash -lc "python - <<'PY'
+import math
+m1,m2,l1,l2,mp=1.,.7,.4,.4,.2
+c1,c2=l1/2,l2/2
+I1,I2=m1*l1*l1/12,m2*l2*l2/12
+A=I1+m1*c1*c1+(m2+mp)*l1*l1
+D=I2+m2*c2*c2+mp*l2*l2
+H=l1*(m2*c2+mp*l2)
+J1,J2=I1+m1*c1*c1,I2+m2*c2*c2
+print(dict(A=A,D=D,H=H,J1=J1,J2=J2))
+print('knee inertial bound:',(D-J2)*20+(D+H)*20)
+print('knee Coriolis bound:',H*4**2)
+print('hip inertial bound:',(A+D+2*H-J1)*20+(D+H)*20)
+print('hip Coriolis bound:',H*(2*4*4+4**2))
+print('extra grav hip,knee:',9.81*((m2+mp)*l1+(m2*.2+mp*.4)),9.81*mp*.4)
+PY" in /srv/claude
+ exited 127 in 0ms:
+/bin/bash: line 1: python: command not found
+
+exec
+/bin/bash -lc "cat > /srv/claude/research/motor-unit-representation/packets/B04/drafts/B/proposal.md <<'EOF'
+# Proposal B (Packet B04): Composing Frozen Local Motor-Unit Representations into Multi-Joint Limb Controllers Under Coupled Loads
+
+Author track: B. Status: proposal and preregistration; no downstream experiments are claimed. Method version: v1.0. Scope: two actuated planar joints, including a passive vertical base coordinate for physical squat and flight. All quantities below use SI units.
+
+The proposed test is whether a single, independently qualified local checkpoint, instantiated at hip and knee with frozen weights and preprocessing, reduces downstream learning cost relative to torque control. The central distinction is between an **exact scalar torque reduction**, which is available, and **distributional coverage of the resulting closed-loop disturbance**, which must be measured. A matching peak torque alone does not establish coverage or stability.
+
+Frozen sources read: "'`PROGRAM_CHARTER.md`; `packets/B04/brief.md`; `baseline/01-motor-unit-proprioception-and-representation-design.md`; `baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md`; decisions `D-B01-001`, `D-B02-001`, and `D-B03-001`. No other B04 author draft is used. B02'"'s CPU scheduler/rule surrogate and B03's candidate-level mechanism spike do not establish a converged deployment checkpoint. The 101-update V3 smoke run is not an eligible confirmatory checkpoint.
+
+## 1. Multi-Body Coupling Dynamics Reduction
+
+### 1.1 Coordinates, energies, and exact fixed-base equations
+
+Let world axes be horizontal x and upward y. The hip is at "'`(0,h)`; first take h constant. Joint q1 is the first link angle from +x, and q2 is the relative knee angle. Write θ=q1+q2, e(α)=(cos α,sin α), and e_perp(α)=(-sin α,cos α). Links have lengths L1,L2, masses m1,m2, COM distances c1,c2, and planar COM inertias I1,I2. A point payload mp is rigidly attached at the foot. Bodies are rigid; joint transmissions are ideal torque sources. Rotor inertia is zero in this benchmark; adding rotor dynamics requires an explicitly revised mass matrix, not silently adding diagonal inertia to a moving-stator model.
+
+Positions are r1=(0,h)+c1 e(q1), r2=(0,h)+L1 e(q1)+c2 e(θ), and rf=(0,h)+L1 e(q1)+L2 e(θ). Define
+
+- A=I1+m1 c1²+(m2+mp)L1²;
+- D=I2+m2 c2²+mp L2²;
+- H=L1(m2 c2+mp L2);
+- K=m1 c1+(m2+mp)L1, and d=m2 c2+mp L2.
+
+The kinetic energy is T=½ qdotᵀ M(q) qdot and the configuration-dependent potential is V=g[K sin q1+d sin θ]. Thus the Euler–Lagrange equations, with viscous/Coulomb friction f and stop torque τstop, are
+
+    M(q) qddot + c(q,qdot) + G(q) + f(qdot)
+        = S u + Jf(q)''^T Ff + τstop,
+
+    M = [[A+D+2H cos q2, D+H cos q2],
+         [D+H cos q2,    D]],
+
+    c = [-H sin q2 (2 qdot1 qdot2 + qdot2²),
+          H sin q2 qdot1²],
+
+    G = g [K cos q1+d cos θ, d cos θ]''^T,
+
+    Jf = [[-L1 sin q1-L2 sin θ, -L2 sin θ],
+          [ L1 cos q1+L2 cos θ,  L2 cos θ]].
+
+Here S=diag(C01,C02), u∈[-1,1]², and Ff=(Ft,Fn) is the force **on the robot**. These equations include distal joint motor reaction through the coupled dynamics; adding a separate `-τ2` to the first generalized equation would double-count internal actuation. Payload inertia and gravity are explicit, not an independently sampled “external force.”
+
+For ideal unilateral ground, yf≥0, Fn≥0, yf Fn=0, and |Ft|≤μFn, with impact law specified separately. The executable benchmark instead uses the fully specified compliant contact below. In either case, contact torque is JfᵀFf; the two local torques are correlated projections of the same force.
+
+### 1.2 Mapping to the frozen local motor equation
+
+Take the unloaded, isolated-link reference inertias J01=I1+m1c1² and J02=I2+m2c2². Use local gravity terms G01=m1gc1 cos q1 and G02=m2gc2 cos θ, with knee gravity expressed through its actual housing attitude. For j≠k define signed right-hand-side contributions
+
+    τinertial,j = -(Mjj-J0j) qddotj - Mjk qddotk,
+    τCoriolis,j = -cj,
+    τgrav,j     = -(Gj-G0j),
+    τcontact,j  = (Jf''^T Ff)j,
+    τext,j      = τinertial,j+τCoriolis,j+τgrav,j+τcontact,j.
+
+Then, exactly in continuous time,
+
+    J0j qddotj + bj qdotj + τfric,j + G0j - τext,j
+        = C0j uj + τstop,j.
+
+Moving τstop to the left gives the corresponding E1 local equation. This has the sign convention of baseline/01 §3.1. In particular a positive external torque reduces the actuator effort required to hold against positive gravity torque. B02 uses its own signed gravity-load symbol in its generator formula; implementations must convert signs through this equilibrium identity, not copy that formula without its convention.
+
+The decomposition fixes the meaning of J0. Alternatively setting Jeff=Mjj moves the self-acceleration term into local inertia, but changes the local plant with posture. One cannot make coupling disappear by relabeling Jeff while retaining an unmeasured training-inertia assumption. Estimated acceleration from x137 gives only a filtered diagnostic approximation to this identity; solver acceleration is used for the physics audit and is never an actor input.
+
+For the knee, P2=D1. Its joint-center acceleration at fixed hip is
+
+    aP2=L1[qddot1 e_perp(q1)-qdot1² e(q1)].
+
+For a distal vector r in housing coordinates, the world acceleration is
+
+    aD=aP2+R1[a_rel+2ω1×v_rel+α1×r+ω1×(ω1×r)].
+
+The four extra terms are translation, Coriolis, Euler, and centrifugal acceleration. Relative local tip velocity and acceleration in g13 remain the calibrated housing-frame quantities; substituting world tip acceleration would change the frozen interface. Parent motion therefore changes dynamics without necessarily being identifiable from one local observation.
+
+### 1.3 A physical hopping extension with only two actuators
+
+A fixed hip can strike or lift its foot but cannot undergo body flight. For squat and hopping, mount a nonrotating hip carriage of mass mb on a frictionless vertical rail. This adds passive h, not a third motor. Let mt=mb+m1+m2+mp, a(q)=[K cos q1+d cos θ, d cos θ]ᵀ, and
+
+    ch=-K sin q1 qdot1²-d sin θ (qdot1+qdot2)².
+
+The exact three-coordinate equations are
+
+    [[mt, a''^T], [a, M]] [hddot, qddot]''^T
+      + [ch+mt g, c+G+f]''^T
+      = [Fn, S u+Jf''^T Ff+τstop]''^T.
+
+The horizontal rail reaction does no work in the permitted coordinates. The local reduction above acquires `-aj hddot` in τinertial,j. Eliminating h yields the joint mass matrix `M-aaᵀ/mt` and the corresponding load term `-(a/mt)(Fn-ch-mt g)` on the right. Both forms must agree numerically. In free fall gravity can largely cancel through the base-acceleration term; treating fixed-base gravity plus ground reaction as the whole load is incorrect. Analyses report fixed-base and rail results separately.
+
+### 1.4 Quantitative envelope comparison
+
+For bounds |qdotj|≤Vj, |qddotj|≤Aj, |hddot|≤Ab, and contact magnitude ||Ff||≤Fmax, conservative component bounds are
+
+    |τinertial,1| ≤ (A+D+2|H|-J01) A1+(D+|H|) A2+(K+d) Ab,
+    |τinertial,2| ≤ (D-J02) A2+(D+|H|) A1+d Ab,
+    |τCoriolis,1| ≤ |H|(2V1 V2+V2²),
+    |τCoriolis,2| ≤ |H| V1²,
+    |τgrav,1| ≤ g[(m2+mp)L1+d],
+    |τgrav,2| ≤ g mp L2,
+    |τcontact,1| ≤ (L1+L2) Fmax,
+    |τcontact,2| ≤ L2 Fmax.
+
+These triangle bounds are conservative and generally not attained simultaneously. At the nominal parameters of §3, with mp=0.20, V1=V2=4 and A1=A2=20, A=0.197333, D=0.069333, H=0.088, J01=0.053333 and J02=0.037333. The fixed-base inertial bounds are 10.94 N m at hip and 3.79 N m at knee; Coriolis bounds are 4.22 and 1.41 N m; added-gravity bounds are 5.69 and 0.785 N m. Dividing by nominal C0=9 gives (1.22,0.42), (0.47,0.16), and (0.63,0.087), respectively. These are illustrative bounding calculations, not rollout statistics. A 30 N contact can project up to 24 and 12 N m: even moderate force can exceed actuator capacity, although force direction and posture often reduce the actual moment.
+
+B02 specifies **net equilibrium actuator demand** tiers m∈[0.25,0.92], both load signs, ≥25-step sustained windows, and ≥20-step post-release windows. It does not certify that all arbitrary external torques in ±0.92 C0 were learned. Neither the frozen sources nor the B02 decision provide measured maximum contact impulse, torque slew, moving-parent acceleration, or action-conditioned coupling coverage. Those quantities must not be invented.
+
+| Local regime | Plausible limb analogue | Conditions for a coverage claim; common failure |
+|---|---|---|
+| E0 free motion | Slow unloaded tracking | Inertia/gravity and state histories match the trained support. “No foot contact” alone does not imply E0: distal acceleration can dominate. |
+| E1 stops | Either joint at its calibrated stop | Same normalized margins, approach speed and stop compliance; simultaneous stops plus contact can be an unseen compound event. |
+| E2 contact | Stance and compliant touchdown | Match contact moment, stiffness/damping, force direction, duration, lever arm, and contact-state-conditioned transitions. Two independent E2 marginals do not certify shared-contact coupling. |
+| E3 sustained load | Squat hold/persistent payload | ≥0.5 s plateau, correct sign and equilibrium demand, sufficient torque reserve, plus matched state/inertia/parent-motion histories. Large oscillatory coupling is not an E3 hold merely because its mean is constant. |
+| E4 release/recovery | Toe-off, unload and landing recovery | Actual load removal followed by ≥0.4 s quiet recovery; match impulse and release slew. Repeated impacts without a quiet interval are a separate out-of-envelope condition. E4 is not synonymous with any impulse. |
+
+For each unit log component torques and the combined demand. At 20 ms control intervals define λ=τext/C0, slew `s=|λt-λt-1|`, impulse `i=|∫τext dt|/(C0·0.02)`, demand `r=|J0 qddot+f+G0-τext|/C0`, and residual-contact impulse separately. Also log normalized inertia Mjj/J0, cross coefficient Mjk/sqrt(Mjj Mkk), state/stop margins, dwell, housing acceleration, and neighbor phase. Capacity feasibility uses r, not |τext| alone. For static holds require r≤0.92; exceeding this is an actuator feasibility violation, not evidence against a learned representation.
+
+Build a reference envelope only from real, checkpoint-associated E0–E4 physics trajectories over the full 144×5 cells, keeping failed attempts. For each configuration and regime report min/max and 0.5/99.5 percentiles of the above quantities, plus joint bins of (state, load sign, demand tier, inertia, dwell/impulse). A window is *amplitude-compatible* only if it passes these marginal bounds; call it *empirically supported* only if its joint-bin occupancy and one-step conditional response also pass §6. Outside any certified interval is OOD; empty bins or missing moving-parent data mean UNKNOWN, never implicit support. Compare local regimes separately and report hip/knee joint event combinations. E3 exogenous schedules cannot by themselves certify action-dependent neighbor or contact loads. Independent local stability is insufficient to prove stability of their interconnection.
+
+## 2. Upper-Layer Calling Architecture Comparison
+
+### 2.1 Interfaces and frozen boundary
+
+| Arm | Learned upper output at 50 Hz | Fixed adapter and local execution | Principal uncertainty |
+|---|---|---|---|
+| A | 32 unconstrained scalars, split into two 16-vectors | z=4v/||v||; π(x137,z) for each joint | Full sphere access can select poorly trained latent directions. |
+| B | 26 scalars, split into desired g13 vectors | Deterministic physical-consistency projection Pκ, frozen outcome normalizer/Tκ and B; radius-4 projection, then π | B'"'s image can restrict reachable latent commands; a desired response is not an inverse-dynamics guarantee. |
+| C | 2 scalars | tanh to u1,u2; same torque latch and capacity | Must learn local regulation and coordination jointly. |
+
+At ||v||<10"'^-8 use 4e1; log its frequency. The denominator is not `||v||+epsilon` outside this branch, so radius is exactly four. Do the same for a near-zero B output. A and B share the same checkpoint at both joints, separate causal history buffers, and no inter-joint weight adaptation. Freeze B, actor, normalizer statistics, B03 Tκ conventions, any λ-anchor parameters and recurrent state update rules. Calibration supplies actual geometry/capacity only through the existing approved schema. Updating those measured constants after a hardware swap is calibration, not fitting; adding learned slots is prohibited. Optimizers contain only upper-policy/value parameters, and file hashes plus parameter-byte hashes are checked throughout.
+
+Pκ is a fixed metric projection onto the attainable **kinematic** g13 manifold in the export manifest: select bounded q*, qdot*, qddot* and normalized torque u*, reconstruct all dependent sine/cosine and tip position/velocity/acceleration fields using baseline/01, and apply B03 Tκ exactly once. Formally minimize squared normalized distance to the raw 13-vector over q* within the stroke with 0.05 rad margin, |qdot*|≤8, |qddot*|≤80, and |u*|≤1; lexicographic tie-break on (q*,qdot*,qddot*,u*). This defines a deterministic adapter without adding a learned decoder. Use a fixed grid initialization plus bounded solver with recorded tolerance 10''^-8; report projection residual and solver failures. Do not supply contact force or true equilibrium torque to the target constructor. A nonconforming/missing 13-field manifest causes SCHEMA_INCOMPATIBLE before training; inventing a new order is not allowed.
+
+Baseline/01 calls its three interfaces mathematically equivalent, but that is not established: B∘Pκ need not be onto the latent sphere and weighted blending need not recover arbitrary commands. Here C means **raw torque**, as requested by B04, not baseline/01'"'s third, blending interface. This experiment directly tests these different admissible action sets.
+
+### 2.2 Information, timing, learning and parameter controls
+
+All arms receive exactly "'`O=(x137,1,x137,2,h,hdot,d16)` of dimension 292. The rail coordinates are common proprioceptive encoders; for fixed-base trials they are constants. d16 is the task descriptor: three task one-hot entries; sine/cosine of reference phase; current q* (2) and qdot* (2); current h*,hdot*; q*(t+0.1) (2); h*(t+0.1); remaining episode time; and reference frequency. Reference lookahead is an exogenous task command, not future reaction information. No mode receives payload identity, contact flag/force, solver state, estimated true mass, or future coupling torque. The exact same x values and preprocessing are delivered to C. Local actors see only their own x137 and z16; B sees only the local desired g13. The upper critic uses the same O as the upper policy.
+
+All upper decisions and local actors run once per 20 ms; torques are held for the interval. Physics runs at 0.25 ms, encoders at 5 ms; x137 is sampled according to its frozen 20 ms/slow-summary manifest. Five 5 ms velocity samples span 20 ms, not 40 ms: the contradictory prose in baseline/01 does not override its filter formula. Warm buffers with 0.32 s of stationary recorded proprioception and measured zero action; do not expose future samples. First valid task interval starts after this common initialization.
+
+Primary learning uses PPO, separate policy/value MLPs, tanh hidden units, two 256-unit hidden layers, Gaussian raw upper actions followed by the arm'"'s deterministic adapter. Each policy has exactly **140,000 trainable scalar parameters including its learned diagonal log standard deviations**. Obtain equality by a fixed binary mask on the second hidden weight matrix, pruning exactly "'`dense_policy_parameter_count-140000` entries by increasing SHA256(row,column,"B04-mask-v1"), preserving diagonal entries and at least one connection per row/column. All remaining parameters participate in computation; no dead padding parameters. Output widths are 32,26,2. Freeze and publish the masks before training. The same unmasked value network is used in every arm. Report total and trainable counts, adapter cost and inference latency. For C add a separately labeled **total-deployment-budget** control with 421,617 trainable policy parameters via a wider masked MLP (292→512→512→2), counting the shared local checkpoint once in A/B. Also report the physical two-copy footprint 563,234 if weight sharing is disabled. This prevents an upper-parameter comparison from hiding the local prior'"'s capacity advantage.
+
+Use 2,048 transitions per collection batch, 10 PPO epochs, minibatch 256, Adam 3e-4, γ=0.99, GAE λ=0.95, clip=0.2, value coefficient 0.5, entropy coefficient 0.001 per action dimension (average entropy), gradient norm cap 0.5, initial log standard deviation -0.5, orthogonal weight initialization (hidden gain sqrt(2), policy head 0.01, value head 1), zero biases, no optimizer schedule. Freeze common observation scaling; use angles in radians, rail height in metres, velocities in units of 4 rad/s and 1 m/s, time divided by 10, and frequency divided by 2. x uses the checkpoint's scaler. Rewards are not normalized; advantages are normalized within each batch. Every arm receives identical physics-transition and optimizer-step budgets, reset distributions, reward functions and seeds. Exploration dimensionality is an inherent interface difference and must be reported; a sensitivity arm tunes initial exploration on separate development seeds to match initial torque variance, with the same three-trial tuning allowance for each arm.
+
+Primary sample efficiency counts downstream transitions. Also report the local pretraining physics cost once, total compute, and an amortization curve versus number of downstream morphologies. A secondary raw-policy pretraining control gets the same local-trajectory dataset and compute cap; its behavior-cloning procedure is frozen on development seeds. It is not required to share the modular architecture. Claims must distinguish reusable-prior benefit from total-training-cost benefit. No privileged information or online local fine-tuning enters any confirmatory arm.
+
+## 3. Standardized 2-DoF Transfer Benchmark Specification
+
+### 3.1 Canonical physical instance and numerical contract
+
+Nominal values: L1=L2=0.40 m; m1=1.00 kg; m2=0.70 kg; ci=Li/2; Ii=miLi²/12; mb=2.00 kg; mp=0 unless a task specifies otherwise; C01=C02=9 N m; g=9.81 m/s². Joint friction is "'`0.03 qdot+0.02 tanh(qdot/0.01)` N m. Stops are q1∈[-2.8,0.5], q2∈[0.05,2.8]. Outside the interval use restoring stiffness 400 N m/rad and damping 4 N m s/rad, with damping only while moving farther into violation. No imposed joint velocity clamp, actuator delay, torque slew limiter, or artificial gravity compensation is used.
+
+The rail is unbounded except for termination at h<0.20 or h>1.50 m. Only the foot point collides; the links have no collision shapes. For foot penetration δ=-yf>0,
+
+    Fn=max(0,20000 δ-100 vydot),
+    Ft=-0.8 Fn tanh(vxdot/0.01).
+
+Otherwise both forces are zero. This is compliant dissipative contact, without a separate restitution impulse or force clip. The floor is y=0. Point-foot normal/tangential velocities use the full `(h,q)` Jacobian. E1 stops and E2 ground contact are logged independently. Use float64 semi-implicit Euler: evaluate forces at the beginning of each 0.25 ms step, solve the coupled mass matrix for acceleration, update velocity then position. Record simulator/code/dependency hashes and contact parameters in the run manifest. Re-run numerical validation at 0.125 ms; a >5% change in contact impulse or task success is NUMERICS_UNRESOLVED and blocks confirmatory contact conclusions.
+
+Define a centered stance with desired foot (0,0) by inverse kinematics for a prescribed hip height Ht:
+
+    q2*=acos((Ht²-L1²-L2²)/(2L1L2)),
+    q1*=-π/2-atan2(L2 sin q2*,L1+L2 cos q2*).
+
+This selects the same bent-knee branch across morphologies. Derivatives of this known trajectory give qdot*. For stance initialization choose H0=0.60 m, pose q*(H0), h=H0-δ0 and zero velocities, with δ0=(mb+m1+m2+mp)g/20000. This is an initial geometric compression, not a hidden controller. The first motor action is learned. No reference policy stabilizes a reset.
+
+### 3.2 Three task families
+
+Each episode lasts 10 s/500 control steps. Failures terminate early and contribute zero success, with maximum loss imputed for the remaining steps when computing episode scores; no survivor-only averaging. Training resets use the specified bounded variations; fixed evaluation episode seeds reproduce them exactly.
+
+1. **Free-space tracking (fixed hip).** Set h=1.20, mp=0 and disable ground contact. Let qbar=(-2.05,1.00), q1*=qbar1+0.25 sin(2πft+φ), q2*=qbar2+0.30 sin(2πft+φ+π/2). At reset draw f uniformly from {0.25,0.50,1.00} Hz and φ uniformly on [0,2π), set q=q*(0), qdot=qdot*(0). Success requires full-episode pooled joint RMSE≤0.10 rad, 95th-percentile absolute joint error≤0.20 rad, no termination, and saturation on <10% of joint-time samples. Report tracking separately for each frequency. Evaluation additionally tests f=1.50 Hz as a declared high-coupling stress tier.
+
+2. **Payload squat/hold (passive rail).** Draw attached foot payload mp uniformly from {0,0.10,0.20} kg at reset; its mass is constant throughout the episode. From H0=0.60 descend to 0.45 over t∈[1,3] using quintic smoothstep `s(v)=10v³-15v⁴+6v⁵`, hold during [3,6], rise over [6,8], then hold to 10. References use Ht and the IK above. This foot payload changes distal inertia; it is not mislabeled as a torso load. Success requires joint RMSE≤0.10 rad during movement, height RMSE≤0.02 m overall, and during both static windows [4,6] and [9,10]: velocity RMSE≤0.35 rad/s, mean absolute joint error≤0.05 rad, contact present ≥95% of samples, and foot |x|≤0.05 m. Report net demand and saturation in these windows; require no termination. A torso payload is an optional separate experiment, not pooled into this one.
+
+3. **Ground-impact hop/landing (passive rail).** Use mp=0. During [0,1] squat from 0.60 to 0.50; during [1,1.25] extend toward 0.70 with quintic interpolation; after 1.25 keep a tucked relative-pose target q*(0.55). The exogenous height target is 0.75 during [1.25,2.0], transitions to 0.55 during [2.0,2.5], and remains there. After 2.0 use q*(0.55) throughout. One hop per episode; no state-triggered reference changes and no event flag to the policy. Success requires a flight interval of ≥0.10 s (Fn<1 N at physics samples), upward hip velocity at flight onset, apex h≥0.72 m, recontact before 3.0 s, and a final quiet hold [4,10] with h RMSE≤0.03 m, joint velocity RMSE≤0.35 rad/s, |xfoot|≤0.05 m and contact ≥95%. Peak Fn must be ≤6 mt g, penetration ≤0.02 m, and no termination. Separate landing-only diagnostic episodes reset h=0.85 with pose q*(0.55), zero velocity, and constant h*=0.55; these are not mixed with hop success or its training reward.
+
+All tasks terminate at a stroke excursion >0.10 rad, |qdotj|>30 rad/s, rail boundary violation, penetration >0.05 m, nonfinite state, or failed linear solve. The latter two are simulator failures and are reported separately from controller failures. Train/evaluate each task with a separate upper policy; no unreported curriculum.
+
+Per-step reward is `exp(-E)-0.002 mean(u²)-0.002 mean((u-ut-1)²)-0.05 mean(1[|u|>0.98])`, with termination penalty -10. Let `Eq=mean(((q-q*)/0.10)²)` and `Ev=mean(((qdot-qdot*)/0.35)²)`. Tracking uses E=Eq+0.1Ev. Squat uses E=Eq+0.1Ev+((h-h*)/0.03)²+(xfoot/0.05)². Hop uses E=0.2Eq+((h-h*)/0.05)², adding 0.1Ev after t=4. These rewards are identical across interfaces. Physical success predicates, rather than reward magnitude, determine the primary result. An inverse-dynamics trajectory feasibility audit precedes controller training; impossible reference demands are reported, not silently repaired after seeing arm scores.
+
+### 3.3 Morphology transfer and audit output
+
+Train upper policies on nominal L2,C0 only. Zero-shot tests use the full 3×3 grid L2∈{0.32,0.40,0.48} and knee C02∈{6.75,9.00,11.25}, including paired changes. C01 remains 9. On length changes hold m2 fixed and recompute c2,I2 as a uniform rod; this isolates geometric/inertial change from extra mass. Foot payload location follows the new L2. Recompute reference IK for the same world-height task, update genuine calibration constants through existing local preprocessing, and freeze all learned quantities. No new normalizer fitting, latent search on test episodes, local adaptation, or checkpoint selection is allowed. Report every cell, including nominal, and mark whether the swapped geometry/capacity was present in local pretraining. “Unseen by the upper policy” is not automatically “unseen by the local module.” A separate both-unseen panel requires a checkpoint whose original training split excluded those geometries.
+
+Report zero-shot success retention (swapped minus nominal success), absolute RMSE, force/impulse, saturation, supported-window fraction and per-joint coupling distributions. Fine-tuning, if run, trains **only** the upper policy for exactly 102,400 additional transitions per cell and uses new adaptation seeds; evaluate at 0,25,600,51,200 and 102,400. Keep this secondary to zero-shot results.
+
+Closing Issue #9 has two levels. This proposal supplies the canonical physics, task, interface, metric and falsification specification. Engineering closure additionally requires a versioned executable environment, reset replay tests, numeric residual checks, frozen checkpoint hashes, the full task×mode×seed×morphology result table and a machine-readable verdict. A specification or CPU surrogate alone must not mark empirical transfer validated.
+
+## 4. Serious Alternative Considered and Rejected
+
+A credible alternative is a centralized computed-torque/MPC layer that estimates M,c,G and contact, cancels cross-joint dynamics, and presents nearly isolated plants to local actors. It can exploit the exact model above and may outperform all three learning arms with less data. It is rejected as the primary composition test because the cancellation itself supplies the missing load model; success would no longer isolate reuse of the frozen proprioceptive local representation. Oracle contact compensation would also violate the equal-information control. An optional model-based positive control may use the known benchmark model and true state, clearly labeled privileged, solely to assess task feasibility. It cannot count as evidence for H4.
+
+Likewise, fine-tuning local actors on the serial chain would be a useful engineering extension but answers a different question and is excluded here. If moving-parent loads prove unsupported, the legitimate next step is to collect a separately versioned single-unit training distribution with moving housings, retrain upstream, freeze a new checkpoint, and repeat the preregistered comparison. It is not permissible to repair the local module between downstream test cells and call that zero-shot reuse.
+
+## 5. Candidate Necessity Claims
+
+### C-B04-B-01 — Same-input incompatible-action obstruction
+
+**Status:** Candidate; Grade-1 conditional algebraic claim, not a claim that all coupling is unobservable or that x137 must be enlarged.
+
+**Premises.** Consider two admissible downstream states with identical *entire available causal information* to the composed deterministic policy, including both local histories, common rail sensors, task descriptor, recurrent state if any, and calibration. Thus they induce the same z and the same applied action u at a selected joint. Over the next step, take equal positive scalar effective inertia J and identical other terms, but hidden net load torques ℓa and ℓb. Let the desired angular acceleration be the same in both states. Assume both required actions are individually within the actuator range and the local linear acceleration relation is exact for this comparison.
+
+**Statement.** If |ℓa-ℓb|>2Jε, no such controller can guarantee acceleration error ≤ε in both states. Under equal prior probability, its expected squared acceleration error is at least `(ℓa-ℓb)²/(4J²)`.
+
+**Proof.** The two resulting accelerations under the same action differ by `(ℓa-ℓb)/J`. Two intervals of radius ε about the same target cannot contain both when their separation exceeds 2ε. For squared error the optimum common prediction is the midpoint; the residual variance is the stated bound. More generally let Uε(s) be the set of actions achieving the task tolerance in state s. A common-input robust controller requires `intersection_s Uε(s)` to be nonempty. No independent-load envelope can overcome an empty intersection.
+
+**Scope/counterexample.** Neighbor histories can make upper inputs distinguishable, allowing z to carry advance coordination information even though the local actor lacks direct neighbor sensors. A local-only alias therefore does not establish this result for the whole architecture. Raw baseline C has the same information obstruction. The argument requires neither new force sensors nor a particular representation; sensing, a richer causal history, conservative task tolerances, or coordination can avoid its premises. State-independent low-amplitude coupling is a counterexample to any unconditional “parent-motion sensing is necessary” claim.
+
+**Test and falsifier.** In §6 construct matched observable reset histories with a hidden payload or contact variation and individually feasible but disjoint action tolerance sets. A controller producing distinct first actions with byte-identical full inputs indicates leakage/nondeterminism and invalidates the test. Once inputs become distinguishable, successful recovery is allowed. The claim would be inapplicable if action sets overlap or the equal-J premise fails; use the general set-intersection version rather than forcing the scalar bound.
+
+### C-B04-B-02 — Joint support is necessary for a distribution-free transfer certificate
+
+**Status:** Candidate; narrowly scoped logical claim. Identical marginal distributions of hip load and knee load permit different joint laws (for example equal-sign versus opposite-sign load pairs), hence neither per-joint E0–E4 quota counts nor marginal peak bounds determine the serial-chain transition law. A claim of guaranteed performance for every compatible joint law therefore needs additional restrictions on coupling/conditional response, or a robustness argument covering all such laws. It does **not** follow that measured joint support is necessary for every successful controller: a sufficiently robust policy can succeed outside its data support. The empirical support test here is a qualification of evidence, not a theorem equating OOD with failure.
+
+The transfer gain itself remains a Grade-2 empirical hypothesis: under feasible, empirically supported loads, A or B reaches a common success threshold with at least 20% fewer downstream samples than C and retains performance after calibrated morphology swaps. Neither this hypothesis nor a universal stability guarantee is elevated to a necessity claim.
+
+## 6. Pre-Registered Empirical Spike Protocol
+
+### 6.1 Stage 0: freeze and qualify before downstream scores
+
+Seal source revision, environment manifest, observation/outcome slot manifests, parameter masks, all seeds, contact law, criteria and one local checkpoint before collecting confirmatory results. The checkpoint must have a real-physics 144×5 qualification artifact, both load signs, B02 load/recovery windows and static-hold guards, zero-velocity RMSE<0.35 rad/s in its prescribed panel, and B01 deployment purity. B03 preprocessing must match the export schema; its rank-floor hypothesis remains conditional. A surrogate or `coverage_ready` boolean without qualifying real rollouts is insufficient. If no eligible checkpoint exists, execute mechanics/interface diagnostics only and report `BLOCKED_LOCAL_QUALIFICATION`; do not substitute the smoke checkpoint into a scientific H4 verdict.
+
+### 6.2 Stage 1: mechanics, causality and coverage spike
+
+Use float64 analytic and numerical checks at 1,000 seeded states with q in the inner 80% of the stroke, |qdot|≤4, random u, mp∈{0,0.2}, and fixed/rail bases. Seeds are 41000–41999. Verify M symmetry and positive definiteness; independently finite-difference T,V to check Euler–Lagrange terms; solve forward dynamics and require relative local/global EOM residual≤10''^-9; compare Schur elimination to the full solve; and verify `qdotᵀJᵀF=(Jqdot)ᵀF`, adding hdot Fn for the rail, within 10''^-10 relative tolerance (denominator at least 1). Finite-difference checks use tolerance 10''^-5. Check contact is unilateral/dissipative and the integrated dynamics converges under halved timestep. Test zero payload, qdot=0, no contact, q2≈0, gravity-free flight, and nonzero base acceleration explicitly.
+
+Run a **mechanism spike**, not convergence training: 32 reset seeds per task, 10 s each, with an analytic reference tracker and the frozen A/B/C interfaces driven by fixed scripted commands. Scripts are for coverage acquisition and wiring checks; they do not determine H4 success. Sweep fixed-base tracking frequency {0.25,0.5,1,1.5}, mp={0,0.2}, and landing height {0.75,0.85,0.95}. Preserve all failures, unfeasible trials and missed event windows. Log substep dynamics and interval-aligned x,g,z,u, action-latch timestamps, component torque and contact impulse. Verify no current-interval solver reaction reaches an action already latched, in accordance with B01. F and p5065 are absent from deployed inference; audit forward argument shapes and randomize inaccessible simulator fields to test output invariance.
+
+Construct the envelope from upstream real rollouts, not these downstream probes. Joint-bin matching uses 5 equal-width bins over each training 0.5–99.5 percentile interval for calibrated q, qdot, r and Mjj/J0, plus sign and regime; dwell/impulse must also lie within the training interval. Require ≥20 independent source episodes in each matched bin. Report coverage fraction, unknown fraction, and confidence bounds; no dropping empty cells. For bins with adequate support, compare standardized next-step `(qdot,qddot,u)` conditional means and covariance against source holdouts; require each mean discrepancy≤0.25 source standard deviations and covariance Frobenius discrepancy≤25% of source covariance norm (floor 10''^-6). Match z as well using cosine similarity≥0.95 and at least 20 episodes, or mark response support UNKNOWN. These stringent checks may fail; they are a falsifiable qualification rather than permission to inflate an envelope. No finite empirical check proves equality of transition laws.
+
+An operational supported-load panel requires ≥95% of each joint'"'s windows supported and no unclassified high-impulse event; keep all other episodes in the overall result and separate them in attribution. Construct the same-input action-set test from C-B04-B-01 with two simulator branches, recording first-action equality and feasible action intervals. Joint-load correlation, neighbor-action sensitivity and reaction delay are diagnostic quantities, never fed to local modules.
+
+### 6.3 Stage 2: bounded downstream learning comparison
+
+Train A,B,C and total-budget C on each task for **2,048,000 transitions** each: 1,000 collection iterations and 80,000 optimizer minibatch steps, since each iteration has 10×8 minibatches. Use ten paired training seeds 100–109; simulator episodes are keyed independently by "'`(task,seed,episode_index)` so differing failure lengths do not shift future scenario draws. Evaluate every 102,400 training transitions, including zero, on 100 fixed task episodes keyed 20000–20099. These evaluations do not enter training. Final transfer tests use 100 fresh episodes per morphology cell keyed 30000–30099; landing-only diagnostics use 40000–40099. Development/tuning seeds are 1–3 and never join confirmatory confidence intervals.
+
+Primary endpoint: restricted sample-to-threshold T80, the first evaluation with ≥80% episode success maintained for the next two evaluations; last two evaluation points cannot newly qualify. If never achieved, assign the horizon 2,048,000 and mark right-censored. Publish both restricted means and a survival curve; never discard unsuccessful seeds. Secondary endpoints are success-curve AUC divided by the horizon, final success, task-specific RMSE, return, energy `∫|τ qdot|dt`, impulse, saturation and failure reasons. Count environment steps rather than wall-clock simulator parallelism; also report wall time and inference cost.
+
+Primary contrasts A−C and B−C use paired seeds. Bootstrap 10,000 times over training seeds, retaining all episodes/cells within a seed; use 97.5% intervals for the two primary contrasts. Do not treat episode-level samples as independent trained controllers. A transfer-gain PASS for an arm requires: upper confidence bound on restricted-mean T80 ratio≤0.80; lower bound on equal-weight mean nominal final success≥0.80; and lower bound on mean zero-shot success difference (swapped minus nominal)≥-0.10. Report every task and cell, and require no individual task'"'s nominal success mean<0.70. Pooled performance cannot conceal a failed task. Repeat these comparisons to the total-budget C as a capacity sensitivity analysis; a reversal narrows the claim to equal upper learning budgets. Report both-unseen morphology results separately when available.
+
+A supported, physically feasible panel in which both modular arms have an interval excluding the stipulated 20% gain rejects the **specified effect-size version** of H4; it does not prove no smaller benefit exists. If all arms fail, the checkpoint is unqualified, numeric checks fail, or support is unknown, the result is INCONCLUSIVE with the corresponding reason. An OOD failure falsifies unrestricted reuse for that panel but not the charter's conditional inside-distribution hypothesis. Conversely, a PASS supports this finite benchmark and checkpoint only, not arbitrary multi-joint stability or bipedal locomotion.
+
+### 6.4 Required artifacts and stopping rules
+
+The eventual runner must emit "'`manifest.json`, checkpoint/preprocessing hashes, `physics_checks.json`, `qualification_144x5.json`, `envelope_reference.json`, episode-level parquet/CSV, `learning_curves.csv`, `transfer_grid.csv`, action-set alias test records, and `VERDICT.json`. Verdict fields distinguish `mechanics`, `interface_purity`, `local_qualification`, `support`, `numerics`, `sample_efficiency`, and `zero_shot_transfer`; each contains PASS/FAIL/UNKNOWN/BLOCKED and evidence paths. Record all hardware, software, run time, aborted runs and requested versus completed budgets. Do not fabricate empty result files or mark this proposal as an executed spike.
+
+Stop only for declared numerical invalidity, unavailable qualifying checkpoint, or budget completion; preserve artifacts and failure reasons. Repairing a bug requires a new manifest and rerunning affected paired arms. Thresholds, checkpoint selection and task definitions cannot be changed after viewing confirmatory arm differences. This protocol keeps every local (B,π) frozen and makes Audit Issue #9 actionable without mistaking a scheduler surrogate, dynamics identity, or amplitude-overlap plot for demonstrated modular transfer.
+EOF' in /srv/claude
+ succeeded in 0ms:
+codex
+The draft is written. I’m checking the equations, parameter budgets and success criteria, particularly whether they separate physical infeasibility, unsupported coupling and controller failure. The proposal also distinguishes specifying the benchmark from demonstrating transfer experimentally.
+exec
+/bin/bash -lc "python3 - <<'PY'
+from pathlib import Path
+p=Path('/srv/claude/research/motor-unit-representation/packets/B04/drafts/B/proposal.md')
+s=p.read_text().replace('10.94 N m','10.93 N m').replace('(292→512→512→2)','(292→544→544→2)')
+p.write_text(s)
+for d in (32,26,2):
+    n=292*256+256+256*256+256+256*d+d+d
+    print('policy output',d,'dense',n,'masked',n-140000)
+n=292*544+544+544*544+544+544*2+2+2
+print('total-budget C dense',n,'masked',n-421617)
+print('words',len(s.split()))
+print('\\n'.join(line for line in s.splitlines() if line.startswith('# ' ) or line.startswith('## ')))
+PY" in /srv/claude
+ succeeded in 0ms:
+policy output 32 dense 149056 masked 9056
+policy output 26 dense 147508 masked 7508
+policy output 2 dense 141316 masked 1316
+total-budget C dense 456964 masked 35347
+words 5421
+# Proposal B (Packet B04): Composing Frozen Local Motor-Unit Representations into Multi-Joint Limb Controllers Under Coupled Loads
+## 1. Multi-Body Coupling Dynamics Reduction
+## 2. Upper-Layer Calling Architecture Comparison
+## 3. Standardized 2-DoF Transfer Benchmark Specification
+## 4. Serious Alternative Considered and Rejected
+## 5. Candidate Necessity Claims
+## 6. Pre-Registered Empirical Spike Protocol
+
+exec
+/bin/bash -lc "python3 - <<'PY'
+import numpy as np
+m1,m2,mp,mb,L1,L2=1.,.7,.2,2.,.4,.4
+c1,c2=L1/2,L2/2
+I1,I2=m1*L1**2/12,m2*L2**2/12
+A=I1+m1*c1**2+(m2+mp)*L1**2
+D=I2+m2*c2**2+mp*L2**2
+H=L1*(m2*c2+mp*L2)
+K=m1*c1+(m2+mp)*L1
+d=m2*c2+mp*L2
+mt=mb+m1+m2+mp
+def mass(q):
+    a=np.array([K*np.cos(q[1])+d*np.cos(q[1]+q[2]),d*np.cos(q[1]+q[2])])
+    M=np.array([[A+D+2*H*np.cos(q[2]),D+H*np.cos(q[2])],[D+H*np.cos(q[2]),D]])
+    return np.block([[np.array([[mt]]),a[None,:]],[a[:,None],M]])
+rng=np.random.default_rng(41000)
+worst=0.
+for _ in range(1000):
+    q=np.array([.6,rng.uniform(-2.4,0.1),rng.uniform(.3,2.5)])
+    v=rng.uniform(-4,4,3)
+    eps=1e-6
+    deriv=np.stack([(mass(q+eps*np.eye(3)[k])-mass(q-eps*np.eye(3)[k]))/(2*eps) for k in range(3)])
+    cnum=np.array([sum(.5*(deriv[k,i,j]+deriv[j,i,k]-deriv[i,j,k])*v[j]*v[k] for j in range(3) for k in range(3)) for i in range(3)])
+    cexact=np.array([-K*np.sin(q[1])*v[1]**2-d*np.sin(q[1]+q[2])*(v[1]+v[2])**2,-H*np.sin(q[2])*(2*v[1]*v[2]+v[2]**2),H*np.sin(q[2])*v[1]**2])
+    worst=max(worst,np.max(abs(cnum-cexact)))
+    assert np.linalg.eigvalsh(mass(q)).min()>0
+print('1000-state independent Christoffel check max absolute error:',worst)
+assert worst<1e-7
+print('inertia, Coriolis, extra-gravity bounds:')
+J1,J2=I1+m1*c1**2,I2+m2*c2**2
+print((A+D+2*H-J1)*20+(D+H)*20,(D-J2)*20+(D+H)*20)
+print(H*48,H*16,9.81*((m2+mp)*L1+d),9.81*mp*L2)
+PY" in /srv/claude
+ succeeded in 81ms:
+1000-state independent Christoffel check max absolute error: 2.0769181929836122e-09
+inertia, Coriolis, extra-gravity bounds:
+10.933333333333335 3.786666666666667
+4.224 1.4080000000000001 5.6898 0.7848000000000002
+
+exec
+/bin/bash -lc "python3 - <<'PY'
+from pathlib import Path
+p=Path('/srv/claude/research/motor-unit-representation/packets/B04/drafts/B/proposal.md')
+s=p.read_text()
+s=s.replace('Warm buffers with 0.32 s of stationary recorded proprioception and measured zero action; do not expose future samples. First valid task interval starts after this common initialization.', 'For all arms, fill buffers with 0.32 s of recorded stationary proprioception at the reset pose with zero motor action and a temporary reset fixture locking the joints and rail. Remove the fixture at t=0; it supplies no task-time stabilization and its forces never enter deployed observations. Set all initial velocities to zero, expose no future samples, and start the first valid task interval at release.')
+s=s.replace('set q=q*(0), qdot=qdot*(0).', 'set q=q*(0), qdot=0.')
+s=s.replace('Use a fixed grid initialization plus bounded solver with recorded tolerance 10"'^-8; report projection residual and solver failures.'"', 'Use 33 equally spaced q initializations over the allowed interval with the other three free coordinates initialized to zero; run bounded SLSQP for at most 200 iterations per start with objective tolerance 10"'^-8, select the lowest feasible objective and apply the stated tie-break within 10''^-8. Freeze the numerical-library version in the manifest; report projection residual and solver failures. If all starts fail, apply the previous valid target (the stationary reset target initially) and count an adapter failure.'"')
+s=s.replace('All remaining parameters participate in computation; no dead padding parameters.', 'The dense policy counts for A/B/C are 149,056/147,508/141,316, so the respective masks remove 9,056/7,508/1,316 weights. All remaining parameters participate in computation; no dead padding parameters.')
+p.write_text(s)
+required=[
+'# Proposal B (Packet B04): Composing Frozen Local Motor-Unit Representations into Multi-Joint Limb Controllers Under Coupled Loads',
+'## 1. Multi-Body Coupling Dynamics Reduction',
+'## 2. Upper-Layer Calling Architecture Comparison',
+'## 3. Standardized 2-DoF Transfer Benchmark Specification',
+'## 4. Serious Alternative Considered and Rejected',
+'## 5. Candidate Necessity Claims',
+'## 6. Pre-Registered Empirical Spike Protocol',
+'C-B04-B-01']
+assert all(s.count(x)==1 for x in required[:-1])
+assert required[-1] in s
+assert '512→512' not in s
+print('Required sections verified; proposal bytes:',p.stat().st_size)
+PY" in /srv/claude
+ succeeded in 0ms:
+Required sections verified; proposal bytes: 40115
+
+codex
+Completed [Proposal B](/srv/claude/research/motor-unit-representation/packets/B04/drafts/B/proposal.md) with all six required sections and `C-B04-B-01`.
+
+Verified the dynamics and parameter counts. The protocol keeps local modules frozen and distinguishes proposed experiments from established evidence.
+tokens used
+48,792
+Completed [Proposal B](/srv/claude/research/motor-unit-representation/packets/B04/drafts/B/proposal.md) with all six required sections and `C-B04-B-01`.
+
+Verified the dynamics and parameter counts. The protocol keeps local modules frozen and distinguishes proposed experiments from established evidence.

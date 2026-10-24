@@ -1,0 +1,16 @@
+I've written the blind review to `packets/B02/reviews/review-A-on-B.md`, with all five required sections. I read only the charter, the brief and `proposals/B.md`. I didn't open Proposal A or anything in `reviews/` or `drafts/`. The baseline documents weren't part of my inputs, so claims that depend on them are marked unverifiable in the review.
+
+**Arithmetic:** I re-derived B's numbers (scene fractions, per-cell quotas, the byte counts for the memory layout, the update schedule, the 7,776-case panel and the tanh constants) and found no errors.
+
+**Main findings:**
+- **Gate audit:** no hard-constraint violation. Two items are conditional:
+  - B relies on `D-B01-001`, which is not in B02's inherited ledger snapshot. The orchestrator needs to confirm it is allowed context.
+  - Memory compliance depends on 512 storable-once privileged slots that nobody has verified, plus a 350 MB model budget that isn't worked out. Without that trick the design is blocked.
+- **[CRITICAL] The 720-cell guarantee only counts rows.** All 144 configurations step through anchors and load levels in lockstep, and each cell holds only one or two recent episodes. So at any moment the whole E3/E4 replay contains essentially one anchor and one load level.
+- **[MAJOR]:**
+  - Training always picks the same load sign, but the evaluation panel tests both. Half the loaded test cases are therefore conditions the actor never trained on.
+  - The rule controller knows the release time exactly, so its recovery examples show almost no recovery. Its witness counters can also be met using only the easiest load level.
+  - The actor is taught to copy the rule's actions at the release edge, where the actor cannot tell the release has happened.
+  - Learning can deadlock at startup: it can't begin until the untrained actor's first cycle fills every cell, and there is no retry rule.
+- **`C-B02-B-01`:** the proof is correct but the result is basic. It supports tracking the full 144×5 count array, not the deterministic collector it is used to defend. The rejection argues against independent random sampling rather than the strongest version of the alternative: a deficit-weighted collector with hard per-cell minimums, protected windows and randomized timing. It also ignores what determinism costs: the lockstep problem above, and a fixed release time an actor could learn to anticipate.
+- **Spike:** the pre-registration is strong for testing whether the full bundle works. However, the ablation arms have no predictions that could fail, and two of them fail by construction. Training and evaluation conditions are too similar to detect memorization. A 24-hour CPU run will likely end INCOMPLETE.

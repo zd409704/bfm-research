@@ -1,0 +1,30 @@
+You are Primary Author B on Packet B01 of the research program at `/srv/claude/research/motor-unit-representation`.
+
+Read the following frozen context files before writing your proposal:
+1. `/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/motor-unit-representation/packets/B01/brief.md`
+3. `/srv/claude/research/motor-unit-representation/baseline/01-motor-unit-proprioception-and-representation-design.md`
+4. `/srv/claude/research/motor-unit-representation/baseline/02-v3-asymmetric-network-and-training-specification.md`
+5. `/srv/claude/research/motor-unit-representation/baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md`
+
+Isolation & Firewall Rules:
+- Do NOT read or list any directory under `packets/B01/drafts/` other than your own directory `/srv/claude/research/motor-unit-representation/packets/B01/drafts/B/`.
+- Write your complete proposal to `/srv/claude/research/motor-unit-representation/packets/B01/drafts/B/proposal.md`.
+
+Required Sections in `/srv/claude/research/motor-unit-representation/packets/B01/drafts/B/proposal.md`:
+1. `# Proposal B (Packet B01): Privileged Forward Input Causality, Exogenous vs Endogenous Future Load Boundaries, and 22-Group Schema Audit`
+2. `## 1. Formal Causality Partition of p_5065 Across All 22 Schema Groups`:
+   - Define the mathematical distinction between exogenous environment Markov state \(\xi_t\) (where \(P(\xi_{t+1}\mid\xi_t)\) is independent of \(a_t\)) and endogenous physical reaction \(y_{t+1}(s_t,a_t,\xi_t)\).
+   - Classify every one of the 22 schema groups (`4,822` physical/solver dims + `243` historical privileged memory dims = `5,065`) as: retain-as-is (causal Markov at \(t\)), replace-by-causal-generator-state-at-\(t\), or mask.
+   - Give an explicit sanitized construction \(p^{\mathrm{causal}}_{5065,t}\) that preserves E0–E4 regime disambiguation without leaking endogenous post-action forces.
+3. `## 2. Bellman Bias and Action-Jacobian Degeneracy Proof`:
+   - Prove how leaking endogenous post-action forces at \(t+1..t+K\) into \(F(x_t,p_t,a_t,z)\) distorts the policy gradient \(\nabla_a F(x_t,p_t,a_t,z)^\top z\), allowing \(F\) to read the consequence of \(a_t\) from \(p_t\) rather than from its action input \(a_t\), which zeroes or corrupts \(\partial F/\partial a_t\).
+   - Quantify the degeneracy condition in terms of Jacobian norms \(\|\partial F/\partial a_t\|_2\) vs \(\|\partial F/\partial p_{\mathrm{future}}\|_2\).
+4. `## 3. Serious Alternative Considered and Rejected`:
+   - Per method v1.0 §11.5, analyze at least one non-trivial alternative (e.g., keep future windows but stop-gradient them w.r.t. \(a_t\), or move all load info into Group 22 EMA only) and prove why it was rejected.
+5. `## 4. Candidate Necessity Claims (Appendix B)`:
+   - Formulate at least one falsifiable Principle Claim (`C-B01-B-01`) with explicit premises, conclusion shape (impossibility, lower bound, or invariant), necessity grade (Grade 1 or Grade 2), operational test, and falsifier.
+6. `## 5. Pre-Registered Empirical Spike Protocol`:
+   - Define a concrete PyTorch Jacobian sensitivity experiment measuring \(\|\partial F/\partial a_t\|_2\) vs \(\|\partial F/\partial p_{\mathrm{future}}\|_2\) before and after causal sanitization of Groups 18–21, with quantitative pass/fail gates and a Bellman residual check. Device may be CPU; document if CUDA is unavailable.
+
+Do not mention language or locale. Write the proposal in the same register as the baseline documents.

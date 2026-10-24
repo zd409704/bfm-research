@@ -1,0 +1,2 @@
+1792809684.7163203 device=cpu verdict=FAIL ratio_on=2.2001 ratio_off=0.0115 red=12.4539
+1792809696.6873424 device=cpu verdict=PASS ratio_on=12.9684 ratio_off=0.0125 red=9.7670

@@ -1,0 +1,40 @@
+I've written the full proposal to `packets/B02/drafts/A/proposal.md`. It contains all seven required sections, stays within the 98,304-transition / 4.10 GB budget, and nothing in it has been run on real physics yet. The only numbers I computed while drafting are arithmetic checks, labelled as such in the document. I read no other author's drafts.
+
+**Core design:**
+- **Synchronized scenes (#1, #5):** one pure function produces each episode's scene label, its full step-by-step external torque schedule and its declared event windows, so the label and the load can no longer disagree. Every episode is 64 steps, plus 16 unstored steps that only fill the history window, and none ends early.
+  - Every E3 episode has a sustained load plateau of at least 46 steps (25 required).
+  - Every E4 episode releases its load at a fixed jittered time (step 24–32), followed by at least 30 quiet recovery steps (20 required). The release is triggered by time, not by robot state, which keeps it consistent with the B01 decision.
+  - The windows are checked twice: on the schedule before the rollout, and on the simulator's readback after it.
+- **Replay layout:** both partitions are split into fixed slots per (config, scene) cell instead of one global first-in-first-out (FIFO) queue.
+  - Rule partition: 45/34/45/34/68 slots per config for E0–E4, plus 224 reserve slots.
+  - Policy partition: 91/68/91/68/137 slots per config, plus 16 reserve slots.
+  - Every policy cell holds at least 68 transitions, so the latest complete 64-step episode of every cell is always in the buffer.
+  - The rule partition can't hold a full episode per cell (32,768 / 64 = 512 episodes, fewer than 720 cells), so it stores 34–45-step windows cut around each episode's load or release events. This is claim `C-B02-A-01`.
+- **Rule controller wiring (#2):** I gave the exact controller law and gains (stable with margin: largest eigenvalue magnitude about 0.90 with 20 ms hold, about 0.90 again with a one-step delay). Warmup is redefined as two phases:
+  - a rule fill of 32,768 transitions;
+  - a 720-episode mixed warm start of the policy partition.
+  - A tripwire raises an error if the old sampler is ever called.
+- **Normalizers (#6):** replay stores raw values. Statistics are recomputed exactly over the buffer, weighted the same way mini-batches are sampled, and every update is folded into each network's first layer so that no network output changes.
+- **Saturation (#8):** a penalty on the actor's pre-`tanh` value beyond 2.0 means the gradient is never weakened by more than about 14×. Every load program requires at most 0.92 of maximum torque to hold, below `tanh(2.0)` ≈ 0.964, so the penalty never interferes with an optimal hold (claim `C-B02-A-02`).
+- **Holding evaluation and coverage gate (#3, #5):** I defined the exact static target vector `g13_hold(q*)` and a frozen evaluation panel of 2,160 episodes.
+  - The velocity error is checked against 0.35 rad/s separately for E0, E3 and E4, with no pooling.
+  - The rule controller must score below 0.10 rad/s on the same panel; if it can't, the panel itself is declared invalid.
+  - `cross_coverage_144_x_5` is a gate over all 720 cells, counted from simulator readbacks rather than labels.
+
+**Rejected alternative (§4):** a single global FIFO queue with episodes that end on a robot-state condition and extra episodes for starved cells. Under random scheduling, about 186 of the 720 cells would be empty at any time. State-triggered release also breaks the B01 rule that release counters driven by robot state can't be fed to the critic as external inputs.
+
+**Claims (§5):**
+- `C-B02-A-01`: a counting bound on what fits in the buffer.
+- `C-B02-A-02`: the bound on saturation weakening.
+- `C-B02-A-03`: holding against an unknown constant load needs something that acts like an integrator. The policy can only get one by feeding back its own past torque commands. Velocity error alone can't show whether this is missing, so the evaluation also reports position error, and I give an ablation test.
+
+**Spike plan (§6):** four stages (S0–S3), all runnable on CPU.
+- S0 checks the schedule generator without physics.
+- S1 runs the rule fill on real physics for all 144 configs.
+- S2 is the main pipeline test. It must show `coverage_ready = true`, stay within memory, and pass a deliberate test that injects broken schedules.
+- S3 is the holding test, capped at 20,000 updates. If the budget runs out before it passes, the result is recorded as "not reached within CPU budget", not as evidence against H2.
+
+**Unverified assumptions you should know about:**
+- **Byte layout:** the 41,677 bytes per transition is my inference from the reported 4.097 GB, not read from code. Total memory after my additions comes to about 4.0980 GB against the 4.10 GB cap.
+- **Calibration convention:** the target vector's tip position assumes the calibration convention in baseline 01, which wasn't in my read set. The spike checks it against the real forward kinematics.
+- **Unspecified parameters:** the 64-step episode length and the 512 batch size are my own choices, because the baseline doesn't specify them.

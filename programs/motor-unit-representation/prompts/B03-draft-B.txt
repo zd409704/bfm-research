@@ -1,0 +1,24 @@
+You are Primary Author B on Packet B03 of the research program at `/srv/claude/research/motor-unit-representation`.
+
+Read the following frozen context files before writing your proposal:
+1. `/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/motor-unit-representation/packets/B03/brief.md`
+3. `/srv/claude/research/motor-unit-representation/baseline/01-motor-unit-proprioception-and-representation-design.md`
+4. `/srv/claude/research/motor-unit-representation/baseline/02-v3-asymmetric-network-and-training-specification.md`
+5. `/srv/claude/research/motor-unit-representation/baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md`
+6. `/srv/claude/research/motor-unit-representation/packets/B01/decision.md`
+7. `/srv/claude/research/motor-unit-representation/packets/B02/decision.md` (if present; else skip)
+
+Isolation & Firewall Rules:
+- Do NOT read or list any directory under `packets/B03/drafts/` other than your own directory `/srv/claude/research/motor-unit-representation/packets/B03/drafts/B/`.
+- Write your complete proposal to `/srv/claude/research/motor-unit-representation/packets/B03/drafts/B/proposal.md`.
+
+Required Sections:
+1. `# Proposal B (Packet B03): Rank-16 Bilinear Bottleneck Across 144 Morphology-Stroke Regimes and Orthonormalization Regularization`
+2. `## 1. Singular-Value Decomposition of the 144-Configuration Outcome Operator`
+3. `## 2. Stratified Orthonormalization & Nondimensionalization Proposal` comparing (a) global L_orth, (b) inverse-probability weighted L_orth, (c) nondimensionalized g13 + scale ratio
+4. `## 3. Serious Alternative Considered and Rejected`
+5. `## 4. Candidate Necessity Claims` with `C-B03-B-01`
+6. `## 5. Pre-Registered Empirical Spike Protocol` with per-group erank >= 12/16 gates
+
+Keep d_z=16 and deployed parameter budget 281,617 fixed.

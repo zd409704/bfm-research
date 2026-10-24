@@ -1,0 +1,29 @@
+I wrote the adjudication report. The disposition is **Tie**: Q scores 76 and P scores 72, a 4.0-point gap inside the 5.0 tie margin.
+
+**Eligibility:** both candidates pass. Q reports that the stated B architecture sums to 70,800 parameters, not 74,000. I recomputed that sum and it is correct. I flagged it for the program but did not count it against Q. It is a discrepancy in the baseline that Q's design does not change.
+
+| Dimension (weight) | P | Q |
+|---|---:|---:|
+| Cross-morphology SVD (30) | 19 | 25 |
+| Audit Issue #7 (25) | 21 | 19 |
+| Tip kinematic preservation (25) | 18 | 19 |
+| Spike falsifiability (20) | 14 | 13 |
+| **Total** | **72** | **76** |
+
+- **Why Q leads:** Q shows that rigid-link length forces an error floor of about 0.745 when the outcome reference is pooled across configurations. P misses this and calls the 0.943 bound only "valid under a stronger premise". Almost all of Q's lead comes from this one row.
+- **Flaws in both:** both recommend pushing every configuration's second moment toward the identity. That conflicts with decoding configuration-dependent scale, such as length and tip fields.
+- **Flaws in Q's spike:**
+  - Q fits outcome cells separately per configuration, so its pooled test creates the floor by construction.
+  - Its falsifiers G3 and the shuffled-label arm test the wrong implication.
+  - Its feature-model table omits sphere projection, so its numbers don't hold for the deployed encoder.
+- **Flaws in P's spike:** its successor gate is either impossible to pass or blind to length, and its bootstrap over 2 source states per cell is degenerate.
+- **Principle claims:**
+  - Accept C-B03-P-01, C-B03-Q-02 and C-B03-P-03 as Grade 1 on their narrow scope. Q-02 needs its tightness claim corrected.
+  - Accept C-B03-P-02 as Grade 1 but merge it into Q-01.
+  - Accept Q-01 only as a conditional lemma. Do not lock the 0.745 figure or the "H3 impossible" statement.
+  - Downgrade Q-03 to a testable hypothesis.
+- **Alternate:** Q is the stronger base for a merged proposal, with P treated as co-primary. The report lists 12 mandatory merge items.
+
+I did not read the baseline documents, the decision records, or the text of Appendix B.9. The claim statuses above are therefore my assessments of mathematical scope, not ledger locks. I also ran no numerical experiments, and I scored the files in the order given without a swapped-order pass.
+
+The report is at `/srv/claude/research/motor-unit-representation/packets/B03/adjudication-sonnet-order2.md`.

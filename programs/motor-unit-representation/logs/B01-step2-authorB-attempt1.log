@@ -1,0 +1,1554 @@
+Reading prompt from stdin...
+OpenAI Codex v0.163.0
+--------
+workdir: /srv/claude
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: high
+reasoning summaries: none
+session id: 01a16bc7-7421-7763-82c9-4c6723e4f201
+--------
+user
+You are Primary Author B on Packet B01 of the research program at `/srv/claude/research/motor-unit-representation`.
+
+Read the following frozen context files before writing your proposal:
+1. `/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md`
+2. `/srv/claude/research/motor-unit-representation/packets/B01/brief.md`
+3. `/srv/claude/research/motor-unit-representation/baseline/01-motor-unit-proprioception-and-representation-design.md`
+4. `/srv/claude/research/motor-unit-representation/baseline/02-v3-asymmetric-network-and-training-specification.md`
+5. `/srv/claude/research/motor-unit-representation/baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md`
+
+Isolation & Firewall Rules:
+- Do NOT read or list any directory under `packets/B01/drafts/` other than your own directory `/srv/claude/research/motor-unit-representation/packets/B01/drafts/B/`.
+- Write your complete proposal to `/srv/claude/research/motor-unit-representation/packets/B01/drafts/B/proposal.md`.
+
+Required Sections in `/srv/claude/research/motor-unit-representation/packets/B01/drafts/B/proposal.md`:
+1. `# Proposal B (Packet B01): Privileged Forward Input Causality, Exogenous vs Endogenous Future Load Boundaries, and 22-Group Schema Audit`
+2. `## 1. Formal Causality Partition of p_5065 Across All 22 Schema Groups`:
+   - Define the mathematical distinction between exogenous environment Markov state \(\xi_t\) (where \(P(\xi_{t+1}\mid\xi_t)\) is independent of \(a_t\)) and endogenous physical reaction \(y_{t+1}(s_t,a_t,\xi_t)\).
+   - Classify every one of the 22 schema groups (`4,822` physical/solver dims + `243` historical privileged memory dims = `5,065`) as: retain-as-is (causal Markov at \(t\)), replace-by-causal-generator-state-at-\(t\), or mask.
+   - Give an explicit sanitized construction \(p^{\mathrm{causal}}_{5065,t}\) that preserves E0–E4 regime disambiguation without leaking endogenous post-action forces.
+3. `## 2. Bellman Bias and Action-Jacobian Degeneracy Proof`:
+   - Prove how leaking endogenous post-action forces at \(t+1..t+K\) into \(F(x_t,p_t,a_t,z)\) distorts the policy gradient \(\nabla_a F(x_t,p_t,a_t,z)^\top z\), allowing \(F\) to read the consequence of \(a_t\) from \(p_t\) rather than from its action input \(a_t\), which zeroes or corrupts \(\partial F/\partial a_t\).
+   - Quantify the degeneracy condition in terms of Jacobian norms \(\|\partial F/\partial a_t\|_2\) vs \(\|\partial F/\partial p_{\mathrm{future}}\|_2\).
+4. `## 3. Serious Alternative Considered and Rejected`:
+   - Per method v1.0 §11.5, analyze at least one non-trivial alternative (e.g., keep future windows but stop-gradient them w.r.t. \(a_t\), or move all load info into Group 22 EMA only) and prove why it was rejected.
+5. `## 4. Candidate Necessity Claims (Appendix B)`:
+   - Formulate at least one falsifiable Principle Claim (`C-B01-B-01`) with explicit premises, conclusion shape (impossibility, lower bound, or invariant), necessity grade (Grade 1 or Grade 2), operational test, and falsifier.
+6. `## 5. Pre-Registered Empirical Spike Protocol`:
+   - Define a concrete PyTorch Jacobian sensitivity experiment measuring \(\|\partial F/\partial a_t\|_2\) vs \(\|\partial F/\partial p_{\mathrm{future}}\|_2\) before and after causal sanitization of Groups 18–21, with quantitative pass/fail gates and a Bellman residual check. Device may be CPU; document if CUDA is unavailable.
+
+Do not mention language or locale. Write the proposal in the same register as the baseline documents.
+
+codex
+I’ll read the frozen context, audit the 22 groups against the causal boundary, and write the proposal in `drafts/B/proposal.md`.
+
+exec
+/bin/bash -lc "pwd && rg --files -g AGENTS.md -g '"'!research/motor-unit-representation/packets/B01/drafts/**'"' /srv/claude 2>/dev/null" in /srv/claude
+ exited 1 in 0ms:
+/srv/claude
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md /srv/claude/research/motor-unit-representation/packets/B01/brief.md' in /srv/claude
+ succeeded in 0ms:
+# Program Charter: Single-Actuator Two-Link Local Behavioral Representation
+
+## 1. Mission Statement
+
+Establish a mathematically rigorous, physically causal, and empirically verified local behavioral representation for a single active rotary joint and its two adjacent links ($P$ and $D$), resolving the 9 open V3 audit defects, closing the `coverage_ready` multi-regime training gates (E0–E4), and defining a falsifiable protocol for composing frozen local motor representations into multi-joint limb controllers.
+
+---
+
+## 2. Hard Technical Boundaries
+
+1. **Deployment Proprioceptive Purity**: At deployment time, only the calibrated 137-D proprioceptive history $x_{137}$ and 13-D single-step outcome $g_{13}$ may be accessed by $\pi_\theta(x_{137}, z_{16})$ and $B_\omega(g_{13})$. No privileged force, contact, or environment solver fields from $p_{5065}$ may leak into deployed modules.
+2. **Causal Integrity of Privileged Forward Inputs**: Even during training, the privileged context $p_{5065}$ fed to $F_{\eta_1, \eta_2}(x_{137,t}, p_{5065,t}, a_t, z_{16})$ must represent the physical regime, active load/contact state, and historical disturbance generator state at time $t$—or explicitly separate exogenous environment schedule parameters from endogenous future robot reactions.
+3. **Zero Fabricated Coverage Metrics**: Coverage gates (`sustained_load_hold_count`, `post_load_recovery_count`, `limit_escape_rate`, `zero_vel_rmse`) must be computed on real physics rollouts across all 144 morphology/stroke configurations (`36` geometry seeds $\times$ `4` stroke profiles) and all 5 scene regimes (E0–E4).
+4. **Strict Separation of Short-Run Pipeline Verification vs Converged Control**: No document may claim that the 101-update V3 smoke run demonstrates converged motor control.
+
+---
+
+## 3. Core Falsifiable Hypotheses
+
+- **H1 (Causal Privileged Disambiguation)**: Replacing acausal future force lookahead in $p_{5065}$ with causal exogenous disturbance generator parameters + current/historical contact-force states preserves $> 95\%$ of $F$'s TD target explained variance while eliminating temporal causality violations.
+- **H2 (Synchronized E3/E4 Load-Hold and Rule Calibration)**: Synchronizing the step-level external load schedule with `E3_SUSTAINED_LOAD` / `E4_POST_LOAD_RECOVERY` labels and routing P0 warmup + rule-replay quotas through the inertia-scaled PD + static-bias + anti-windup rule controller drives `sustained_load_hold_count` and `post_load_recovery_count` past their minimum readiness gates and reduces $\dot{q}=0$ RMSE below `0.35 rad/s`.
+- **H3 (Rank-16 Cross-Morphology Factorizability)**: Although 144 completely orthogonal transition matrices would bound rank-16 Frobenius approximation error at $\sqrt{1 - 16/144} \approx 0.943$, conditioning $F(x_{137}, p_{5065}, a, z_{16})$ on explicit geometry/capacity features while keeping $g_{13}$ in normalized housing-frame coordinates allows a shared 16-D $B(g_{13})$ to achieve relative successor approximation error $< 0.20$ across all 144 configurations.
+- **H4 (Multi-Joint Composition Gain)**: An upper-level 2-DoF or 6-DoF limb controller commanding $z_{16}^{(k)}$ across coupled local V3 motor units achieves faster sample convergence under payload/link-length perturbations than a flat torque policy of equal parameter count, provided inter-joint coupling forces are represented inside each unit's E2/E3 training distribution.
+# Brief B01: Privileged Forward Input Causality, Exogenous vs Endogenous Future Load Boundaries, and 22-Group Schema Audit
+
+**Packet ID**: `B01`
+**Status**: `IN_PROGRESS`
+**Method Version**: v1.0 (`1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7`)
+**Inherited Ledger Snapshot**: `X-BASE-001`..`X-BASE-005`
+**Tie Margin**: `5.0` points out of `100.0`
+**Baseline References**: `baseline/01-motor-unit-proprioception-and-representation-design.md`, `baseline/02-v3-asymmetric-network-and-training-specification.md`, `baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md` (Audit Issue #4)
+
+---
+
+## 1. Problem Statement
+
+In `LOCAL_RESPONSE_ASYM_FB_V3`, the dual forward networks $F_{\eta_1, \eta_2}(x_{137,t}, p_{5065,t}, a_t, z_{16})$ read a 5,065-dimensional privileged physical context tensor $p_{5065,t}$ partitioned across 22 schema boundaries (`4,822` physical/solver fields + `243` historical privileged memory fields). Audit Issue #4 (`baseline/03`) reveals that Groups 18–21 pack future external disturbance values alongside current physical states without separating:
+1. **Exogenous Open-Loop Disturbance Schedule Parameters** (e.g., pre-sampled constant torque bias, ramp rate, or scheduled release countdown timer of the environment's Markov state at time $t$), which are causally determined at time $t$ independent of $a_t$, versus
+2. **Endogenous State-Dependent Future Reaction Forces** (e.g., contact normal forces, end-stop spring forces, or velocity-dependent friction at $t+1..t+K$), which depend on the action $a_t$ and future actions $a_{t+1..t+K-1}$.
+
+**Core Question**: Which exact slices of the 22 schema groups in $p_{5065,t}$ are valid causal Markov state variables of the environment at time $t$, which slices leak endogenous future outcomes of $a_t$, and how should $p_{5065,t}$ be sanitized so that $F_{\eta_1, \eta_2}$ remains strictly causal while preserving full regime disambiguation across E0–E4?
+
+---
+
+## 2. Hard Constraints & Non-Goals
+
+- Must keep the deployed modules $B_\omega(g_{13})$ and $\pi_\theta(x_{137}, z_{16})$ (`281,617` parameters total) 100% free of privileged inputs.
+- Must account for every one of the 22 schema boundaries (`4,822 + 243 = 5,065` dims) and specify whether each group is retained as-is, replaced by causal generator state at time $t$, or masked.
+
+---
+
+## 3. Deliverables Required from Primary Authors
+
+1. **Formal Causality Partition of $p_{5065}$**: Define the mathematical distinction between exogenous environment Markov state $\xi_t$ (where $P(\xi_{t+1} \mid \xi_t)$ is independent of $a_t$) and endogenous physical reaction $y_{t+1}(s_t, a_t, \xi_t)$, and classify all 22 groups of $p_{5065}$.
+2. **Bellman Bias Proof**: Prove how leaking endogenous post-action forces at $t+1$ into $F(x_t, p_t, a_t, z)$ distorts the policy gradient $\nabla_a F(x_t, p_t, a_t, z)^\top z$ (specifically, allowing $F$ to read the consequence of $a_t$ from $p_t$ rather than from its action input $a_t$, which zeroes or corrupts $\partial F / \partial a_t$).
+3. **Minimal Empirical Spike Protocol**: Define a Jacobian sensitivity test measuring $\|\partial F / \partial a_t\|_2$ vs $\|\partial F / \partial p_{\mathrm{future}}\|_2$ before and after causal sanitization of Groups 18–21.
+
+---
+
+## 4. Adjudication Rubric
+
+| Dimension | Weight | Scoring Standard |
+|---|---:|---|
+| Action-Jacobian Degeneracy Proof | 35% | Rigorously proves how future endogenous force leakage bypasses the action input $a_t$ in $F$. |
+| Completeness of 22-Group Audit | 25% | Explicitly specifies the causal replacement for every acausal slice in $p_{5065}$. |
+| Preservation of E0–E4 Disambiguation | 20% | Retains full Markov observability of load/contact regimes at time $t$. |
+| Spike Falsifiability | 20% | Pre-registers quantitative action-gradient norm and Bellman residual checks. |
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/motor-unit-representation/baseline/01-motor-unit-proprioception-and-representation-design.md' in /srv/claude
+ succeeded in 0ms:
+# Baseline 01: Single-Actuator Proprioception, Calibrated Two-Link Kinematics, and Upper-Layer Calling Interface
+
+## 1. Motivation: Bottom-Up Modularity from the Single Actuator Unit
+
+In physical robots, every whole-body motion ultimately reduces to local rotary actuators applying torque between two adjacent links against gravity, link inertia, joint friction, mechanical end-stops, and external contact or payload forces. If each **single-actuator two-link unit** (consisting of a fixed housing link $P$, an active rotary joint with axis $\hat{u}$, and a driven output link $D$) is equipped with a standardized local behavioral representation $(B_\omega, \pi_\theta)$, then:
+1. **Morphology Standardization**: Hardware differences (encoder zero offset, positive rotation sign, torque constant, link length $L_D$, and center-of-mass offset) are absorbed at the local unit boundary.
+2. **Low-Dimensional Upper Interface**: Instead of learning raw torque commands from scratch for every new morphology, an upper-level controller or planner specifies desired local physical responses via a 16-dimensional latent vector $z_{16} \in \mathcal{S}^{15}(4)$ (or blends encoded target responses $z = \operatorname{proj}(B_\omega(g_{\mathrm{des}}))$).
+
+---
+
+## 2. Coordinate Frames, Encoder Calibration, and Causal Kinematics
+
+### 2.1 Local Coordinate Frame Contract ($M$, $P$, $D$)
+- **Motor Housing Frame $M$**: Origin at the rotary joint center; $z_M$-axis aligned with the calibrated positive rotation axis $\hat{u}$; $x_M$-axis aligned with the zero-angle reference line fixed to housing link $P$; $y_M = z_M \times x_M$.
+- **Parent / Housing Link $P$**: Rigidly attached to the motor stator/housing. Its orientation relative to world gravity is captured by the local gravity unit vector $g^M \in \mathbb{R}^3$ (or parent attitude available to the unit).
+- **Driven / Output Link $D$**: Rigidly attached to the motor rotor/output flange of length $L_D$, with tip position $p_{\mathrm{tip},D}^M \in \mathbb{R}^3$ expressed in housing frame $M$.
+
+### 2.2 Encoder Direction and Zero-Offset Calibration
+Raw motor encoders report uncalibrated angle $q_e$ and velocity $\dot{q}_e$ with hardware-dependent sign $s \in \{-1, +1\}$ and zero offset $\beta \in (-\pi, \pi]$. Before entering any representation or control buffer, raw readings are mapped to calibrated joint coordinates $(q_c, \dot{q}_c)$:
+$$
+q_c = \operatorname{wrap}_{(-\pi, \pi]}\bigl(s \cdot q_e + \beta\bigr), \qquad \dot{q}_c = s \cdot \dot{q}_e.
+$$
+The distance to lower and upper mechanical stops $(q_{\min}, q_{\max})$ is normalized into margins:
+$$
+d_{\min} = \operatorname{clip}\!\left(\frac{q_c - q_{\min}}{q_{\max} - q_{\min}}, 0, 1\right), \qquad d_{\max} = \operatorname{clip}\!\left(\frac{q_{\max} - q_c}{q_{\max} - q_{\min}}, 0, 1\right).
+$$
+
+### 2.3 Causal 5-Point Linear-Fit Angular Acceleration $\widehat{\ddot{q}}_t$
+Single-step finite differences $(\dot{q}_t - \dot{q}_{t-1})/\Delta t$ amplify encoder quantization noise, whereas non-causal central differences leak future information. At $200\text{ Hz}$ sampling ($\Delta \tau = 5\text{ ms}$, so 5 samples span a $20\text{ ms}$ control interval / $40\text{ ms}$ causal window), the angular acceleration $\widehat{\ddot{q}}_t$ is computed via causal ordinary least-squares linear regression over the 5 most recent calibrated velocities $\{\dot{q}_{t-4}, \dot{q}_{t-3}, \dot{q}_{t-2}, \dot{q}_{t-1}, \dot{q}_t\}$:
+$$
+\widehat{\ddot{q}}_t = \frac{-2\,\dot{q}_{t-4} - \dot{q}_{t-3} + \dot{q}_{t-1} + 2\,\dot{q}_t}{10\,\Delta \tau}.
+$$
+This filter is strictly causal, linear, zero-bias for constant acceleration, and suppresses high-frequency encoder jitter by $5\times$ compared to 2-point differencing.
+
+### 2.4 Driven Link Tip Position, Velocity, and Causal Acceleration in Frame $M$
+Given calibrated joint angle $q_c$, angular velocity $\dot{q}_c$, causal angular acceleration $\widehat{\ddot{q}}_t$, and link tip vector $r_D(q_c) = p_{\mathrm{tip},D}^M(q_c) \in \mathbb{R}^3$ rotating about axis $\hat{u} = [0, 0, 1]^\top$:
+$$
+p_{\mathrm{tip},D}^M(q_c) = R_z(q_c)\,r_D^0, \qquad v_{\mathrm{tip},D}^M = (\dot{q}_c\,\hat{u}) \times p_{\mathrm{tip},D}^M(q_c),
+$$
+$$
+\widehat{a}_{\mathrm{tip},D}^M = (\widehat{\ddot{q}}_t\,\hat{u}) \times p_{\mathrm{tip},D}^M(q_c) + (\dot{q}_c\,\hat{u}) \times \bigl((\dot{q}_c\,\hat{u}) \times p_{\mathrm{tip},D}^M(q_c)\bigr).
+$$
+Notice that $v_{\mathrm{tip},D}^M$ and $\widehat{a}_{\mathrm{tip},D}^M$ couple the angular response $(\dot{q}_c, \widehat{\ddot{q}}_t)$ with the physical lever arm $L_D = \|r_D^0\|_2$, naturally encoding linear momentum and centripetal/tangential tip kinematics across varying link lengths.
+
+---
+
+## 3. Observability Boundaries and the Need for Asymmetric Training
+
+### 3.1 What Proprioception Alone Can and Cannot See
+From a single transition $(q_c, \dot{q}_c, \widehat{\ddot{q}}_t, u_{\mathrm{clip}})$, the net generalized load torque $\tau_{\mathrm{load}}$ can be inferred implicitly via the rotor/link equation of motion:
+$$
+J_{\mathrm{eff}}\,\widehat{\ddot{q}}_t + b\,\dot{q}_c + \tau_{\mathrm{fric}}(\dot{q}_c) + \tau_{\mathrm{grav}}(q_c) - \tau_{\mathrm{ext},t} = S \cdot u_{\mathrm{clip},t},
+$$
+so the short-term history $x_{137}$ (spanning $160\text{ ms}$ at full $20\text{ ms}$ resolution plus $320\text{ ms}$ of slow summaries) allows an online actor $\pi_\theta(x_{137}, z_{16})$ to estimate current inertia, gravity bias, and persistent external torque.
+
+However, during **Bellman bootstrapping of the multi-step successor representation $F$**, a purely proprioceptive forward network $F(x_{137}, a, z_{16})$ faces fundamental observability aliasing:
+1. It cannot distinguish whether a sudden stall ($\dot{q} \approx 0, \widehat{\ddot{q}} \approx 0$ under high torque $u$) is caused by a rigid mechanical end-stop, an elastic spring-damper contact obstacle, or a temporary external disturbance pulse that is about to release.
+2. It cannot see the exact contact geometry, friction coefficients, or solver constraint states of the surrounding physical scene.
+
+### 3.2 Asymmetric Resolution (`LOCAL_RESPONSE_ASYM_FB_V3`)
+To prevent representation collapse without sacrificing deployment autonomy:
+- **Deployed Modules ($B_\omega$ and $\pi_\theta$)**: Strictly restricted to local observable vectors $g_{13}$ and $x_{137}$.
+- **Training-Only Dual Forward Critics ($F_{\eta_1}, F_{\eta_2}$)**: Provided with both $x_{137}$ and the full 5,065-dimensional privileged physical context $p_{5065}$ so that Bellman targets accurately separate free-space motion (E0), boundary stops (E1), elastic/rigid contact (E2), sustained external loading (E3), and post-load recovery (E4).
+
+---
+
+## 4. Upper-Layer Calling Modes Over the Frozen Local Unit
+
+Once $(B_\omega, \pi_\theta)$ are trained and frozen, an upper-level controller can drive the motor unit through three mathematically equivalent interfaces:
+1. **Direct Latent Policy Mode**: Upper planner outputs $z_{16} \in \mathcal{S}^{15}(4)$ at $50\text{ Hz}$, which $\pi_\theta(x_{137}, z_{16})$ translates into $u_{\mathrm{clip}} \in [-1, 1]$.
+2. **Target Outcome Encoding Mode**: Upper planner specifies a desired next-step local kinematic/torque state $g_{13}^{\mathrm{des}}$ (e.g., target angle $q^\star$, zero velocity $\dot{q}^\star = 0$, zero acceleration $\widehat{\ddot{q}}^\star = 0$) and queries $z_{16} = B_\omega(g_{13}^{\mathrm{des}})$.
+3. **Weighted Multi-Objective Blending Mode**: Given a set of candidate outcome features $\{g_{13}^{(m)}\}_{m=1}^M$ with weights $\{w_m\}$, the upper layer commands:
+   $$
+   z_{16} = \sqrt{16}\,\frac{\sum_{m=1}^M w_m B_\omega(g_{13}^{(m)})}{\bigl\|\sum_{m=1}^M w_m B_\omega(g_{13}^{(m)})\bigr\|_2 + 10^{-8}}.
+   $$
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/motor-unit-representation/baseline/02-v3-asymmetric-network-and-training-specification.md' in /srv/claude
+ succeeded in 0ms:
+# Baseline 02: V3 Asymmetric Network Architecture, 22-Boundary Schema, and E0–E4 Training Protocol (`LOCAL_RESPONSE_ASYM_FB_V3`)
+
+## 1. Evolution from V2 to V3 Asymmetric Architecture
+
+| Architectural Dimension | V2 Baseline (`SYM_PROPRIO_V2`) | V3 Specification (`LOCAL_RESPONSE_ASYM_FB_V3`) | Rationale for V3 Upgrade |
+|---|---|---|---|
+| **Backward Input $B$** | Symmetric 131-D history vector $g_{131} = x_{131}$ | **13-D single-step local outcome $g_{13}$** | $B$ should encode the reached physical outcome state, not the 160–480 ms history prefix. |
+| **Actor Input $\pi$** | 131-D proprioceptive history + $z_{16}$ | **137-D fast/slow proprioceptive history $x_{137}$ + $z_{16}$** | Adds explicit stop margins, static geometry/drive descriptors, and 8-segment slow history. |
+| **Forward Input $F_1, F_2$** | Symmetric $x_{131} + a + z_{16}$ (no privileged state) | **Asymmetric $x_{137} + p_{5065} + a_1 + z_{16}$** | Resolves contact/load/stop non-observability during Bellman target computation. |
+| **Replay Architecture** | Unstratified policy ring buffer | **Stratified CPU FP32 Replay (`32,768` rule + `65,536` policy)** | Prevents early policy collapse from erasing stable holding/tracking transitions. |
+| **Scene Regimes** | Unbalanced random torque/target sweeps | **5 Stratified Regimes E0–E4 (`20/15/20/15/30%`) across 144 morphology groups** | Explicitly enforces boundary, contact, sustained-load, and recovery coverage. |
+
+---
+
+## 2. Exact Tensor Schemas: $g_{13}$, $x_{137}$, and $p_{5065}$
+
+### 2.1 Backward Outcome Vector $g_{13} \in \mathbb{R}^{13}$
+Computed at the next control boundary $t+1$ in calibrated housing frame $M$:
+1. $[\cos q_{c,t+1},\, \sin q_{c,t+1}] \in \mathbb{R}^2$: Continuous trigonometric joint angle representation.
+2. $\dot{q}_{c,t+1} \in \mathbb{R}^1$: Calibrated angular velocity ($\mathrm{rad/s}$).
+3. $\widehat{\ddot{q}}_{t+1} \in \mathbb{R}^1$: Causal 5-point linear-fit angular acceleration ($\mathrm{rad/s^2}$).
+4. $p_{\mathrm{tip},D,t+1}^M \in \mathbb{R}^3$: Driven link tip position in housing frame $M$ ($\mathrm{m}$).
+5. $v_{\mathrm{tip},D,t+1}^M \in \mathbb{R}^3$: Driven link tip linear velocity in frame $M$ ($\mathrm{m/s}$).
+6. $\widehat{a}_{\mathrm{tip},D,t+1}^M \in \mathbb{R}^3$: Driven link tip linear acceleration in frame $M$ ($\mathrm{m/s^2}$).
+*(Note: In variants where scalar torque effort or boundary margin replaces one tip coordinate, the exact 13-field layout is locked by the V3 schema manifest; total dimension is strictly `13`.)*
+
+### 2.2 Fast/Slow Proprioceptive History Vector $x_{137} \in \mathbb{R}^{137}$
+Constructed causally at control step $t$ ($\Delta t_{\mathrm{ctrl}} = 20\text{ ms}$, $50\text{ Hz}$):
+- **Current Calibrated Instantaneous State (`17` dims)**:
+  $[\cos q_c, \sin q_c, q_c, \dot{q}_c, \widehat{\ddot{q}}, d_{\min}, d_{\max}, p_{\mathrm{tip},D}^M(3), v_{\mathrm{tip},D}^M(3), \widehat{a}_{\mathrm{tip},D}^M(3), u_{\mathrm{prev}}]$.
+- **Fast History Window (`8 steps x 9 dims = 72` dims, covering $160\text{ ms}$ at $20\text{ ms}$ intervals)**:
+  Per step: $[\cos q_c, \sin q_c, \dot{q}_c, \widehat{\ddot{q}}, d_{\min}, d_{\max}, v_{\mathrm{tip},\parallel}, a_{\mathrm{tip},\parallel}, u_{\mathrm{clip}}]$.
+- **Slow Summary Window (`8 segments x 5 dims = 40` dims, covering $320\text{ ms}$ via $40\text{ ms}$ segment averages)**:
+  Per segment: mean angle $[\overline{\cos q_c}, \overline{\sin q_c}]$, mean angular velocity $\overline{\dot{q}_c}$, mean acceleration $\overline{\widehat{\ddot{q}}}$, and mean applied normalized torque $\overline{u_{\mathrm{clip}}}$.
+- **Static Calibration & Nominal Unit Descriptor (`8` dims)**:
+  $[q_{\min}, q_{\max}, \Delta q_{\mathrm{range}}, L_D, r_{\mathrm{com},D}, S_{\mathrm{nom}}, \dot{q}_{\mathrm{lim}}, \mathbf{1}_{\mathrm{calibrated}}]$.
+  **Total**: $17 + 72 + 40 + 8 = 137$ dimensions.
+
+### 2.3 Privileged Physical Context Vector $p_{5065} \in \mathbb{R}^{5065}$
+Used **exclusively** by $F_{\eta_1, \eta_2}$ during training. It consists of **4,822 physical/solver/environment dimensions** plus **243 historical privileged feature-memory dimensions** partitioned across **22 explicit schema boundaries**:
+- **Groups 1–6 (Multi-Substep High-Rate Trajectory & Solver States, `1,920` dims)**: Substep-level ($4 \times 5\text{ ms}$) generalized positions, velocities, accelerations, actuator forces, constraint forces, and solver residuals.
+- **Groups 7–12 (Link Inertial, Mass, Friction, and Drive Plant Parameters, `1,024` dims)**: Exact link mass $m_D$, inertia tensor $I_D$, COM vector, viscous damping $b$, Coulomb stiction $\tau_c$, gear backlash/compliance, thermal/saturation scale $S = 1.25 C_0$, and nominal capacity $C_0 \in \{3, 6, 9\}\text{ N}\cdot\text{m}$.
+- **Groups 13–17 (Contact Geometry, Obstacle Field, and Mechanical Stop Constraints, `1,152` dims)**: Signed distances to contact surfaces, normal/tangential contact forces, contact Jacobian projections, end-stop spring-damper penetration states, and active constraint masks.
+- **Groups 18–21 (External Load & Disturbance Generator States, `726` dims)**: External torque profile parameters (constant bias, ramp slope, sinusoidal frequency/phase, impulse countdown/magnitude, post-load release timer) and scene regime one-hot `E0..E4`. *(See Audit Issue #4 in `baseline/03` regarding causal vs future-window entries inside this block.)*
+- **Group 22 (Privileged Feature Memory Summary, `243` dims)**: Exponential moving averages and multi-scale summaries of privileged load, contact impulse, and slip history across the preceding $320\text{ ms}$.
+  **Total**: $4,822 + 243 = 5,065$ dimensions.
+
+---
+
+## 3. Exact Network Parameter Budgets
+
+| Network Module | Input Dim | Architecture Specification | Output Dim | Parameter Count | Deployed? |
+|---|---:|---|---:|---:|---|
+| **Local Actor $\pi_\theta$** | `153` (`137 + 16`) | Two-branch stem (`x[137]->256`, `z[16]->128`) + residual MLP `[256, 256, 128]` with LayerNorm & SiLU $\to \tanh$ | `1` | **`207,617`** | **Yes** |
+| **Backward Encoder $B_\omega$** | `13` (`g13`) | MLP `[128, 256, 128]` with LayerNorm & SiLU $\to$ L2 sphere projection $\sqrt{16}=4.0$ | `16` | **`74,000`** | **Yes** |
+| **Deployed Unit Total** | — | $B_\omega + \pi_\theta$ | — | **`281,617`** | **Yes** |
+| **Forward Critic $F_{\eta_1}$** | `5,219` (`137+5065+1+16`) | Privileged compressor (`5065->512`) + state-action-latent fusion `[1024, 1024, 512]` $\to$ linear readout | `16` | **`2,805,008`** | No (Train only) |
+| **Forward Critic $F_{\eta_2}$** | `5,219` (`137+5065+1+16`) | Identical independent twin architecture | `16` | **`2,805,008`** | No (Train only) |
+| **Total Online Model** | — | $\pi_\theta + B_\omega + F_{\eta_1} + F_{\eta_2}$ | — | **`5,891,633`** | — |
+
+---
+
+## 4. Physical Diversity Matrix (144 Configurations) and E0–E4 Scene Regimes
+
+### 4.1 144 Morphology-Stroke Configuration Groups
+- **36 Geometry & Inertial Seeds**: Spanning link lengths $L_D \in [0.08, 0.45]\text{ m}$, payload masses, COM offsets, friction/damping parameters, and three nominal drive capacity tiers:
+  $$
+  C_0 \in \{3.0,\, 6.0,\, 9.0\}\text{ N}\cdot\text{m}, \qquad S_{\max} = 1.25\,C_0 \in \{3.75,\, 7.50,\, 11.25\}\text{ N}\cdot\text{m}.
+  $$
+- **4 Mechanical Stroke Profiles**: Varying angular travel ranges $\Delta q_{\mathrm{range}} = q_{\max} - q_{\min}$ and asymmetric stop placements relative to gravity.
+- **Total Configuration Matrix**: $36 \times 4 = 144$ distinct physical unit configurations.
+
+### 4.2 Five Stratified Physical Regimes (E0–E4)
+
+| Scene ID | Regime Name | Target Quota | Physical Dynamics & Disturbance Specification | Primary Representation Goal |
+|---|---|---:|---|---|
+| **E0** | `FREE_SPACE_NOMINAL` | **20%** | Unobstructed rotation under gravity, link inertia, and internal joint friction across full stroke. | Smooth velocity/position tracking and static gravity holding ($\dot{q}=0$). |
+| **E1** | `BOUNDARY_LIMIT_ESCAPE` | **15%** | Initialization near or against mechanical stops ($d_{\min} < 0.05$ or $d_{\max} < 0.05$) with inward/outward commands. | Non-oscillatory stop departure without integral windup or limit slamming. |
+| **E2** | `COMPLIANT_AND_RIGID_CONTACT` | **20%** | External obstacle surfaces inside the stroke with varying stiffness/damping and restitution. | Contact transition stability and bounded contact force modulation. |
+| **E3** | `SUSTAINED_EXTERNAL_LOAD` | **15%** | Persistent external torque bias/ramp opposing or assisting motion for $\ge 25$ consecutive steps ($0.5\text{ s}$). | Steady-state load compensation and zero-velocity holding under sustained torque. |
+| **E4** | `POST_LOAD_IMPULSE_RECOVERY` | **30%** | Abrupt external torque step release or impulse perturbation followed by recovery window. | Fast transient damping and return to steady holding/tracking without overshoot. |
+
+---
+
+## 5. Rule Calibration Controller and Stratified Replay Distribution $\rho$
+
+### 5.1 Inertia-Scaled Rule Calibration Controller (`rule_calibration`)
+Because a randomly initialized policy $\pi_\theta(x_{137}, z_{16})$ cannot naturally generate sustained static holding ($\dot{q} \approx 0, \widehat{\ddot{q}} \approx 0$) under heavy gravity or E3 external loads, V3 defines an analytical rule controller used during P0 warmup and for populating the `32,768`-transition rule replay partition:
+$$
+u_{\mathrm{rule},t} = \operatorname{clip}\!\left(\frac{\hat{\tau}_{\mathrm{bias},t} + J_{\mathrm{nom}}\bigl(k_p(q_{\mathrm{ref},t} - q_{c,t}) + k_d(\dot{q}_{\mathrm{ref},t} - \dot{q}_{c,t})\bigr) + \tau_{I,t}}{S_{\max}},\, -1,\, 1\right),
+$$
+where $\hat{\tau}_{\mathrm{bias},t}$ compensates estimated static gravity/load torque, $(k_p, k_d)$ are scaled by nominal inertia $J_{\mathrm{nom}}$ to maintain uniform closed-loop bandwidth across all 36 geometry seeds, and $\tau_{I,t}$ is a bounded anti-windup integral term that freezes whenever $|u_{\mathrm{rule},t}| = 1$ or the joint is within mechanical stop margins.
+
+### 5.2 Stratified Replay Buffer and Reference Distribution $\rho$
+- **Replay Split**: Fixed CPU FP32 buffer of `98,304` transitions = `32,768` rule transitions (`1/3`) + `65,536` online policy transitions (`2/3`).
+- **Mini-Batch Sampling**: Each training update samples a stratified batch across `(rule vs policy)` and across scenes `E0..E4`, inducing the reference outcome distribution $\rho(g_{13})$ over which $\Sigma_B = \mathbb{E}_{g \sim \rho}[B_\omega(g)B_\omega(g)^\top] \approx I_{16}$ is regularized.
+
+---
+
+## 6. Theoretical Rank-16 Bottleneck Across 144 Configurations
+
+Suppose $K = 144$ configuration groups had completely disjoint, mutually orthogonal successor operators $\{M^{(k)}\}_{k=1}^{144}$ sharing a single unconditioned rank-$d_z$ ($d_z = 16$) representation. By the Eckart-Young-Mirsky theorem, any rank-16 subspace shared across $K = 144$ orthogonal unit-Frobenius operators incurs a minimum root-mean-square relative Frobenius approximation error of:
+$$
+\mathcal{E}_{\min}(d_z=16, K=144) = \sqrt{1 - \frac{d_z}{K}} = \sqrt{1 - \frac{16}{144}} = \sqrt{\frac{8}{9}} \approx 0.9428.
+$$
+V3 avoids this worst-case orthogonal lower bound by two structural mechanisms:
+1. **Shared Physical Outcome Coordinates in $g_{13}$**: $B_\omega(g_{13})$ encodes normalized kinematic/tip outcomes in housing frame $M$, which share a low-dimensional manifold across all 144 configurations.
+2. **Configuration Conditioning in $F$ and $\pi$**: Both $x_{137}$ (via the 8-D static descriptor and 480 ms history) and $p_{5065}$ (via explicit mass, inertia, link length, and capacity $C_0$) condition the forward map $F_{\eta}(x_{137}, p_{5065}, a, z_{16})$ and actor $\pi_\theta(x_{137}, z_{16})$, so $F$ rotates the configuration-specific dynamics into the shared 16-D outcome basis of $B_\omega(g_{13})$.
+
+exec
+/bin/bash -lc 'cat /srv/claude/research/motor-unit-representation/baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md' in /srv/claude
+exec
+/bin/bash -lc 'for p in /AGENTS.md /srv/AGENTS.md /srv/claude/AGENTS.md /srv/claude/research/AGENTS.md /srv/claude/research/motor-unit-representation/AGENTS.md /srv/claude/research/motor-unit-representation/packets/AGENTS.md /srv/claude/research/motor-unit-representation/packets/B01/AGENTS.md /srv/claude/research/motor-unit-representation/packets/B01/drafts/AGENTS.md /srv/claude/research/motor-unit-representation/packets/B01/drafts/B/AGENTS.md; do if test -f "$p"; then cat "$p"; fi; done' in /srv/claude
+ succeeded in 0ms:
+# Baseline 03: V3 Engineering Status, Empirical Verification Ledgers, and the 9 Open Audit Issues
+
+## 1. Empirical Comparison: V2 Full Run vs V3 Short-Run Verification
+
+| Metric / Verification Field | V2 Baseline Run (`SYM_PROPRIO_V2`) | V3 Short-Run Verification (`LOCAL_RESPONSE_ASYM_FB_V3`) | Status & Interpretation |
+|---|---|---|---|
+| **Total Valid Control Transitions ($W$)** | `20,032,000` | `8,096` (including `P0 = 800` warmup) | V3 run is a short pipeline verification smoke test, not a full training run. |
+| **Total Gradient Updates** | `77,218` | `101` (CUDA) | Confirms forward/backward/actor optimization step execution. |
+| **Replay Memory Footprint** | Unbounded / host-dependent | **`4.097 GB` tensor / `4.694 GB` peak RSS** (`98,304` CPU FP32 transitions) | Strictly within bounded host memory budget. |
+| **Checkpoint Resume Parity** | Not bitwise audited | **`resume_diff_norm = 0.0`** (bitwise exact) | Verified deterministic state restoration. |
+| **Deployment Export** | None | **Verified** (`B` + `actor` = `281,617` params) | Confirms $p_{5065}$ and $F_{1,2}$ are cleanly stripped at deployment. |
+| **Zero-Velocity Holding ($\dot{q}=0$) RMSE** | Unvalidated (`post_gate_eval = null`) | **`5.89` – `13.88 rad/s`** (after 101 updates) | Far above target holding threshold; controller has not yet learned static holding. |
+| **`sustained_load_hold_count`** | `0` | **`0`** | Gate failed (`coverage_ready = false`). |
+| **`post_load_recovery_count`** | `0` | **`0`** | Gate failed (`coverage_ready = false`). |
+| **Overall Validation Flag** | `validated = false` | **`coverage_ready = false`** | Pipeline is verified; scientific convergence and coverage remain open. |
+
+---
+
+## 2. Detailed Specification of the 9 Open V3 Audit Issues
+
+A rigorous code-and-specification audit of the V3 implementation identified **9 concrete discrepancies** between the theoretical V3 design (`baseline/01` and `baseline/02`) and the current implementation. Resolving these 9 issues is the prerequisite for launching full-scale V3 training.
+
+### Issue 1: Scene Label vs Step-Level External Torque Schedule Desynchronization
+- **Mechanism**: Episodes labeled `E3_SUSTAINED_LOAD` or `E4_POST_LOAD_RECOVERY` at the scene-allocation level do not consistently enforce the step-level external torque generator to sustain load for $\ge 25$ consecutive steps (`0.5 s`) or trigger a deterministic release edge followed by a quiet recovery window.
+- **Consequence**: The coverage evaluator scans rollout trajectories for valid sustained-load and post-load recovery windows, finds zero qualifying segments (`sustained_load_hold_count = 0`, `post_load_recovery_count = 0`), and permanently latches `coverage_ready = false`.
+
+### Issue 2: `rule_calibration` Implemented in Standalone Helper Module but Not Wired into Main Collector
+- **Mechanism**: The inertia-scaled PD + static gravity/load bias + anti-windup integral controller (`rule_calibration`) is implemented and unit-tested in its helper module, but the main rollout collector (`P0` warmup and the `32,768` rule replay partition) still falls back to a legacy uncalibrated open-loop/simple PD sampler.
+- **Consequence**: The `rule` partition of the replay buffer lacks genuine static load-holding ($\dot{q} \approx 0, \widehat{\ddot{q}} \approx 0$ under non-zero gravity/external torque) transitions across the 144 morphology configurations, starving $B_\omega(g_{13})$ and $\pi_\theta$ of equilibrium anchors.
+
+### Issue 3: Cross-Coverage Ledger Field Missing (`cross_coverage_144_x_5`)
+- **Mechanism**: While marginal counts per scene (`E0..E4`) and per morphology seed are logged separately, the joint $144 \times 5 = 720$-cell cross-coverage matrix (`configuration_group x scene_regime`) is either omitted or not enforced as a hard readiness gate in the evaluation summary JSON.
+- **Consequence**: Rare configuration-scene pairs (especially high-capacity $C_0 = 9\text{ N}\cdot\text{m}$ units under E3/E4) can be under-sampled without triggering a cell-starvation alert.
+
+### Issue 4: Acausal Future External Force Window Inside Privileged Input $p_{5065}$
+- **Mechanism**: Within Groups 18–21 of $p_{5065}$, the privileged tensor packs future external disturbance torque values $\tau_{\mathrm{ext}, t+1:t+K}$ alongside current solver states, without cleanly separating **exogenous open-loop generator parameters** (which are causally fixed at episode/regime sampling time) from **state-dependent contact/reaction forces** at future steps $t+1..t+K$.
+- **Consequence**: Feeding endogenous future reaction forces into $F_{\eta}(x_{137,t}, p_{5065,t}, a_t, z_{16})$ violates temporal causality in the Bellman backup and inflates training-time critic accuracy on transitions that cannot be predicted causally.
+
+### Issue 5: Frozen Evaluation Panel Samples Non-Stationary Target Trajectories for $\dot{q}=0$ Holding Diagnostics
+- **Mechanism**: In the frozen diagnostic evaluation panel, the zero-velocity holding metric (`zero_vel_rmse`) is evaluated on trajectories where the reference generator continues to inject step perturbations or moving target angles rather than clamping $g_{13}^{\mathrm{des}}$ to a pure static equilibrium target ($\dot{q}^\star = 0, \widehat{\ddot{q}}^\star = 0$) across all 5 regimes.
+- **Consequence**: Conflates trajectory-tracking lag with static holding drift (`5.89–13.88 rad/s`).
+
+### Issue 6: Batch Normalizer Update Asymmetry Between Rule Partition and Policy Partition
+- **Mechanism**: Running mean/variance normalizers for $x_{137}$, $g_{13}$, and $p_{5065}$ are updated on every online policy rollout step before replay insertion, whereas transitions drawn from the `32,768` rule partition during mini-batch updates experience shifting normalizer statistics without balanced re-normalization.
+- **Consequence**: Induces covariate shift on the `1/3` rule mini-batch slice as online policy exploration expands the state distribution.
+
+### Issue 7: Orthonormalization Loss $\mathcal{L}_{\mathrm{orth}}$ Computed on Unstratified Sub-Batches
+- **Mechanism**: The Gram matrix penalty $\mathcal{L}_{\mathrm{orth}}(B_\omega)$ is evaluated over raw mini-batch samples without inverse-probability weighting when scene quotas deviate from the nominal `(20%, 15%, 20%, 15%, 30%)` distribution during early P0/P1 ramp-up.
+- **Consequence**: Early E0 free-space motions dominate the 16-D spherical subspace of $B_\omega(g_{13})$, compressing the angular distance allocated to E2 contact and E3/E4 load-holding outcomes.
+
+### Issue 8: Action-Gradient Saturation Near $\tanh$ Boundaries in $\pi_\theta(x_{137}, z_{16})$
+- **Mechanism**: Under heavy E3 loads requiring $|u_{\mathrm{clip}}| > 0.9$, the deterministic $\tanh$ output head of $\pi_\theta$ saturates, causing the policy gradient $\nabla_\theta F_{\eta}(x_{137}, p_{5065}, \pi_\theta(x_{137}, z_{16}), z_{16})^\top z_{16}$ to vanish ($\operatorname{sech}^2(\cdot) \to 0$) if $F_{\eta}$ has not yet learned a steep negative slope outside $[-1, 1]$.
+- **Consequence**: Slows recovery once the actor saturates against a mechanical stop or heavy load.
+
+### Issue 9: Absence of a Standardized 2-DoF / Multi-Joint Downstream Transfer Benchmark
+- **Mechanism**: Although the stated goal of the project is to provide a reusable local behavioral interface for multi-joint limbs and bipedal locomotion, the repository currently contains only the single-actuator environment and lacks a canonical 2-DoF serial link (hip-knee or shoulder-elbow) benchmark that tests frozen $(B_\omega, \pi_\theta)$ under inter-joint inertial and Coriolis coupling.
+- **Consequence**: Prevents direct empirical falsification of whether single-unit representations transfer when parent link $P$ undergoes large dynamic accelerations.
+
+ succeeded in 0ms:
+exec
+/bin/bash -lc "rg --files -g '"'!packets/**'"' /srv/claude/research/motor-unit-representation" in /srv/claude
+ succeeded in 0ms:
+/srv/claude/research/motor-unit-representation/baseline/02-v3-asymmetric-network-and-training-specification.md
+/srv/claude/research/motor-unit-representation/baseline/01-motor-unit-proprioception-and-representation-design.md
+/srv/claude/research/motor-unit-representation/baseline/03-v3-engineering-status-evidence-and-open-audit-issues.md
+/srv/claude/research/motor-unit-representation/roster.md
+/srv/claude/research/motor-unit-representation/program-ledger.md
+/srv/claude/research/motor-unit-representation/claims/README.md
+/srv/claude/research/motor-unit-representation/pinned/orchestrating-ai-research-teams.v1.0-1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7.md
+/srv/claude/research/motor-unit-representation/QUEUE.md
+/srv/claude/research/motor-unit-representation/prompts/B01-draft-B.txt
+/srv/claude/research/motor-unit-representation/prompts/B01-draft-diff.txt
+/srv/claude/research/motor-unit-representation/prompts/B01-draft-A.txt
+/srv/claude/research/motor-unit-representation/briefs/B01-privileged-forward-causal-boundary-and-future-force-leakage.md
+/srv/claude/research/motor-unit-representation/briefs/B02-sustained-load-schedule-rule-calibration-and-coverage-gates.md
+/srv/claude/research/motor-unit-representation/briefs/B03-rank16-representation-capacity-across-144-morphology-regimes.md
+/srv/claude/research/motor-unit-representation/briefs/B04-hierarchical-composition-of-local-motor-units-for-multi-joint-control.md
+/srv/claude/research/motor-unit-representation/method-issues/README.md
+/srv/claude/research/motor-unit-representation/reviews/README.md
+/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md
+/srv/claude/research/motor-unit-representation/progress.md
+/srv/claude/research/motor-unit-representation/logs/B01-step2-authorB-attempt1.log
+/srv/claude/research/motor-unit-representation/logs/seal.log
+/srv/claude/research/motor-unit-representation/logs/README.md
+/srv/claude/research/motor-unit-representation/logs/B01-step2-authorA-attempt1.log
+/srv/claude/research/motor-unit-representation/README.md
+/srv/claude/research/motor-unit-representation/synthesis/README.md
+/srv/claude/research/motor-unit-representation/packets/B01/spikes/B01-SPIKE/PLAN.md
+/srv/claude/research/motor-unit-representation/packets/B01/brief.md
+/srv/claude/research/motor-unit-representation/packets/B02/spikes/B02-SPIKE/PLAN.md
+/srv/claude/research/motor-unit-representation/packets/B03/spikes/B03-SPIKE/PLAN.md
+/srv/claude/research/motor-unit-representation/packets/B04/spikes/B04-SPIKE/PLAN.md
+/srv/claude/research/motor-unit-representation/packets/README.md
+
+exec
+/bin/bash -lc "python - <<'PY'
+import importlib.util
+spec = importlib.util.find_spec('torch')
+print('torch_installed:', spec is not None)
+if spec is not None:
+ import torch
+ print('torch_version:', torch.__version__)
+ print('cuda_available:', torch.cuda.is_available())
+ print('cuda_device_count:', torch.cuda.device_count())
+PY" in /srv/claude
+ exited 127 in 0ms:
+/bin/bash: line 1: python: command not found
+
+exec
+/bin/bash -lc "rg -n '11\\.5|Appendix B|Grade 1|Grade 2|Principle Claim|serious alternative|necessity' /srv/claude/research/motor-unit-representation/pinned/orchestrating-ai-research-teams.v1.0-1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7.md" in /srv/claude
+ succeeded in 0ms:
+88:- **Eligibility before ranking.** Apply the gates first. A hard-constraint violation, or a conflict with a Locked Grade-1 claim, means **Reject**. A missing Locked Grade-2 role means **Incomplete**, which is not eligible for Recommend (Appendix B.5). The rubric ranks only eligible candidates. Scores on other rows never offset a gate failure.  
+178:Treat AI agents as **parallel researchers plus a strict reviewer**, not as a committee that must agree. The human lead owns the brief and the final signature. Competition and rubrics create pressure; short experiments discard elegant nonsense. With that rhythm, large scientific questions can converge instead of diverging forever in shared chat. Appendix B states how to judge a claim by necessity, so a strong score cannot be promoted into a locked principle. Sections 10–13 cover real runs: versioning and mid-run amendment of the method itself, enforced isolation in shared workspaces, who may write which artifact, and programs that span many packets and wall-clock limits.
+287:### 11.5 When agreement counts
+294:Agreement on a point the brief already frames (for example, an ordering supplied as context) is recorded as **framed agreement** and adds no weight. Each draft must name at least one serious alternative it rejected, with the reason. When drafts converge on the same conclusion and also reject the same alternatives, the adjudicator records that as possible framing-driven convergence.
+492:The brief-first rubric, blind review, minimal spike, single source of truth, and human final authority remain exactly as in the main methodology. Heterogeneity only binds *who* fills each role, and with what settings (A.5). Appendix B adds a Principle track with its own roles, bound in B.9. That track is an addition to the cycle, not a replacement for any step.
+520:## Appendix B — Principle necessity protocol
+522:This appendix is about **judging claims by necessity**, not by benchmark score. The goal is to extract constraints that can **rule routes in or out before the fact**—closer to physical laws and mathematical theorems—rather than justifying a technique only because some implementation performed well.
+528:| | **Phenomenological / performance judgment** | **Principle / necessity judgment** |
+531:| Force | “This can work” (sufficiency) | “That path is blocked / any solution must …” (necessity) |
+537:### B.2 Three grades of necessity (do not conflate)
+539:#### Grade 1 — Hard necessity (theorem-like)
+550:#### Grade 2 — Structural necessity (obligatory functional roles)
+559:Neuroscience and convergent evolution often supply **candidates** for Grade 2 (recurring functional decomposition), not a unique wiring diagram.
+567:**Use:** strong inspiration and existence proofs (the path is feasible). **Do not** write them as the only admissible road unless upgraded to Grade 1 or 2 (missing it is impossible, or the functional role is obligatory).
+571:### B.3 What a valid necessity claim looks like
+579:5. **Ban:** benchmark wins alone must never prove necessity—scores support sufficiency only
+588:A necessity claim is not fixed at the start, and it is not endlessly fluid. Each claim is in exactly one of three states:
+604:- Grade 2 often stays **Candidate**, then locks as the role converges.
+611:| **Principle track** | Premise → necessity claim → grade (1/2/3) → scope of validity | May **veto** lines of work justified only by phenomena |
+612:| **Phenomenology / baseline track** | Performance, demos, correlations | Proves sufficiency only; cannot alone promote a claim to necessity |
+626:The aim is not to pretend biology-grade Newtonian laws already exist. The aim is to **maintain an explicit necessity ladder**, upgrade what can be upgraded, and forbid theorem-style wording for what cannot—thereby **shrinking the trial-and-error space**.
+649:   - *Grade 1:* an information-flow, stability, or resource argument, under stated premises, that *k+1* needs a signal, bound, or property that only *k* supplies.  
+650:   - *Grade 2:* an argument that *k* realizes a functional role obligatory for the competence class of *k+1*, with an operational test (B.9).  
+651:3. **Planning order is not evidence.** The human lead may adopt a ladder as a planning order. That is a brief constraint, scoped to the run or program. It binds the work but is not evidence, and a proposal may not cite the ladder's order as a necessity argument.  
+652:4. **Passing a gate is sufficiency only.** A stage gate (a passed spike) is sufficiency evidence about that stage. It never establishes the necessity of the next edge and never changes a grade.  
+662:   - **Grade 1:** a proof checked independently of its author. Acceptable checks: a formal checker; an established published result whose premises are matched item by item to the claim's premises; or review by a qualified human. The human lead must also sign. A Grade-1 lock prunes routes with no contest, so it is an irreversible action in the sense of §6 rule 4.  
+663:   - **Grade 2:** an argument from premises that applies across implementation classes; a defined operational realization test (rule 3); a logged, serious attempt to find or build a system that reaches the competence class without the role, which failed (`upgrade-log.md`, `violations.md`); and the human lead's signature.  
+666:5. **Gates before ranking.** Appendix B gates apply before rubric ranking (§4 Step 4). A rubric row about necessity discipline may score the quality of reasoning, but it never substitutes for the gate.  
+677:- 2026-10-23: Appendix B — Principle necessity protocol (necessity grades, principle versus performance tracks, minimal claim artifacts).
+678:- 2026-10-23: Appendix B.4 — claim lifecycle (Candidate, Locked, Challenged). Scores may open a challenge; they do not promote or rewrite a lock.
+679:- 2026-10-23: **v1.0.** Version header and pinning (entries above are v0). New §10: method issues, freeze set, amendment classes 0–3, contest-neutrality test, run retrospective. New §11: enforced isolation, seal and publish-after-all, Orchestrator–author firewall, prompt parity, conditions under which agreement counts. New §12: write-permission matrix, Experiment-runner code bounds, mechanical deposits and transcripts, append-only logs. New §13: program ledger, inheritance by ID, provisional cap, dependency propagation, pause/resume, step budgets. §4 Step 4: gates before ranking, independent and order-swapped adjudication, tie definition, Confounds paragraph. §6 rules 7–9. Appendix A: Orchestrator–adjudicator contradiction resolved, A.3 rules 6–7, new A.5 roster contract (model, effort, tools, parity). Appendix B: operational Grade-2 realization, challenge admissibility, new B.8 (capability ladders) and B.9 (claim governance). Motivated by process defects found in a live run: isolation enforced only by prompt, failure evidence overwritten on retry, an unversioned brief amendment, adjudicator role conflicts, and unequal author resources.
+
+exec
+/bin/bash -lc "python3 - <<'PY'
+import importlib.util
+spec = importlib.util.find_spec('torch')
+print('torch_installed:', spec is not None)
+if spec is not None:
+ import torch
+ print('torch_version:', torch.__version__)
+ print('cuda_available:', torch.cuda.is_available())
+ print('cuda_device_count:', torch.cuda.device_count())
+PY" in /srv/claude
+ succeeded in 0ms:
+torch_installed: False
+
+codex
+The frozen schema gives block totals but omits individual group widths and field offsets. I’ll distinguish the proposed causal contract from the manifest checks needed to verify exact slices. The proof will also distinguish a demonstrated shortcut failure from a universal claim: future-force leakage permits degenerate action gradients, but does not force every fitted critic to use that shortcut.
+
+exec
+/bin/bash -lc "sed -n '287,295p;300,340p;520,626p;654,667p' /srv/claude/research/motor-unit-representation/pinned/orchestrating-ai-research-teams.v1.0-1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7.md" in /srv/claude
+ succeeded in 0ms:
+### 11.5 When agreement counts
+
+Agreement between candidates counts as independent evidence only if both of these hold:
+
+1. §11.1–§11.4 held, and that can be shown from logs.  
+2. The agreed point is not stated or implied by the shared brief.
+
+Agreement on a point the brief already frames (for example, an ordering supplied as context) is recorded as **framed agreement** and adds no weight. Each draft must name at least one serious alternative it rejected, with the reason. When drafts converge on the same conclusion and also reject the same alternatives, the adjudicator records that as possible framing-driven convergence.
+
+- If a process has no tool log, its isolation is recorded as **unauditable**, and §6 rule 7 applies.
+
+---
+
+## 12. Artifact write permissions
+
+### 12.1 Who writes what
+
+| Artifact | Writer | Notes |
+|---|---|---|
+| Brief | Orchestrator, before Step 2 | Afterwards: appended amendments only (§10.4). Class 2 needs human signature |
+| `roster.md` | Orchestrator, before Step 2 | Frozen afterwards |
+| Author drafts | That author, inside its own sealed directory, or by mechanical deposit (§12.3) | Nobody else reads them until publish-after-all |
+| `reviews/` | Each reviewer, its own file | Published together |
+| Scores in `decision.md` | The bound adjudicator(s) | The Orchestrator may format the file but not alter scores |
+| `spikes/<id>/PLAN.md` | Orchestrator, before execution | Hashed into the seal log |
+| `spikes/<id>/` (everything else) | Experiment runner | Code, configs, raw outputs, `runs.log`, `deviations.md`, `BLOCKED.md` |
+| Claim records | Claim author proposes. State changes only per B.9 | |
+| `method-issues/` | Anyone | New files only |
+| `logs/` | Each process writes its own files | Append-only (§12.4) |
+| Program ledger | Orchestrator, at lock or pause | Append-only (§13.2) |
+
+Writing outside one's own rows is a process defect and must be filed (§10.2), even when it is harmless.
+
+### 12.2 Experiment runner: when it may touch code
+
+**Input.** A `PLAN.md`, written and hashed before the runner starts. It states:
+
+- the mechanism under test  
+- the metric and threshold  
+- seeds or trials  
+- the maximum number of attempts  
+- the control or null condition, if any  
+- the exact command  
+- the output format
+
+**May:**
+
+- write harness code, environment setup, instrumentation, and data plumbing  
+- fix defects so the code does what `PLAN.md` says
+
+## Appendix B — Principle necessity protocol
+
+This appendix is about **judging claims by necessity**, not by benchmark score. The goal is to extract constraints that can **rule routes in or out before the fact**—closer to physical laws and mathematical theorems—rather than justifying a technique only because some implementation performed well.
+
+It does not replace the main orchestration cycle (§4) or Appendix A (model roster). It adds a **Principle track** that can veto purely phenomenological justifications.
+
+### B.1 Two different kinds of judgment
+
+| | **Phenomenological / performance judgment** | **Principle / necessity judgment** |
+|---|---|---|
+| Evidence | Scores, demos, correlations from a specific implementation | Constraints, invariants, impossibilities, obligatory functional roles |
+| Force | “This can work” (sufficiency) | “That path is blocked / any solution must …” (necessity) |
+| Analogy | Trying many machines; one is fastest | Thermodynamics: perpetual motion need not be tried again |
+| Output | Engineering baseline | Transferable theorem-like conclusions |
+
+Multi-agent research on open scientific programs should **pursue both**, but must not let the left column quietly promote itself into the right.
+
+### B.2 Three grades of necessity (do not conflate)
+
+#### Grade 1 — Hard necessity (theorem-like)
+
+Under stated assumptions, prove **impossibility** or **obligation**:
+
+- Information: without information gain, states cannot be distinguished (sensing lower bounds)
+- Control: unstable plants cannot be arbitrarily stabilized under given delay/bandwidth limits
+- Computation: a class of maps is unrealizable under given resource bounds
+- Embodiment: without force/contact channels, some manipulation classes are impossible
+
+**Use:** routes that violate a locked Grade-1 claim may be rejected **without** further bake-offs.
+
+#### Grade 2 — Structural necessity (obligatory functional roles)
+
+Implementation need not be unique, but certain **functional roles** must appear for a competence class, for example:
+
+- State estimation (explicit or implicit)
+- Error-driven corrective closed loops
+- Multiple timescales (fast reflexive versus slower intentional)
+- Treating body dynamics as part of prediction, not as decorative outputs
+
+Neuroscience and convergent evolution often supply **candidates** for Grade 2 (recurring functional decomposition), not a unique wiring diagram.
+
+**Use:** a proposal must state how each locked role is realized, and name an operational test that would show the role is absent (B.9). Missing roles mark the design **incomplete** in principle—not “maybe it will emerge, so lock it as the mainline.” A role claimed to be realized “implicitly”, with no such test, counts as missing.
+
+#### Grade 3 — Path contingency (historical fact, not law)
+
+“Earth life happened to take this path” is **not** “every intelligence must.” Specific cortical maps, receptor layouts, or phylogenetic accidents are often Grade 3.
+
+**Use:** strong inspiration and existence proofs (the path is feasible). **Do not** write them as the only admissible road unless upgraded to Grade 1 or 2 (missing it is impossible, or the functional role is obligatory).
+
+**Core research action for agents:** try to **upgrade** literature and anatomy from Grade 3 → 2 → 1. If the upgrade fails, keep the claim labeled as inspiration and **forbid theorem-style use**.
+
+### B.3 What a valid necessity claim looks like
+
+A principle claim eligible for locking must have:
+
+1. **Explicit premises** (organism/machine class, environment, task, resources)
+2. A conclusion of only these shapes: impossibility; lower bound (“any solution must…”); functional completeness (roles R1…Rk); invariant (conserved or monotonic relation)
+3. **Implementation independence** (applies across model families and classical methods alike)
+4. A clear **violation / falsification mode** (a counterexample downgrades the claim or adds premises)
+5. **Ban:** benchmark wins alone must never prove necessity—scores support sufficiency only
+
+Special cautions:
+
+- **Evolution:** lawful use is feasible-region shrinkage under constraints; unlawful use is “mammals did X, therefore every robot must copy X.”
+- **Neural structure:** lawful use is candidate Grade-2 roles (for example, fast/slow pathways → multi-timescale loops); unlawful use is renaming a brain area as a mandatory network module.
+
+### B.4 Lifecycle: Candidate / Locked / Challenged
+
+A necessity claim is not fixed at the start, and it is not endlessly fluid. Each claim is in exactly one of three states:
+
+| State | May | Must not |
+|---|---|---|
+| **Candidate** | Guide exploration and shape proposals | Veto the mainline |
+| **Locked** | Veto routes justified only by phenomenology. An implementation obeys the claim or files a challenge | Depart from the claim without a challenge packet |
+| **Challenged** | Stay on record. Once the challenge is *admitted* (B.9), pause the old lock’s veto until adjudication or until the challenge’s deadline | Apply that lock as a veto while an admitted challenge is open |
+
+Path for one claim:
+
+propose → grade (1, 2, or 3) and scope → **Candidate** → proof or other non-score evidence → **Locked** → counterexample or a change of premises → **Challenged** → upgrade, downgrade, narrow the scope, or retire.
+
+Rules:
+
+- Phenomenology scores never promote **Candidate → Locked** and never rewrite a **Locked** claim. A score may only open a challenge packet.
+- A narrow Grade-1 formal bound may lock early, subject to the verification and signature requirements in B.9.
+- Grade 2 often stays **Candidate**, then locks as the role converges.
+- Grade 3 stays inspiration unless it is upgraded. It does not enter **Locked** on its own.
+
+### B.5 Principle track versus phenomenology track
+
+| Track | Output | Authority |
+|---|---|---|
+| **Principle track** | Premise → necessity claim → grade (1/2/3) → scope of validity | May **veto** lines of work justified only by phenomena |
+| **Phenomenology / baseline track** | Performance, demos, correlations | Proves sufficiency only; cannot alone promote a claim to necessity |
+| **Implementation track** | Algorithms and systems | Must declare which locked principles it obeys; if it violates one, challenge the principle first—do not silently ignore it |
+
+Priority when judging a viewpoint:
+
+1. Conflicts with a locked Grade-1 claim → reject (no need to try)
+2. Missing a locked Grade-2 role → mark incomplete (exploration allowed; not eligible as the locked mainline)
+3. Performance advantage with no principle support → baseline only; not “essentially correct”
+4. Proposal to upgrade a principle → proof or counterexample, not leaderboard climbing
+
+### B.6 Honest scope
+
+For life-like perception–action, stable yields today are mostly **information/control/embodiment lower bounds** plus **Grade-2 structural candidates**. Evolutionary narratives more often give **constructive existence proofs and inspiration** than hard laws.
+
+The aim is not to pretend biology-grade Newtonian laws already exist. The aim is to **maintain an explicit necessity ladder**, upgrade what can be upgraded, and forbid theorem-style wording for what cannot—thereby **shrinking the trial-and-error space**.
+6. **Three different orders.** Evolutionary order, developmental order, and engineering order are distinct. Evidence about one is at most Grade-3 evidence about the others.  
+7. **Citation-ablation test.** For any argument that cites evolution, development, or anatomy, delete the citation and re-read the argument. If it still stands on its stated premises, the citation was inspiration, which is allowed. If it collapses, the argument is Grade 3 and may not be used theorem-style: not in claims, gates, or vetoes.  
+8. **Convergence can nominate, not lock.** Convergence across independent lineages under a shared constraint may nominate a Grade-2 candidate more strongly than a single lineage can. It still needs the operational test, and it still locks only under B.9.
+
+### B.9 Claim governance
+
+1. **Separate roles.** A claim author proposes a claim record (premises, conclusion shape, grade, scope, falsifier). A **claim adjudicator**, who is not the claim author, decides state transitions. With heterogeneous models they are different models, and for high-stakes claims, different families.  
+2. **Locking requires verification and signature.**  
+   - **Grade 1:** a proof checked independently of its author. Acceptable checks: a formal checker; an established published result whose premises are matched item by item to the claim's premises; or review by a qualified human. The human lead must also sign. A Grade-1 lock prunes routes with no contest, so it is an irreversible action in the sense of §6 rule 4.  
+   - **Grade 2:** an argument from premises that applies across implementation classes; a defined operational realization test (rule 3); a logged, serious attempt to find or build a system that reaches the competence class without the role, which failed (`upgrade-log.md`, `violations.md`); and the human lead's signature.  
+3. **Operational realization test.** A proposal claiming to realize a Grade-2 role must name a test that would show the role is absent. Examples: a probe that must recover the estimated quantity within a stated error; an intervention on the named signal that must produce a stated effect; a timescale separation measurable in the closed-loop response. Without such a test, the role is not realized.  
+4. **Challenge admissibility.** A challenge pauses a lock's veto only once it is *admitted*. Admission requires either (a) a concrete counterexample, with artifacts, that satisfies the claim's stated premises, or (b) evidence that a premise fails in the target setting. The claim adjudicator rules on admission and sets a deadline. If the challenge is unresolved by the deadline, the human lead decides whether the veto resumes. A challenge that is not admitted is filed and pauses nothing.  
+5. **Gates before ranking.** Appendix B gates apply before rubric ranking (§4 Step 4). A rubric row about necessity discipline may score the quality of reasoning, but it never substitutes for the gate.  
+6. **Scope-narrowing counter.** Log every narrowing of a claim's scope, and every premise added so the claim can survive a counterexample. At the third such event (the brief may set a different default), the claim goes to mandatory review for retirement. A claim that survives only by shrinking is degenerating.  
+
+exec
+/bin/bash -lc 'mkdir -p /srv/claude/research/motor-unit-representation/packets/B01/drafts/B' in /srv/claude
+ succeeded in 0ms:
+apply patch
+patch: completed
+/srv/claude/research/motor-unit-representation/packets/B01/drafts/B/proposal.md
+diff --git a/research/motor-unit-representation/packets/B01/drafts/B/proposal.md b/research/motor-unit-representation/packets/B01/drafts/B/proposal.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..6bed6c4b25343138cc04f10d8d6ebc4691a60ecc
+--- /dev/null
++++ b/research/motor-unit-representation/packets/B01/drafts/B/proposal.md
+@@ -0,0 +1,401 @@
++# Proposal B (Packet B01): Privileged Forward Input Causality, Exogenous vs Endogenous Future Load Boundaries, and 22-Group Schema Audit
++
++**Author:** Primary Author B. **Status:** proposal; all necessity claims are Candidate. **Packet:** B01. **Method:** v1.0, `1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7`.
++
++**Recommendation.** Preserve the `5065`-D interface, but make its contents a versioned, pre-action snapshot. Retain verified current and historical physical state; replace the entire `726`-D Groups 18–21 block with a causal disturbance-generator encoding and deterministic padding. No realized post-action contact, friction, stop, or external reaction value may enter the snapshot. The relevant boundary is dependence on the action being evaluated, not whether a field is named “future” or “force.” A scheduled release countdown can be admissible; an apparently current constraint force computed after latching the candidate action is not.
++
++The proposal uses the five frozen context files and the pinned method's §11.5 and Appendix B. It does not infer implementation details from another author or from the V3 smoke test. The frozen specification provides exact **block** widths, but does not provide individual widths, offsets, or field names for Groups 1–21. Consequently, the audit below specifies all 22 group decisions and a deterministic field-admission rule; it does not fabricate a verified field-level manifest. Binding this rule to the implementation manifest is a mandatory acceptance gate.
++
++## 1. Formal Causality Partition of p_5065 Across All 22 Schema Groups
++
++### 1.1 Decision boundary and structural model
++
++Let \(t\) mean the control boundary immediately **before** choosing and applying \(a_t\). Let \(\mathcal H_t^-\) contain the initial conditions, physical states, generator states, measurements, and completed transitions available by that boundary. Past actions through \(a_{t-1}\) belong to this information set; the current action and its realized consequences do not. Four completed 5 ms physics substeps from the preceding 20 ms interval are admissible history. Four substeps obtained by advancing the simulator with \(a_t\) are not.
++
++Write the augmented pre-action state as \(S_t=(s_t,\xi_t,m_t)\), where \(s_t\) contains robot, obstacle, contact, actuator, and persistent solver state; \(\xi_t\) contains the exogenous disturbance process; and \(m_t\) contains any required history/filter state. A causal structural model is
++
++\[
++\xi_{t+1}=G(\xi_t,\epsilon_{t+1}),\qquad
++s_{t+1}=T(s_t,a_t,\xi_t,\epsilon_{t+1},\nu_{t+1}),
++\]
++\[
++y_{t+1}=R(s_t,a_t,\xi_t,\epsilon_{t+1},\nu_{t+1})
++\equiv y_{t+1}(s_t,a_t,\xi_t)\quad\text{when innovations are fixed}.
++\]
++
++Exogeneity requires the **interventional** invariant
++
++\[
++P(\xi_{t+1}\mid\xi_t,s_t,\operatorname{do}(a_t=a))
++=P(\xi_{t+1}\mid\xi_t)
++\quad\text{for every admissible }a.
++\]
++
++Thus \(P(\xi_{t+1}\mid\xi_t)\) is independent of \(a_t\), with innovations drawn independently of the action conditional on the stated state. Merely observing a weak correlation with action is insufficient. A pre-sampled open-loop bias, sinusoidal phase oscillator, or time-triggered release process can satisfy this definition. A load that releases when the robot crosses a position threshold does not: its physical/controller state belongs to \(s_t\), and its future release event must be predicted from the transition. The state of such a reactive generator at \(t\) is still admissible; its counterfactual response cannot be treated as an exogenous fixed schedule.
++
++For contact, a simplified reaction is
++
++\[
++q_{t+1}=q_t+\Delta t\,v_t+\Delta t^2 J^{-1}(Sa_t+\tau_t),\qquad
++y_{t+1}=k[q_{t+1}-q_{\max}]_++c[v_{t+1}]_+.
++\]
++
++Away from switching surfaces, \(D_{a_t}y_{t+1}\) is generally nonzero when the stop is engaged. Velocity-dependent friction, contact impulses, and forces projected through a future robot orientation have the same problem. Even a world-frame force schedule independent of the robot can produce an **endogenous** future joint torque through its action-dependent moment arm. Retain the world-frame schedule and current geometry; do not retain the realized future projection.
++
++A feature \(c_t=C(\mathcal H_t^-)\) is admissible only if it is available before action selection and invariant when the collector restores the same snapshot and changes \(a_t\). Causal availability is necessary but not sufficient for Markov sufficiency: the retained state must also determine the next-state distribution. An EMA is causal but need not be a sufficient state statistic. The Markov claim below is conditional on the complete persistent simulator/generator state being represented or predictively redundant given \((x_t,p_t^{\mathrm{causal}})\).
++
++### 1.2 Complete boundary audit and admission policy
++
++Use zero-based, half-open offsets. The frozen totals imply the following exact **aggregate** intervals:
++
++| Groups | Aggregate interval | Width |
++|---|---|---:|
++| 1–6 | `[0:1920)` | 1,920 |
++| 7–12 | `[1920:2944)` | 1,024 |
++| 13–17 | `[2944:4096)` | 1,152 |
++| 18–21 | `[4096:4822)` | 726 |
++| 22 | `[4822:5065)` | 243 |
++
++Let \(I_i=[b_{i-1},b_i)\) denote each actual manifest group, with \(b_0=0\), \(b_6=1920\), \(b_{12}=2944\), \(b_{17}=4096\), \(b_{21}=4822\), and \(b_{22}=5065\). Intermediate boundaries are unresolved by the frozen documents. The six items named for Groups 1–6, for example, cannot be asserted to correspond one-to-one to group numbers without the manifest.
++
++The table assigns a default classification to **each** group under its frozen semantics. `R` means **retain-as-is**, collected at the pre-action boundary; `G` means **replace-by-causal-generator-state-at-t**, using the replacement construction below. `M` means **mask**, and is a mandatory slice-level override whenever the stated provenance test fails. A group containing an `M` slice is reported as mixed in the implementation audit, never silently certified as fully retained.
++
++| Group | Class | Content supported by frozen specification and required boundary test |
++|---:|:---:|---|
++| 1 | R | Member of trajectory/solver block: retain only completed substeps ending at or before \(t^-\); mask any candidate-action rollout slice. |
++| 2 | R | Same trajectory/solver block: position/velocity or other member fields require actual sample-time provenance, not a replay-row timestamp alone. |
++| 3 | R | Same block: acceleration/filter entries must use a left-sided stencil through \(t^-\); mask centered or post-action samples. |
++| 4 | R | Same block: actuator-force entries must describe the completed interval or pre-latch actuator state; mask values computed with \(a_t\). |
++| 5 | R | Same block: constraint forces/impulses must be pre-action or from completed solves; mask forces from the solve producing \(s_{t+1}\). |
++| 6 | R | Same block: solver residuals, warm starts, and substep state must precede candidate-action evaluation; mask post-solve diagnostics. |
++| 7 | R | Member of plant-parameter block: static mass/inertia/geometry values are causal; verify exact field membership from manifest. |
++| 8 | R | Same plant block: retain fixed inertia/COM or other declared parameters, without outcome-fitted values from the current transition. |
++| 9 | R | Same plant block: retain friction/damping coefficients and pre-action internal friction state; mask realized future friction. |
++| 10 | R | Same plant block: retain backlash/compliance parameters and current internal state; mask future deflection/reaction samples. |
++| 11 | R | Same plant block: retain thermal/drive/saturation state at \(t^-\); mask thermal or saturation updates caused by \(a_t\). |
++| 12 | R | Same plant block: retain nominal capacity/calibration and remaining verified pre-action parameters; mask provenance-unknown entries. |
++| 13 | R | Member of contact/stop block: retain current obstacle geometry and signed distances, not distances after candidate-action rollout. |
++| 14 | R | Same contact/stop block: retain verified pre-action or historical forces; mask forces from the new transition. |
++| 15 | R | Same contact/stop block: retain current contact Jacobians/projections; mask evaluations at future robot geometry. |
++| 16 | R | Same contact/stop block: retain current penetration, relative velocity, and spring/damper state; mask future penetration and reaction. |
++| 17 | R | Same contact/stop block: retain current active masks and persistent solver/contact state; mask future contact activation flags. |
++| 18 | G | Replace its portion of `[4096:4822)` by the corresponding portion of the canonical generator encoding; discard original future-force entries. |
++| 19 | G | Same replacement rule, including zero padding; retain schedule information only through the canonical pre-action encoding. |
++| 20 | G | Same replacement rule; reactive-generator state is tagged separately from open-loop schedule state. |
++| 21 | G | Same replacement rule; current regime and release/recovery state are encoded from physical generator state, not future success labels. |
++| 22 | R | Retain the `243`-D privileged EMA/history state through \(t^-\); mask any summary updated with the current transition, forward window, or episode-wide hindsight statistic. |
++
++The examples in rows 1–17 specify tests for the named **block**, not an invented assignment of subfields to group IDs. Every actual field must be joined to a record `(group_id, start, stop, source, sample_time, action_latch_time, update_order, frame, units, normalization, R/G/M)`. This join, and assertions on all \(5065\) positions, resolve exact slices before implementation acceptance. No field escapes inspection because its group is outside 18–21.
++
++For an unverified historical/current slot, masking is the safe interim behavior; it is not evidence that Markov sufficiency survived. If masking removes necessary persistent state, the schema binding fails and must be repaired before training. A stale replay record lacking a recoverable pre-action snapshot cannot be repaired by shifting its timestamp or setting future values to their empirical mean. Recollect it or exclude it from the causal experiment.
++
++### 1.3 Explicit sanitized construction
++
++Define \(c_j(\mathcal H_t^-)\) to be the correctly timestamped value of physical/history field \(j\), and \(m_j\in\{0,1\}\) its static manifest admission mask. The mask is fixed per schema version, not chosen from a future outcome. Construct
++
++\[
++p^{\mathrm{causal}}_{5065,t}
++=\operatorname{concat}\left(
++\{m_jc_j(\mathcal H_t^-)\}_{j=0}^{4095},
++E_{726}(s^{\mathrm{gen}}_t,\xi_t),
++\{m_jc_j(\mathcal H_t^-)\}_{j=4822}^{5064}
++\right).
++\]
++
++Here masked positions are exactly zero **after** normalization as well as at the raw input adapter. Normalizer updates use only causal training snapshots, balanced across rule/policy partitions and the declared regime distribution. No future value determines normalization statistics. Constant padding receives no data-derived mean or scale.
++
++For the open-loop scalar torque family explicitly described in the baseline, propose the following concrete replacement layout, relative to `[4096:4822)`. This is a **new** layout, not a claim about old offsets:
++
++| Relative slots | New contents |
++|---|---|
++| `[0:5)` | Current E0–E4 one-hot, checked against actual scene/generator state. |
++| `[5:8)` | Encoding-valid bit, control interval, current episode time. |
++| `[8:16)` | Bias \(b\), ramp slope \(r\), sinusoid amplitude \(A\), angular frequency \(\omega\), \(\sin\phi_t\), \(\cos\phi_t\), onset countdown, release countdown. |
++| `[16:24)` | Pulse magnitude, pulse onset countdown, pulse duration, elapsed pulse time, post-release bias, post-release ramp slope, load age, recovery age. |
++| `[24:32)` | Eight flags: bias enabled, ramp enabled, sinusoid enabled, pulse enabled, load active, release occurred, open-loop schedule, reactive generator. |
++| `[32:40)` | Current commanded exogenous torque, ramp accumulator, waveform clock, remaining scheduled duration, release-transition mode code, force-frame code, application-point code, stochastic-generator family code. |
++| `[40:64)` | Declared generator-specific current state/transition parameters, with fixed semantic indices in the new manifest; zero for the deterministic scalar-torque template. |
++| `[64:726)` | Deterministic zero padding for that template. |
++
++For example, an active combined waveform is reconstructed from \(b_t+r_tu+A\sin(\phi_t+\omega u)\) and its onset/release/pulse gates at elapsed time \(u\). Phase, ramp accumulator, and countdowns advance from their current state without a robot action. A deterministic future schedule could legally be reconstructed from this state, but no future-window array is needed. The mapping fixes countdown units, phase convention, post-release behavior, and event-update order in the manifest. Inactive slots are zero with flags distinguishing inactive events from an event occurring now.
++
++The eight flags and physical contact fields distinguish simultaneous phenomena; the scene one-hot is a sampling/regime tag, not an assertion that a scene contains only one force type. A release countdown is admissible only for a clock-triggered release. For threshold-triggered release, use the reactive-generator flag, current threshold/controller state, and current physical state; do not encode the realized remaining time to release.
++
++For a richer supported generator, `[40:726)` may encode a declared finite-dimensional causal state, including stochastic transition parameters, external-body state, or reactive controller memory. Its field map must be frozen **before** training, fit the `726`-D allocation, and pass the same action-invariance test. The scalar template does not establish sufficiency for arbitrary multi-event, vector-force, or feedback generators. If the needed state does not fit or is unrecorded, the fixed-width sufficient-state requirement fails; silently truncating it is prohibited. Fresh stochastic innovations are integrated over, not retrieved from later rollout logs. A pre-sampled schedule counts as present state only if it genuinely existed in the environment at \(t\); a retrospectively recovered random seed is not a license to expose unrealized innovations.
++
++The new block is split back across the original \(I_{18},\ldots,I_{21}\) boundaries by intersection with `[4096:4822)`. This preserves all 22 original tensor boundaries once their widths are supplied, even if a field crosses an old group boundary. The replay schema version changes, but the privileged compressor input remains `5065`. Checkpoints or replay normalizers from the original semantics are not resumed as if compatible.
++
++### 1.4 Regime sufficiency and collection order
++
++| Regime | Causal information retained for disambiguation |
++|---|---|
++| E0 | Geometry, inertia, gravity-related physical state, friction/drive state, absence of active external loading and obstacle contact. |
++| E1 | Stop positions, current margins/penetration/velocity, stop parameters and active constraints; future stop force is predicted. |
++| E2 | Current obstacle/contact geometry, material parameters, current/past contact and slip state; future contact response is predicted. |
++| E3 | Active generator, bias/ramp/phase, load age, scheduled duration/release state, plus current physical response. |
++| E4 | Actual release/pulse event state, time since release, current residual motion/contact state, and preceding load/impulse memory. |
++
++Identical recent proprioception can coexist with different release countdowns or stop/contact geometry; these remain distinguishable. Regime one-hot labels alone do not prove this property. Audit Issue #1 makes step-level synchronization an explicit prerequisite: an episode labeled E3 without its scheduled load is a mislabeled sample, not successful disambiguation. Preserve the declared E0–E4 regimes while recording the real component states and ages.
++
++Collection order is: finish the preceding physics interval; update causal filters and EMA using that completed interval; snapshot \((x_t,s_t,\xi_t,m_t)\); pack and seal \(p_t^{\mathrm{causal}}\); choose \(a_t\); execute physics; compute \(g_{t+1}\); form the next pre-action snapshot \(p_{t+1}^{\mathrm{causal}}\). A reaction produced by \(a_t\) can enter \(p_{t+1}^{\mathrm{causal}}\) as current/history state, but cannot enter \(p_t^{\mathrm{causal}}\). Pack copied arrays, not mutable simulator views that later become post-action values.
++
++All new state is confined to the training-only forward critics. \(\pi_\theta(x_{137},z_{16})\) and \(B_\omega(g_{13})\) keep their existing inputs and `281,617` combined deployed parameters. No auxiliary privileged estimator is added to the deployed path.
++
++## 2. Bellman Bias and Action-Jacobian Degeneracy Proof
++
++### 2.1 Intended Bellman object and retrospective conditioning
++
++For fixed latent \(z\), let \(b(g)\in\mathbb R^{16}\) be the frozen backward feature used for this argument. The causal successor critic satisfies
++
++\[
++F^\pi(S,a,z)=\mathbb E\left[b(g_{t+1})+\gamma(1-d_t)
++F^\pi(S_{t+1},\pi(x_{t+1},z),z)\mid S_t=S,\operatorname{do}(a_t=a)\right].
++\]
++
++This equation describes the successor-feature component relevant to the argument; it does not assert an undocumented exact V3 loss implementation. For an FB occupancy formulation, the same conditioning argument applies to its vector or query-dependent TD target. The deployed actor uses the scalarization \(Q_z=F^\top z\); ignoring the actor's separate tanh saturation, its critic contribution is \(J_aF^\top z\).
++
++Let \(L_t=p_{\mathrm{future},t}=h_K(S_t,a_t,a_{t+1:t+K-1},\varepsilon)\) be a realized endogenous future window generated under behavior policy \(\mu\). Regression on it estimates
++
++\[
++\widetilde F(S,a,l,z)=\mathbb E_\mu[Y^\pi_t\mid S_t=S,a_t=a,L_t=l],
++\]
++
++where \(Y_t^\pi\) is the Bellman target. This conditional target differs in general from \(\mathbb E[Y_t^\pi\mid S,\operatorname{do}(a)]\), because \(l\) reveals selected transition outcomes and, for \(K>1\), consequences of behavior-policy continuation. The conditional discrepancy is
++
++\[
++\Delta(S,a,l)=\mathbb E[Y_t^\pi\mid S,a,L=l]-\mathbb E[Y_t^\pi\mid S,\operatorname{do}(a)].
++\]
++
++In a fully observed randomized-action setting, averaging over the **correct action-dependent distribution** of \(L\) can give zero mean discrepancy by iterated expectation. Thus leakage does not imply that every on-policy scalar Bellman expectation is biased. The failure is that the standard actor update holds the recorded \(l\) fixed while varying \(a\), and target backups may hold a behavior-generated window fixed while substituting the target action/policy. These are generally incompatible counterfactuals, even when replay TD residual is zero.
++
++More explicitly, if
++
++\[
++\bar F(S,a)=\int \widetilde F(S,a,l)\,P(dl\mid S,\operatorname{do}(a)),
++\]
++
++then differentiating also differentiates the distribution of \(L\). Under a smooth density this adds \(\mathbb E[\widetilde F\,\partial_a\log p(L\mid S,a)]\); under a reparameterization it adds the chain-rule term below. Treating replay \(L\) as a constant omits that term. Conditioning next-step critics on windows generated under \(\mu\) instead of the queried continuation policy produces an additional policy-dependent discrepancy. No such endogenous window is a policy-independent pre-action state variable.
++
++### 2.2 Constructive zero-residual, arbitrary-gradient proof
++
++Consider a deterministic one-step terminal system, which is a special case of the Bellman equation at any \(\gamma\). Let \(S\) contain a scalar bias \(b\), let \(a\in(-1,1)\), and define an endogenous reaction \(l=b+a\). Let the terminal feature be \(Y=v(b+a)\), with fixed nonzero \(v\in\mathbb R^{16}\) and \(v^\top z\ne0\). For every scalar \(c\), the critic
++
++\[
++F_c(S,a,l)=v\left[(1-c)(b+a)+cl\right]
++\]
++
++has **exactly zero Bellman residual on every physically consistent tuple** \(l=b+a\). Nevertheless,
++
++\[
++J_aF_c=(1-c)v,\qquad J_lF_c=cv,\qquad
++\frac{d}{da}F_c(S,a,h(S,a))=v.
++\]
++
++At \(c=1\), the actor receives zero gradient although the true scalar action gradient is \(v^\top z\). At \(c>1\), the gradient reverses sign. At arbitrary \(c\), action sensitivity is unidentifiable from these perfectly fitted value observations. Adding a scalar function times \(l-h(S,a)\) to a critic changes off-manifold partial derivatives without changing any observational Bellman fit. This is a function-identification defect, not a consequence of a particular neural architecture.
++
++If the replay action is \(a_b\) and the actor queries \(a'\) with \(l_b=b+a_b\) held fixed, then
++
++\[
++F_c(S,a',l_b)-F^\pi(S,a')=cv(a_b-a').
++\]
++
++The scalarized error is \(c(v^\top z)(a_b-a')\), despite zero replay residual. Repeating this construction at a bootstrapped next state yields a target error multiplied by \(\gamma(1-d)\). The terminal example alone already proves that a small observed Bellman residual cannot certify a correct policy gradient.
++
++### 2.3 Quantitative degeneracy conditions and limits
++
++At a differentiable point, define \(J_a\in\mathbb R^{16\times1}\), \(J_L\in\mathbb R^{16\times m}\), and \(H_a=D_a h_K\in\mathbb R^{m\times1}\), with \(S,z\) and future policy/noise convention fixed. If the fitted on-manifold critic agrees locally with the causal target, then
++
++\[
++J_{\mathrm{physical}}=J_a+J_LH_a,\qquad
++g_{\mathrm{physical}}-g_{\mathrm{partial}}=(J_LH_a)^\top z.
++\]
++
++Use spectral norms for matrices and Euclidean norms for vectors. Since V3 has one action, \(\|J_a\|_2\) is unambiguous. A sufficient vector degeneracy condition is
++
++\[
++\|J_a\|_2\le\epsilon\|J_LH_a\|_2,\qquad
++\|J_LH_a\|_2>0,\qquad 0\le\epsilon<1.
++\]
++
++It implies
++
++\[
++\|J_{\mathrm{physical}}\|_2\ge(1-\epsilon)\|J_LH_a\|_2,\qquad
++\frac{\|J_a\|_2}{\|J_{\mathrm{physical}}\|_2}\le\frac{\epsilon}{1-\epsilon}.
++\]
++
++For example, \(\epsilon=0.05\) bounds the partial action sensitivity by `5.27%` of the physical sensitivity. For the actual actor direction, measure the analogous projected condition \(|J_a^\top z|\le\epsilon|(J_LH_a)^\top z|\), with a nonzero projected denominator. A large vector norm need not project onto the sampled \(z\).
++
++The requested raw comparison is
++
++\[
++R_{a/L}=\frac{\|J_a\|_2}{\|J_L\|_2+\delta},\qquad
++\|J_LH_a\|_2\le\|J_L\|_2\|H_a\|_2.
++\]
++
++Small \(R_{a/L}\) is a **screen**, not proof of degeneration: \(H_a\) may be zero for an exogenous schedule, or its range may lie in a null direction of \(J_L\). Action and privileged fields must be scaled consistently before norms are compared. Report derivatives per one declared training-set standard deviation and the composed product in physical-action units. In the example with unit \(H_a\), \(R_{a/L}=|1-c|/|c|\) ignoring \(\delta\); at \(c=1\) it is exactly zero.
++
++Sanitization guarantees independence from **forbidden realized future inputs**, not a nonzero action Jacobian. A correct critic may have zero action derivative in a truly immobile saturated contact state or for a latent orthogonal to the response. Underfitting can also erase action sensitivity after sanitization. This is why the experiment uses independent counterfactual response derivatives and a causally controllable evaluation subset. The proposal does not claim that all leaky critics inevitably collapse, or that removing leakage alone establishes control convergence.
++
++## 3. Serious Alternative Considered and Rejected
++
++### 3.1 Keep future windows but stop their gradients
++
++**Alternative.** Preserve the original future windows for their predictive information, but feed `p_future.detach()` into the critic and forbid autograd from traversing the physics collector. This keeps critic input dimensions, replay format, and apparent TD accuracy unchanged. It is a serious candidate because stop-gradient is routinely used to isolate bootstrap targets and would be inexpensive here.
++
++**Rejection.** Recorded replay tensors ordinarily already have no autograd link to the original action. Detaching the input does not remove the critic's dependence on its **value**. In the \(c=1\) counterexample, \(F=v\,\mathrm{detach}(l)\) still has zero replay residual and \(\partial F/\partial a=0\); all parameter gradients needed to learn the shortcut remain available. Detachment deletes exactly the \(J_LH_a\) route needed to differentiate a recomputed consequence, while retaining its target information. It therefore cannot restore the desired derivative or pre-action information boundary. Reading a detached tensor's autograd gradient as zero would also produce a misleading “leakage eliminated” diagnostic; the experiment re-leafs the value to measure functional input sensitivity.
++
++One could instead regenerate \(L\) for every queried action and differentiate through the full rollout, including continuation-policy effects. That is an action-conditioned dynamics model, not the original fixed privileged-state critic. It can be causally valid when supplied only pre-action state, but introduces model/solver differentiation and contact-switching issues, and no longer meets the proposed minimal adapter repair. It is not ruled out as a future implementation class.
++
++### 3.2 Move all load information into Group 22 EMA
++
++**Alternative.** Mask Groups 18–21 completely and rely on the `243`-D historical summary, contact state, and proprioception. This eliminates future-window handling and retains a compact causal load estimate.
++
++**Rejection under the stated environment class.** Construct two generators with identical physical trajectories, applied loads, and all EMA inputs up to \(t\), but distinct pre-sampled release times: one releases next step; the other holds for 30 further steps. Their Group 22 states and \(x_t\) are identical. Their next-step conditional load distributions differ, so their Bellman targets differ for a suitable feature direction. A deterministic predictor of that common input must return the same value in both cases. For equally likely scalar targets \(u\) and \(v\), its minimum mean squared error is \((u-v)^2/4\). No EMA decay selection fixes a missing future schedule parameter that has never influenced the past. Retaining the causal release state removes this particular aliasing. The argument requires differing targets; a representation blind to load response would evade the example by abandoning the intended competence.
++
++Group 22 remains useful for recovery and hidden-history estimation, but history alone is not a general substitute for known current generator state. This rejection is confined to generators with independent hidden schedule differences. In a restricted environment where generator state is determined by retained history, the alternative could be sufficient.
++
++These alternatives satisfy method §11.5 within this proposal. Agreement with a brief-supplied causal boundary would constitute framed agreement, not independent evidence of necessity.
++
++## 4. Candidate Necessity Claims (Appendix B)
++
++### C-B01-B-01 — Observational Bellman fit does not identify a partial action gradient through an endogenous proxy
++
++- **State / grade:** Candidate, Grade 1; no lock or veto authority is asserted.
++- **Premises:** (i) A continuously variable action lies in an open interval; (ii) training inputs include a deterministic differentiable endogenous proxy \(L=h(S,a)\); (iii) training constrains critic values only on that consistency manifold; (iv) the admissible function class contains two differentiable extensions that agree on the manifold but differ in their partial action derivative, as the family \(F_c\) does; (v) the actor differentiates with respect to \(a\) while holding recorded \(L\) fixed; (vi) the true target has a nonzero derivative in at least one tested latent direction. No off-manifold constraints, structural derivative restriction, or recomputation through \(h\) are supplied.
++- **Conclusion shape — impossibility:** Values/Bellman residuals on this manifold alone cannot uniquely identify the partial action derivative required by that actor update. There exist indistinguishable zero-residual critics yielding zero, correct, and reversed actor gradients. Therefore no guarantee of gradient correctness can follow from such value fit alone.
++- **Derivation:** Section 2.2 constructs the indistinguishable \(F_c\) family. The construction applies to any function approximator admitting those extensions, including classical differentiable regressors; it is not a neural-network-specific theorem.
++- **Scope:** A non-identifiability result, not a universal optimizer-collapse claim. It does not prohibit an endogenous prediction computed internally from causal state and candidate action. It does not prohibit exogenous schedule state for which \(D_a h=0\).
++- **Operational test:** Implement \(c\in\{0,1,2\}\) with identical valid \((S,a,L)\) tuples; verify matching predictions and residuals, then measure their distinct partial action derivatives and matching total derivatives. Test off-manifold actor queries separately.
++- **Falsifier:** An error in the explicit equal-value/different-gradient construction under these premises invalidates the proof. More generally, demonstrate unique partial-derivative identification using only the stipulated manifold values over the stipulated function class, without adding derivative constraints or removing admissible extensions. Finding one well-trained leaky critic with correct gradients does **not** falsify a non-identifiability claim; finding that the real V3 class/data lack premise (iv) or (iii) defeats applicability and must be recorded as a scope failure.
++- **Promotion requirement:** Independent proof verification and the human lead's signature under Appendix B.9. A passing spike cannot promote this claim to Locked.
++
++### C-B01-B-02 — Distinguishing generator states is necessary for state-specific load prediction
++
++- **State / grade:** Candidate, Grade 1, conditional information lower bound.
++- **Premises:** Two equally likely pre-action physical/generator states map to the same retained observation, their scalar Bellman target means are \(u\ne v\), and the predictor receives no further distinguishing information. Loss is squared error on that common observation. Any intrinsic target noise is additional.
++- **Conclusion shape — lower bound:** Mean prediction error is at least \((u-v)^2/4\). Achieving a strictly smaller error requires information distinguishing these states, or a change to the target/task or state distribution.
++- **Derivation:** Minimize \(\tfrac12(f-u)^2+\tfrac12(f-v)^2\) over \(f\); its minimum occurs at \((u+v)/2\). Randomizing the predictor cannot lower the bound.
++- **Operational test:** The paired release-countdown construction in §3.2 fixes identical retained histories while varying the current release state. Measure the target separation using repeated physical continuations and then compare predictors with and without that state.
++- **Falsifier:** A predictor beating the bound on a balanced population with genuinely identical retained inputs and verified target means, without extra information, would contradict the claim. Nonidentical inputs, unequal sampling, or finite-sample uncertainty invalidate the test rather than establish a counterexample.
++- **Scope / implementation independence:** Some sufficient distinguishing information is necessary, not this exact `726`-D encoding, a specific EMA, or a named neural module. This claim also remains Candidate pending independent review and signature.
++
++The charter's `>95%` explained-variance preservation hypothesis and the engineering thresholds below remain phenomenological tests. Neither follows as a theorem from these claims. No inherited ledger claim is changed by this author proposal.
++
++## 5. Pre-Registered Empirical Spike Protocol
++
++### 5.1 Status, hypothesis, and fixed arms
++
++**Execution status:** protocol only; no learned-critic or physics experiment is reported as run. A read-only environment probe on 2026-10-23 found `python3` available and `torch` absent (`torch_installed: False`); the `python` executable was absent. CUDA availability is consequently **unverified**, not established as false. The spike is specified for CPU and needs no CUDA. At execution, record the PyTorch version, `torch.cuda.is_available()`, device count, selected device, and determinism settings. If CUDA is unavailable, explicitly record that fact and run on CPU. Installation/setup belongs to the designated experiment runner.
++
++**Mechanism hypothesis:** realized endogenous future fields can dominate critic sensitivity while hiding action dependence; replacing them with causal generator state removes this route and recovers a physically correct partial action gradient without materially sacrificing causal target prediction. This is separate from proving converged motor control.
++
++Freeze seeds `101, 202, 303, 404, 505`. Permit one registered training attempt per seed and arm; infrastructure failures remain logged and do not authorize selecting a better seed. Use three arms with identical physical transitions, targets, optimizer schedule, and paired initial weights:
++
++1. **RAW:** original Groups 18–21, including separately identified endogenous future slices.
++2. **DETACH:** same values as RAW, explicitly detached. This is a negative control and should be equivalent to normal replay input handling.
++3. **CAUSAL:** the replacement in §1.3, with all other groups identically repaired to the verified pre-action contract in **every** arm. This isolates the effect of Groups 18–21.
++
++RAW/DETACH exist only as controlled diagnostic arms. Hold \(B\), the evaluation policy, and latent samples fixed across arms to avoid changing target coordinates or action distributions. Test both forward heads separately; do not hide a failing head by averaging. First run the exact \(F_c\) diagnostic; then train the actual V3 forward architecture if its implementation is available. A smaller surrogate may validate instrumentation but cannot stand in for V3 evidence.
++
++### 5.2 Exact diagnostic and physical sampling
++
++**Stage A: analytic control.** In FP64 CPU PyTorch, choose \(v=e_1\), \(z=4e_1\), \(b\sim U[-0.5,0.5]\), \(a\sim U[-0.8,0.8]\), and \(l=b+a\), for `1,024` samples per seed. Embed \(l\) in an identified diagnostic future coordinate and use fixed zero padding elsewhere. Evaluate \(F_c\) for \(c=0,1,2\). This directly tests the theorem and metric implementation; it is not a trained-model result. The analytic causal comparator is \(F=v(b+a)\) built from pre-action \(b\) and \(a\), with no dependence on \(l\).
++
++**Stage B: physical paired snapshots.** Require `16` independently generated training episodes and `8` held-out episodes for each of the `144 × 5 = 720` configuration/regime cells. Use `64` transitions per episode, comprising `1,105,920` training and `368,640` held-out transitions before provenance exclusions. These can be streamed into the bounded replay ring; they do not require expanding the `98,304`-transition replay capacity. Preserve the `1/3` rule and `2/3` policy sampling split and scene quotas `20/15/20/15/30%` during updates; report evaluation both equally weighted over the 720 cells and weighted by the declared quotas. Split by episode and generator seed, never by adjacent rows. Pre-action snapshots must include enough simulator state to restore contact/solver history exactly.
++
++Use a synchronized E3/E4 schedule that actually produces a sustained interval of at least 25 steps and a release/recovery interval. At each selected snapshot, restore the same state and common exogenous randomness for action branches. Preserve a local grid of actions including \(a\), \(a\pm0.01\), and \(a\pm0.02\) when within `[-1,1]`. This creates action intervention support instead of relying only on unrelated replay actions. Record a joint 720-cell sample ledger and all exclusions. Missing cells or unsynchronized regimes block a full-regime conclusion.
++
++Choose `8` held-out interior-action snapshots per cell for Jacobians (`5,760` total), evenly drawn from held-out episodes. Fix two latent vectors per snapshot: one sampled uniformly on \(\mathcal S^{15}(4)\) and one held-out target-encoded latent, with no privileged conditioning. Never choose \(z\) after inspecting a model's gradients. Use the same indices and latents for all arms.
++
++**Training prescription:** train each twin forward critic for `20,000` updates, batch `256`, Adam at `3e-4`, no weight decay, using the same frozen \(B\), frozen behavior/evaluation policy, sampled targets, and replay order across arms. Freeze normalizers from causal training data; RAW future-field scales use training-only data and are documented separately. If using a minimal successor TD loss, register \(\gamma=0.95\), a target-critic EMA coefficient `0.01`, and the vector squared Bellman error from §2.1. This is a specified diagnostic loss, not a claim that it reproduces an unspecified production FB loss. Any later production-loss validation is a separately labeled run. Evaluate at update 0 and 20,000; do not select the best intermediate checkpoint. Failure to fit within this budget is reported, not repaired through unregistered extra updates.
++
++### 5.3 PyTorch measurement contract
++
++Use a public wrapper around each actual critic with signature `F(x, p, a, z) -> (16,)`; set evaluation mode and freeze all running statistics. Let `idx_future` contain **only audited endogenous future fields** from the original Groups 18–21. Do not combine exogenous schedules and endogenous reactions into one reported future norm. Let `sanitize(raw, current)` replace the entire block from an independently saved pre-action generator snapshot `current`; it must never derive replacements from `raw[idx_future]`.
++
++The following kernel is executable once those adapters and manifest indices are supplied. It computes exact small-output Jacobians; batch it over samples, not over a training-mode network with cross-sample normalization:
++
++```python
++import torch
++from torch.func import jacrev
++
++def sensitivity(F, x, p_raw, a, z, idx_future, sanitize, current,
++                a_scale, future_scales, causal):
++    # a: (1,), p_raw: (5065,), outputs: (16,); all are floating tensors.
++    # Re-leaf raw values: this probes functional dependence even for DETACH.
++    a0 = a.detach().clone()
++    p0 = p_raw.detach().clone()
++
++    def value(aa, pp):
++        packed = sanitize(pp, current) if causal else pp
++        return F(x, packed, aa, z).reshape(16)
++
++    Ja, Jp = jacrev(value, argnums=(0, 1))(a0, p0)
++    JL = Jp[:, idx_future]
++    Ja_std = Ja * a_scale
++    JL_std = JL * future_scales[None, :]
++    A = torch.linalg.vector_norm(Ja_std)
++    P = torch.linalg.matrix_norm(JL_std, ord=2)
++    g = (Ja.T @ z).reshape(())
++    return {"Ja": Ja, "JL": JL, "A": A, "P": P,
++            "ratio": A / (P + 1e-12), "actor_gradient": g}
++```
++
++Here \(J_L\) in CAUSAL is the derivative of the **composite sanitized model with respect to original forbidden input values**; it must be zero. Derivatives with respect to the new generator-state slots are measured separately and may be large. Comparing those legal-state derivatives to the original future-force derivatives as though they were the same quantity would be invalid. If `idx_future` is empty, the tested implementation lacks the claimed leak and the RAW mechanism test is not applicable.
++
++Compute \(H_a\) from simulator branches as \([L(a+h)-L(a-h)]/(2h)\), with the same future policy and random innovations; record \(\|J_LH_a\|_2\), \(\|J_a\|_2\), and their latent projections. Compute the reference derivative \(D_{\mathrm{ref}}\) from branch returns under the fixed evaluation policy:
++
++\[
++G_H=\sum_{k=0}^{H-1}\gamma^k(1-d_{<k})B(g_{t+k+1}),\qquad
++D_{\mathrm{ref}}=\frac{\mathbb E G_H(a+h)-\mathbb E G_H(a-h)}{2h}.
++\]
++
++Use \(H=200\), \(\gamma=0.95\), and `16` common-random-number continuations per action for stochastic scenes (one for deterministic scenes). With \(\|B\|=4\), omitted return norm is at most \(4\gamma^{200}/(1-\gamma)<0.0029\). This bounds values, not derivative error; also compare \(H=100\) versus 200 and \(h=0.01\) versus 0.02. Include a snapshot in the smooth derivative gate only when both derivative comparisons differ by at most `10%` of the reference norm and reference uncertainty is at most `10%`. Define the controllable subset by \(\|D_{\mathrm{ref}}\|_2\ge0.05\) per unit normalized action. Define the scalar sign subset additionally by \(|D_{\mathrm{ref}}^\top z|\ge0.05\). These inclusion rules depend only on independent physical references, not critic outputs.
++
++At contact switches, report one-sided finite changes and their prediction errors separately; do not interpret a discontinuity as an autograd failure. If fewer than `50%` of selected snapshots overall, or fewer than `10%` in any regime, meet the smooth/controllable criteria, mark the derivative test underpowered. A large number of immobile stop samples cannot be used to manufacture a successful nonzero-gradient gate.
++
++### 5.4 Quantitative gates
++
++All thresholds below are pre-registered engineering criteria. Report the complete distribution by seed, head, regime, and configuration, together with paired differences. For statistical claims use `2,000` episode-cluster bootstrap resamples within each configuration/regime cell, followed by paired resampling of the five training seeds; preserve branch pairings. Report 95% intervals, including per-regime results. No threshold may be chosen after seeing the Jacobians.
++
++| Gate | Pass criterion | Failure interpretation |
++|---|---|---|
++| Provenance and packing | All 5,065 positions assigned once; widths sum to `4,822 + 243`; all retained values precede action latch; manifest and normalizer hashes recorded. | Audit incomplete; no claim of an exact sanitized schema. |
++| Counterfactual invariance | Across action branches, packed \(p_t^{\mathrm{causal}}\) is identical for identical snapshots; FP32 maximum absolute difference ≤ `1e-7`. Changing arbitrary forbidden future values leaves outputs invariant to the same tolerance. | Remaining leak, aliasing of mutable buffers, or nondeterministic packing. |
++| Analytic control | For all \(c\), maximum prediction/residual error ≤ `1e-10` in FP64; \(J_a=(1-c)v\), \(J_L=cv\), and total derivative \(v\) agree within `1e-10`. | Proof implementation or measurement failure; stop learned-critic interpretation. |
++| Forbidden sensitivity | CAUSAL \(\|J_L\|_2\le10^{-10}\) in FP64 evaluation for every tested sample; random future-field finite perturbations agree with this result. | Adapter failed; legal generator-state gradients are exempt. |
++| RAW bypass reproduction | In at least `4/5` seeds and each head, at least `25%` of smooth controllable samples have \(\|J_a\|_2\le0.1\|J_LH_a\|_2\), with nonzero omitted projected sensitivity where scalar failure is claimed. Also report standardized \(R_{a/L}\). | Shortcut not reproduced in this learned model; do not claim an empirical cure merely because CAUSAL masks an input. |
++| Action derivative recovery | CAUSAL median relative vector error \(\|J_a-D_{\mathrm{ref}}\|_2/\|D_{\mathrm{ref}}\|_2\le0.20\), 90th percentile ≤ `0.50`; median norm ratio lies in `[0.8,1.2]`; scalar sign agreement ≥ `95%` on the sign subset. Each head and at least `4/5` seeds must pass; no regime median vector error may exceed `0.35`. | Remaining critic/representation/coverage problem; masking alone is insufficient. |
++| Paired causal improvement | When RAW bypass reproduces, CAUSAL reduces median vector derivative error by at least `30%` relative to RAW, and the 95% interval for the paired improvement excludes zero. DETACH differs from RAW median error by no more than `5%` under deterministic paired runs. | No demonstrated gradient benefit, or invalid negative-control implementation. |
++| Bellman consistency | Held-out causal counterfactual normalized RMS Bellman residual ≤ `0.15` for CAUSAL; no regime exceeds `0.25`; CAUSAL is not more than `0.02` worse than RAW when RAW is queried with fixed recorded future windows under the same action interventions. | Fit/backup accuracy is inadequate or the proposed repair sacrifices too much accuracy. |
++| H1 prediction preservation | Held-out target explained-variance ratio \(EV_{\mathrm{CAUSAL}}/EV_{\mathrm{RAW}}>0.95\), with 95% lower confidence bound > `0.95`; require \(EV_{\mathrm{RAW}}>0.20\) for an interpretable ratio. Report all regimes; a regime loss exceeding `0.05` absolute EV blocks full-regime acceptance. | H1 unconfirmed or falsified in this panel; do not relabel poor RAW fit as preservation. |
++
++### 5.5 Bellman residual and explained-variance definitions
++
++Freeze a common reference target before comparing arms. Use a reference evaluator \(\widehat F_{\mathrm{ref}}^\pi(S',\pi(x',z),z)\) estimated by independent physical Monte Carlo continuations with the same fixed \(B,\pi,\gamma\), and form
++
++\[
++Y_{\mathrm{ref}}=B(g_{t+1})+\gamma(1-d_t)\widehat F_{\mathrm{ref}}^\pi(S_{t+1},\pi(x_{t+1},z),z).
++\]
++
++Estimate its conditional mean by repeated branches as needed; use common reference samples for all arms. Report Monte Carlo uncertainty and do not count irreducible target noise as approximation bias. For model prediction \(\widehat F\), define
++
++\[
++\mathrm{NRBR}=\sqrt{\frac{\mathbb E\|\widehat F-Y_{\mathrm{ref}}\|_2^2}
++{\mathbb E\|Y_{\mathrm{ref}}-\mathbb EY_{\mathrm{ref}}\|_2^2+10^{-12}}},\qquad
++EV=1-\frac{\operatorname{tr}\operatorname{Cov}(Y_{\mathrm{ref}}-\widehat F)}
++{\operatorname{tr}\operatorname{Cov}(Y_{\mathrm{ref}})+10^{-12}}.
++\]
++
++Report mean vector bias alongside EV because EV alone ignores constant prediction offsets. Mark a near-zero target-variance cell undefined rather than divide it into a favorable score.
++
++Measure two distinct panels: (i) **factual prediction**, where each RAW future window corresponds to the recorded action, used for the charter's H1 comparison; (ii) **actor-query counterfactuals**, where RAW retains the recorded window but the simulator independently evaluates the new action, used for causal Bellman consistency. CAUSAL retains the same pre-action state in both panels. Also report each arm's ordinary self-bootstrapped TD residual, but do not use it as the sole acceptance criterion: the proof supplies a critic with zero such residual and a wrong gradient. If a sampled factual RAW window reveals stochastic innovation, H1 can fail because that information was never causally predictable; report the gap rather than restoring the forbidden preview.
++
++### 5.6 Outputs, stop conditions, and interpretation
++
++The designated runner should freeze adapters and the exact invocation in the experiment plan before execution. Proposed invocation after implementation is `python3 run_b01_causality_spike.py --device cpu --seeds 101 202 303 404 505 --arms raw detach causal --updates 20000 --gamma 0.95 --output results/`; this names a proposed harness, not an existing file. Record the command, dependency versions, source/schema hashes, snapshots/episode identifiers, sampled latent vectors, normalizer statistics, arm configs, and any deviation. Produce per-sample Jacobian/finite-difference metrics, per-cell provenance/count ledgers, residual/EV tables, raw seed results, and a machine-readable gate verdict. Missing physics code, manifest, checkpoint compatibility, or PyTorch is reported as a setup block, never as a passing run.
++
++The author writes only this proposal. The experiment runner owns code and execution artifacts under the method's write-permission rules; this proposal does not modify the sealed spike plan or publish a claim lock. Failure of the analytic/invariance gates stops scientific interpretation. Failure of a learned-critic gate leaves the empirical repair unverified, even if the causal boundary proof remains sound.
++
++Passing this spike would support a causal forward-input repair and a measured gradient benefit for the tested distribution. It would not establish `coverage_ready`, converged holding, the remaining eight audit repairs, or multi-joint transfer. Those require their own real-physics evidence, including all 720 configuration/regime cells and the program's load-hold/recovery gates. The existing 101-update V3 result remains pipeline verification only.
+
+codex
+The draft is written. It includes a zero-Bellman-residual counterexample with zero or reversed action gradients, rejects stop-gradient and EMA-only alternatives, and specifies paired physical-rollout checks. I’m now checking the equations, schema totals, and pass/fail gates. The environment has no PyTorch installed, so the proposal records the spike as unexecuted and CUDA availability as unverified.
+
+exec
+/bin/bash -lc "python3 - <<'PY'
+from pathlib import Path
+import re
+p=Path('/srv/claude/research/motor-unit-representation/packets/B01/drafts/B/proposal.md')
+s=p.read_text()
+print('file:', p)
+print('words:', len(s.split()), 'lines:', len(s.splitlines()))
+print('required sections:')
+for line in s.splitlines():
+ if line.startswith('# ') or line.startswith('## '): print(line)
+rows=re.findall(r'"'^'"\\| (\\d+) \\| ([RG]) \\|',s,re.M)
+assert [int(n) for n,_ in rows]==list(range(1,23)), rows
+print('group audit:',len(rows),'numbered groups')
+assert 1920+1024+1152+726==4822
+assert 4822+243==5065
+assert 144*5*16*64==1105920
+assert 144*5*8*64==368640
+for code in re.findall(r'"'```python'"\\n(.*?)\\n"'```'"',s,re.S):
+ compile(code,'proposal_kernel','exec')
+print('Python measurement kernel: syntax valid')
+print('tail bound:',4*.95**200/(1-.95))
+assert 'C-B01-B-01' in s and 'C-B01-B-02' in s
+print('checks: passed')
+PY" in /srv/claude
+ exited 1 in 0ms:
+file: /srv/claude/research/motor-unit-representation/packets/B01/drafts/B/proposal.md
+words: 6429 lines: 401
+required sections:
+# Proposal B (Packet B01): Privileged Forward Input Causality, Exogenous vs Endogenous Future Load Boundaries, and 22-Group Schema Audit
+## 1. Formal Causality Partition of p_5065 Across All 22 Schema Groups
+## 2. Bellman Bias and Action-Jacobian Degeneracy Proof
+## 3. Serious Alternative Considered and Rejected
+## 4. Candidate Necessity Claims (Appendix B)
+## 5. Pre-Registered Empirical Spike Protocol
+group audit: 22 numbered groups
+Traceback (most recent call last):
+  File "<stdin>", line 15, in <module>
+AssertionError
+
+apply patch
+patch: completed
+/srv/claude/research/motor-unit-representation/packets/B01/drafts/B/proposal.md
+diff --git a/research/motor-unit-representation/packets/B01/drafts/B/proposal.md b/research/motor-unit-representation/packets/B01/drafts/B/proposal.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..a808460dc316288a40a59ab2bcfd50b9bd8e3538
+--- /dev/null
++++ b/research/motor-unit-representation/packets/B01/drafts/B/proposal.md
+@@ -0,0 +1,401 @@
++# Proposal B (Packet B01): Privileged Forward Input Causality, Exogenous vs Endogenous Future Load Boundaries, and 22-Group Schema Audit
++
++**Author:** Primary Author B. **Status:** proposal; all necessity claims are Candidate. **Packet:** B01. **Method:** v1.0, `1ce8d1b3e42cfbec2122468c595d52d238d6ca1dfd079292b7d61d95fb3d11f7`.
++
++**Recommendation.** Preserve the `5065`-D interface, but make its contents a versioned, pre-action snapshot. Retain verified current and historical physical state; replace the entire `726`-D Groups 18–21 block with a causal disturbance-generator encoding and deterministic padding. No realized post-action contact, friction, stop, or external reaction value may enter the snapshot. The relevant boundary is dependence on the action being evaluated, not whether a field is named “future” or “force.” A scheduled release countdown can be admissible; an apparently current constraint force computed after latching the candidate action is not.
++
++The proposal uses the five frozen context files and the pinned method's §11.5 and Appendix B. It does not infer implementation details from another author or from the V3 smoke test. The frozen specification provides exact **block** widths, but does not provide individual widths, offsets, or field names for Groups 1–21. Consequently, the audit below specifies all 22 group decisions and a deterministic field-admission rule; it does not fabricate a verified field-level manifest. Binding this rule to the implementation manifest is a mandatory acceptance gate.
++
++## 1. Formal Causality Partition of p_5065 Across All 22 Schema Groups
++
++### 1.1 Decision boundary and structural model
++
++Let \(t\) mean the control boundary immediately **before** choosing and applying \(a_t\). Let \(\mathcal H_t^-\) contain the initial conditions, physical states, generator states, measurements, and completed transitions available by that boundary. Past actions through \(a_{t-1}\) belong to this information set; the current action and its realized consequences do not. Four completed 5 ms physics substeps from the preceding 20 ms interval are admissible history. Four substeps obtained by advancing the simulator with \(a_t\) are not.
++
++Write the augmented pre-action state as \(S_t=(s_t,\xi_t,m_t)\), where \(s_t\) contains robot, obstacle, contact, actuator, and persistent solver state; \(\xi_t\) contains the exogenous disturbance process; and \(m_t\) contains any required history/filter state. A causal structural model is
++
++\[
++\xi_{t+1}=G(\xi_t,\epsilon_{t+1}),\qquad
++s_{t+1}=T(s_t,a_t,\xi_t,\epsilon_{t+1},\nu_{t+1}),
++\]
++\[
++y_{t+1}=R(s_t,a_t,\xi_t,\epsilon_{t+1},\nu_{t+1})
++\equiv y_{t+1}(s_t,a_t,\xi_t)\quad\text{when innovations are fixed}.
++\]
++
++Exogeneity requires the **interventional** invariant
++
++\[
++P(\xi_{t+1}\mid\xi_t,s_t,\operatorname{do}(a_t=a))
++=P(\xi_{t+1}\mid\xi_t)
++\quad\text{for every admissible }a.
++\]
++
++Thus \(P(\xi_{t+1}\mid\xi_t)\) is independent of \(a_t\), with innovations drawn independently of the action conditional on the stated state. Merely observing a weak correlation with action is insufficient. A pre-sampled open-loop bias, sinusoidal phase oscillator, or time-triggered release process can satisfy this definition. A load that releases when the robot crosses a position threshold does not: its physical/controller state belongs to \(s_t\), and its future release event must be predicted from the transition. The state of such a reactive generator at \(t\) is still admissible; its counterfactual response cannot be treated as an exogenous fixed schedule.
++
++For contact, a simplified reaction is
++
++\[
++q_{t+1}=q_t+\Delta t\,v_t+\Delta t^2 J^{-1}(Sa_t+\tau_t),\qquad
++y_{t+1}=k[q_{t+1}-q_{\max}]_++c[v_{t+1}]_+.
++\]
++
++Away from switching surfaces, \(D_{a_t}y_{t+1}\) is generally nonzero when the stop is engaged. Velocity-dependent friction, contact impulses, and forces projected through a future robot orientation have the same problem. Even a world-frame force schedule independent of the robot can produce an **endogenous** future joint torque through its action-dependent moment arm. Retain the world-frame schedule and current geometry; do not retain the realized future projection.
++
++A feature \(c_t=C(\mathcal H_t^-)\) is admissible only if it is available before action selection and invariant when the collector restores the same snapshot and changes \(a_t\). Causal availability is necessary but not sufficient for Markov sufficiency: the retained state must also determine the next-state distribution. An EMA is causal but need not be a sufficient state statistic. The Markov claim below is conditional on the complete persistent simulator/generator state being represented or predictively redundant given \((x_t,p_t^{\mathrm{causal}})\).
++
++### 1.2 Complete boundary audit and admission policy
++
++Use zero-based, half-open offsets. The frozen totals imply the following exact **aggregate** intervals:
++
++| Groups | Aggregate interval | Width |
++|---|---|---:|
++| 1–6 | `[0:1920)` | 1,920 |
++| 7–12 | `[1920:2944)` | 1,024 |
++| 13–17 | `[2944:4096)` | 1,152 |
++| 18–21 | `[4096:4822)` | 726 |
++| 22 | `[4822:5065)` | 243 |
++
++Let \(I_i=[b_{i-1},b_i)\) denote each actual manifest group, with \(b_0=0\), \(b_6=1920\), \(b_{12}=2944\), \(b_{17}=4096\), \(b_{21}=4822\), and \(b_{22}=5065\). Intermediate boundaries are unresolved by the frozen documents. The six items named for Groups 1–6, for example, cannot be asserted to correspond one-to-one to group numbers without the manifest.
++
++The table assigns a default classification to **each** group under its frozen semantics. `R` means **retain-as-is**, collected at the pre-action boundary; `G` means **replace-by-causal-generator-state-at-t**, using the replacement construction below. `M` means **mask**, and is a mandatory slice-level override whenever the stated provenance test fails. A group containing an `M` slice is reported as mixed in the implementation audit, never silently certified as fully retained.
++
++| Group | Class | Content supported by frozen specification and required boundary test |
++|---:|:---:|---|
++| 1 | R | Member of trajectory/solver block: retain only completed substeps ending at or before \(t^-\); mask any candidate-action rollout slice. |
++| 2 | R | Same trajectory/solver block: position/velocity or other member fields require actual sample-time provenance, not a replay-row timestamp alone. |
++| 3 | R | Same block: acceleration/filter entries must use a left-sided stencil through \(t^-\); mask centered or post-action samples. |
++| 4 | R | Same block: actuator-force entries must describe the completed interval or pre-latch actuator state; mask values computed with \(a_t\). |
++| 5 | R | Same block: constraint forces/impulses must be pre-action or from completed solves; mask forces from the solve producing \(s_{t+1}\). |
++| 6 | R | Same block: solver residuals, warm starts, and substep state must precede candidate-action evaluation; mask post-solve diagnostics. |
++| 7 | R | Member of plant-parameter block: static mass/inertia/geometry values are causal; verify exact field membership from manifest. |
++| 8 | R | Same plant block: retain fixed inertia/COM or other declared parameters, without outcome-fitted values from the current transition. |
++| 9 | R | Same plant block: retain friction/damping coefficients and pre-action internal friction state; mask realized future friction. |
++| 10 | R | Same plant block: retain backlash/compliance parameters and current internal state; mask future deflection/reaction samples. |
++| 11 | R | Same plant block: retain thermal/drive/saturation state at \(t^-\); mask thermal or saturation updates caused by \(a_t\). |
++| 12 | R | Same plant block: retain nominal capacity/calibration and remaining verified pre-action parameters; mask provenance-unknown entries. |
++| 13 | R | Member of contact/stop block: retain current obstacle geometry and signed distances, not distances after candidate-action rollout. |
++| 14 | R | Same contact/stop block: retain verified pre-action or historical forces; mask forces from the new transition. |
++| 15 | R | Same contact/stop block: retain current contact Jacobians/projections; mask evaluations at future robot geometry. |
++| 16 | R | Same contact/stop block: retain current penetration, relative velocity, and spring/damper state; mask future penetration and reaction. |
++| 17 | R | Same contact/stop block: retain current active masks and persistent solver/contact state; mask future contact activation flags. |
++| 18 | G | Replace its portion of `[4096:4822)` by the corresponding portion of the canonical generator encoding; discard original future-force entries. |
++| 19 | G | Same replacement rule, including zero padding; retain schedule information only through the canonical pre-action encoding. |
++| 20 | G | Same replacement rule; reactive-generator state is tagged separately from open-loop schedule state. |
++| 21 | G | Same replacement rule; current regime and release/recovery state are encoded from physical generator state, not future success labels. |
++| 22 | R | Retain the `243`-D privileged EMA/history state through \(t^-\); mask any summary updated with the current transition, forward window, or episode-wide hindsight statistic. |
++
++The examples in rows 1–17 specify tests for the named **block**, not an invented assignment of subfields to group IDs. Every actual field must be joined to a record `(group_id, start, stop, source, sample_time, action_latch_time, update_order, frame, units, normalization, R/G/M)`. This join, and assertions on all \(5065\) positions, resolve exact slices before implementation acceptance. No field escapes inspection because its group is outside 18–21.
++
++For an unverified historical/current slot, masking is the safe interim behavior; it is not evidence that Markov sufficiency survived. If masking removes necessary persistent state, the schema binding fails and must be repaired before training. A stale replay record lacking a recoverable pre-action snapshot cannot be repaired by shifting its timestamp or setting future values to their empirical mean. Recollect it or exclude it from the causal experiment.
++
++### 1.3 Explicit sanitized construction
++
++Define \(c_j(\mathcal H_t^-)\) to be the correctly timestamped value of physical/history field \(j\), and \(m_j\in\{0,1\}\) its static manifest admission mask. The mask is fixed per schema version, not chosen from a future outcome. Construct
++
++\[
++p^{\mathrm{causal}}_{5065,t}
++=\operatorname{concat}\left(
++\{m_jc_j(\mathcal H_t^-)\}_{j=0}^{4095},
++E_{726}(s^{\mathrm{gen}}_t,\xi_t),
++\{m_jc_j(\mathcal H_t^-)\}_{j=4822}^{5064}
++\right).
++\]
++
++Here masked positions are exactly zero **after** normalization as well as at the raw input adapter. Normalizer updates use only causal training snapshots, balanced across rule/policy partitions and the declared regime distribution. No future value determines normalization statistics. Constant padding receives no data-derived mean or scale.
++
++For the open-loop scalar torque family explicitly described in the baseline, propose the following concrete replacement layout, relative to `[4096:4822)`. This is a **new** layout, not a claim about old offsets:
++
++| Relative slots | New contents |
++|---|---|
++| `[0:5)` | Current E0–E4 one-hot, checked against actual scene/generator state. |
++| `[5:8)` | Encoding-valid bit, control interval, current episode time. |
++| `[8:16)` | Bias \(b\), ramp slope \(r\), sinusoid amplitude \(A\), angular frequency \(\omega\), \(\sin\phi_t\), \(\cos\phi_t\), onset countdown, release countdown. |
++| `[16:24)` | Pulse magnitude, pulse onset countdown, pulse duration, elapsed pulse time, post-release bias, post-release ramp slope, load age, recovery age. |
++| `[24:32)` | Eight flags: bias enabled, ramp enabled, sinusoid enabled, pulse enabled, load active, release occurred, open-loop schedule, reactive generator. |
++| `[32:40)` | Current commanded exogenous torque, ramp accumulator, waveform clock, remaining scheduled duration, release-transition mode code, force-frame code, application-point code, stochastic-generator family code. |
++| `[40:64)` | Declared generator-specific current state/transition parameters, with fixed semantic indices in the new manifest; zero for the deterministic scalar-torque template. |
++| `[64:726)` | Deterministic zero padding for that template. |
++
++For example, an active combined waveform is reconstructed from \(b_t+r_tu+A\sin(\phi_t+\omega u)\) and its onset/release/pulse gates at elapsed time \(u\). Phase, ramp accumulator, and countdowns advance from their current state without a robot action. A deterministic future schedule could legally be reconstructed from this state, but no future-window array is needed. The mapping fixes countdown units, phase convention, post-release behavior, and event-update order in the manifest. Inactive slots are zero with flags distinguishing inactive events from an event occurring now.
++
++The eight flags and physical contact fields distinguish simultaneous phenomena; the scene one-hot is a sampling/regime tag, not an assertion that a scene contains only one force type. A release countdown is admissible only for a clock-triggered release. For threshold-triggered release, use the reactive-generator flag, current threshold/controller state, and current physical state; do not encode the realized remaining time to release.
++
++For a richer supported generator, `[40:726)` may encode a declared finite-dimensional causal state, including stochastic transition parameters, external-body state, or reactive controller memory. Its field map must be frozen **before** training, fit the `726`-D allocation, and pass the same action-invariance test. The scalar template does not establish sufficiency for arbitrary multi-event, vector-force, or feedback generators. If the needed state does not fit or is unrecorded, the fixed-width sufficient-state requirement fails; silently truncating it is prohibited. Fresh stochastic innovations are integrated over, not retrieved from later rollout logs. A pre-sampled schedule counts as present state only if it genuinely existed in the environment at \(t\); a retrospectively recovered random seed is not a license to expose unrealized innovations.
++
++The new block is split back across the original \(I_{18},\ldots,I_{21}\) boundaries by intersection with `[4096:4822)`. This preserves all 22 original tensor boundaries once their widths are supplied, even if a field crosses an old group boundary. The replay schema version changes, but the privileged compressor input remains `5065`. Checkpoints or replay normalizers from the original semantics are not resumed as if compatible.
++
++### 1.4 Regime sufficiency and collection order
++
++| Regime | Causal information retained for disambiguation |
++|---|---|
++| E0 | Geometry, inertia, gravity-related physical state, friction/drive state, absence of active external loading and obstacle contact. |
++| E1 | Stop positions, current margins/penetration/velocity, stop parameters and active constraints; future stop force is predicted. |
++| E2 | Current obstacle/contact geometry, material parameters, current/past contact and slip state; future contact response is predicted. |
++| E3 | Active generator, bias/ramp/phase, load age, scheduled duration/release state, plus current physical response. |
++| E4 | Actual release/pulse event state, time since release, current residual motion/contact state, and preceding load/impulse memory. |
++
++Identical recent proprioception can coexist with different release countdowns or stop/contact geometry; these remain distinguishable. Regime one-hot labels alone do not prove this property. Audit Issue #1 makes step-level synchronization an explicit prerequisite: an episode labeled E3 without its scheduled load is a mislabeled sample, not successful disambiguation. Preserve the declared E0–E4 regimes while recording the real component states and ages.
++
++Collection order is: finish the preceding physics interval; update causal filters and EMA using that completed interval; snapshot \((x_t,s_t,\xi_t,m_t)\); pack and seal \(p_t^{\mathrm{causal}}\); choose \(a_t\); execute physics; compute \(g_{t+1}\); form the next pre-action snapshot \(p_{t+1}^{\mathrm{causal}}\). A reaction produced by \(a_t\) can enter \(p_{t+1}^{\mathrm{causal}}\) as current/history state, but cannot enter \(p_t^{\mathrm{causal}}\). Pack copied arrays, not mutable simulator views that later become post-action values.
++
++All new state is confined to the training-only forward critics. \(\pi_\theta(x_{137},z_{16})\) and \(B_\omega(g_{13})\) keep their existing inputs and `281,617` combined deployed parameters. No auxiliary privileged estimator is added to the deployed path.
++
++## 2. Bellman Bias and Action-Jacobian Degeneracy Proof
++
++### 2.1 Intended Bellman object and retrospective conditioning
++
++For fixed latent \(z\), let \(b(g)\in\mathbb R^{16}\) be the frozen backward feature used for this argument. The causal successor critic satisfies
++
++\[
++F^\pi(S,a,z)=\mathbb E\left[b(g_{t+1})+\gamma(1-d_t)
++F^\pi(S_{t+1},\pi(x_{t+1},z),z)\mid S_t=S,\operatorname{do}(a_t=a)\right].
++\]
++
++This equation describes the successor-feature component relevant to the argument; it does not assert an undocumented exact V3 loss implementation. For an FB occupancy formulation, the same conditioning argument applies to its vector or query-dependent TD target. The deployed actor uses the scalarization \(Q_z=F^\top z\); ignoring the actor's separate tanh saturation, its critic contribution is \(J_aF^\top z\).
++
++Let \(L_t=p_{\mathrm{future},t}=h_K(S_t,a_t,a_{t+1:t+K-1},\varepsilon)\) be a realized endogenous future window generated under behavior policy \(\mu\). Regression on it estimates
++
++\[
++\widetilde F(S,a,l,z)=\mathbb E_\mu[Y^\pi_t\mid S_t=S,a_t=a,L_t=l],
++\]
++
++where \(Y_t^\pi\) is the Bellman target. This conditional target differs in general from \(\mathbb E[Y_t^\pi\mid S,\operatorname{do}(a)]\), because \(l\) reveals selected transition outcomes and, for \(K>1\), consequences of behavior-policy continuation. The conditional discrepancy is
++
++\[
++\Delta(S,a,l)=\mathbb E[Y_t^\pi\mid S,a,L=l]-\mathbb E[Y_t^\pi\mid S,\operatorname{do}(a)].
++\]
++
++In a fully observed randomized-action setting, averaging over the **correct action-dependent distribution** of \(L\) can give zero mean discrepancy by iterated expectation. Thus leakage does not imply that every on-policy scalar Bellman expectation is biased. The failure is that the standard actor update holds the recorded \(l\) fixed while varying \(a\), and target backups may hold a behavior-generated window fixed while substituting the target action/policy. These are generally incompatible counterfactuals, even when replay TD residual is zero.
++
++More explicitly, if
++
++\[
++\bar F(S,a)=\int \widetilde F(S,a,l)\,P(dl\mid S,\operatorname{do}(a)),
++\]
++
++then differentiating also differentiates the distribution of \(L\). Under a smooth density this adds \(\mathbb E[\widetilde F\,\partial_a\log p(L\mid S,a)]\); under a reparameterization it adds the chain-rule term below. Treating replay \(L\) as a constant omits that term. Conditioning next-step critics on windows generated under \(\mu\) instead of the queried continuation policy produces an additional policy-dependent discrepancy. No such endogenous window is a policy-independent pre-action state variable.
++
++### 2.2 Constructive zero-residual, arbitrary-gradient proof
++
++Consider a deterministic one-step terminal system, which is a special case of the Bellman equation at any \(\gamma\). Let \(S\) contain a scalar bias \(b\), let \(a\in(-1,1)\), and define an endogenous reaction \(l=b+a\). Let the terminal feature be \(Y=v(b+a)\), with fixed nonzero \(v\in\mathbb R^{16}\) and \(v^\top z\ne0\). For every scalar \(c\), the critic
++
++\[
++F_c(S,a,l)=v\left[(1-c)(b+a)+cl\right]
++\]
++
++has **exactly zero Bellman residual on every physically consistent tuple** \(l=b+a\). Nevertheless,
++
++\[
++J_aF_c=(1-c)v,\qquad J_lF_c=cv,\qquad
++\frac{d}{da}F_c(S,a,h(S,a))=v.
++\]
++
++At \(c=1\), the actor receives zero gradient although the true scalar action gradient is \(v^\top z\). At \(c>1\), the gradient reverses sign. At arbitrary \(c\), action sensitivity is unidentifiable from these perfectly fitted value observations. Adding a scalar function times \(l-h(S,a)\) to a critic changes off-manifold partial derivatives without changing any observational Bellman fit. This is a function-identification defect, not a consequence of a particular neural architecture.
++
++If the replay action is \(a_b\) and the actor queries \(a'\) with \(l_b=b+a_b\) held fixed, then
++
++\[
++F_c(S,a',l_b)-F^\pi(S,a')=cv(a_b-a').
++\]
++
++The scalarized error is \(c(v^\top z)(a_b-a')\), despite zero replay residual. Repeating this construction at a bootstrapped next state yields a target error multiplied by \(\gamma(1-d)\). The terminal example alone already proves that a small observed Bellman residual cannot certify a correct policy gradient.
++
++### 2.3 Quantitative degeneracy conditions and limits
++
++At a differentiable point, define \(J_a\in\mathbb R^{16\times1}\), \(J_L\in\mathbb R^{16\times m}\), and \(H_a=D_a h_K\in\mathbb R^{m\times1}\), with \(S,z\) and future policy/noise convention fixed. If the fitted on-manifold critic agrees locally with the causal target, then
++
++\[
++J_{\mathrm{physical}}=J_a+J_LH_a,\qquad
++g_{\mathrm{physical}}-g_{\mathrm{partial}}=(J_LH_a)^\top z.
++\]
++
++Use spectral norms for matrices and Euclidean norms for vectors. Since V3 has one action, \(\|J_a\|_2\) is unambiguous. A sufficient vector degeneracy condition is
++
++\[
++\|J_a\|_2\le\epsilon\|J_LH_a\|_2,\qquad
++\|J_LH_a\|_2>0,\qquad 0\le\epsilon<1.
++\]
++
++It implies
++
++\[
++\|J_{\mathrm{physical}}\|_2\ge(1-\epsilon)\|J_LH_a\|_2,\qquad
++\frac{\|J_a\|_2}{\|J_{\mathrm{physical}}\|_2}\le\frac{\epsilon}{1-\epsilon}.
++\]
++
++For example, \(\epsilon=0.05\) bounds the partial action sensitivity by `5.27%` of the physical sensitivity. For the actual actor direction, measure the analogous projected condition \(|J_a^\top z|\le\epsilon|(J_LH_a)^\top z|\), with a nonzero projected denominator. A large vector norm need not project onto the sampled \(z\).
++
++The requested raw comparison is
++
++\[
++R_{a/L}=\frac{\|J_a\|_2}{\|J_L\|_2+\delta},\qquad
++\|J_LH_a\|_2\le\|J_L\|_2\|H_a\|_2.
++\]
++
++Small \(R_{a/L}\) is a **screen**, not proof of degeneration: \(H_a\) may be zero for an exogenous schedule, or its range may lie in a null direction of \(J_L\). Action and privileged fields must be scaled consistently before norms are compared. Report derivatives per one declared training-set standard deviation and the composed product in physical-action units. In the example with unit \(H_a\), \(R_{a/L}=|1-c|/|c|\) ignoring \(\delta\); at \(c=1\) it is exactly zero.
++
++Sanitization guarantees independence from **forbidden realized future inputs**, not a nonzero action Jacobian. A correct critic may have zero action derivative in a truly immobile saturated contact state or for a latent orthogonal to the response. Underfitting can also erase action sensitivity after sanitization. This is why the experiment uses independent counterfactual response derivatives and a causally controllable evaluation subset. The proposal does not claim that all leaky critics inevitably collapse, or that removing leakage alone establishes control convergence.
++
++## 3. Serious Alternative Considered and Rejected
++
++### 3.1 Keep future windows but stop their gradients
++
++**Alternative.** Preserve the original future windows for their predictive information, but feed `p_future.detach()` into the critic and forbid autograd from traversing the physics collector. This keeps critic input dimensions, replay format, and apparent TD accuracy unchanged. It is a serious candidate because stop-gradient is routinely used to isolate bootstrap targets and would be inexpensive here.
++
++**Rejection.** Recorded replay tensors ordinarily already have no autograd link to the original action. Detaching the input does not remove the critic's dependence on its **value**. In the \(c=1\) counterexample, \(F=v\,\mathrm{detach}(l)\) still has zero replay residual and \(\partial F/\partial a=0\); all parameter gradients needed to learn the shortcut remain available. Detachment deletes exactly the \(J_LH_a\) route needed to differentiate a recomputed consequence, while retaining its target information. It therefore cannot restore the desired derivative or pre-action information boundary. Reading a detached tensor's autograd gradient as zero would also produce a misleading “leakage eliminated” diagnostic; the experiment re-leafs the value to measure functional input sensitivity.
++
++One could instead regenerate \(L\) for every queried action and differentiate through the full rollout, including continuation-policy effects. That is an action-conditioned dynamics model, not the original fixed privileged-state critic. It can be causally valid when supplied only pre-action state, but introduces model/solver differentiation and contact-switching issues, and no longer meets the proposed minimal adapter repair. It is not ruled out as a future implementation class.
++
++### 3.2 Move all load information into Group 22 EMA
++
++**Alternative.** Mask Groups 18–21 completely and rely on the `243`-D historical summary, contact state, and proprioception. This eliminates future-window handling and retains a compact causal load estimate.
++
++**Rejection under the stated environment class.** Construct two generators with identical physical trajectories, applied loads, and all EMA inputs up to \(t\), but distinct pre-sampled release times: one releases next step; the other holds for 30 further steps. Their Group 22 states and \(x_t\) are identical. Their next-step conditional load distributions differ, so their Bellman targets differ for a suitable feature direction. A deterministic predictor of that common input must return the same value in both cases. For equally likely scalar targets \(u\) and \(v\), its minimum mean squared error is \((u-v)^2/4\). No EMA decay selection fixes a missing future schedule parameter that has never influenced the past. Retaining the causal release state removes this particular aliasing. The argument requires differing targets; a representation blind to load response would evade the example by abandoning the intended competence.
++
++Group 22 remains useful for recovery and hidden-history estimation, but history alone is not a general substitute for known current generator state. This rejection is confined to generators with independent hidden schedule differences. In a restricted environment where generator state is determined by retained history, the alternative could be sufficient.
++
++These alternatives satisfy method §11.5 within this proposal. Agreement with a brief-supplied causal boundary would constitute framed agreement, not independent evidence of necessity.
++
++## 4. Candidate Necessity Claims (Appendix B)
++
++### C-B01-B-01 — Observational Bellman fit does not identify a partial action gradient through an endogenous proxy
++
++- **State / grade:** Candidate, Grade 1; no lock or veto authority is asserted.
++- **Premises:** (i) A continuously variable action lies in an open interval; (ii) training inputs include a deterministic differentiable endogenous proxy \(L=h(S,a)\); (iii) training constrains critic values only on that consistency manifold; (iv) the admissible function class contains two differentiable extensions that agree on the manifold but differ in their partial action derivative, as the family \(F_c\) does; (v) the actor differentiates with respect to \(a\) while holding recorded \(L\) fixed; (vi) the true target has a nonzero derivative in at least one tested latent direction. No off-manifold constraints, structural derivative restriction, or recomputation through \(h\) are supplied.
++- **Conclusion shape — impossibility:** Values/Bellman residuals on this manifold alone cannot uniquely identify the partial action derivative required by that actor update. There exist indistinguishable zero-residual critics yielding zero, correct, and reversed actor gradients. Therefore no guarantee of gradient correctness can follow from such value fit alone.
++- **Derivation:** Section 2.2 constructs the indistinguishable \(F_c\) family. The construction applies to any function approximator admitting those extensions, including classical differentiable regressors; it is not a neural-network-specific theorem.
++- **Scope:** A non-identifiability result, not a universal optimizer-collapse claim. It does not prohibit an endogenous prediction computed internally from causal state and candidate action. It does not prohibit exogenous schedule state for which \(D_a h=0\).
++- **Operational test:** Implement \(c\in\{0,1,2\}\) with identical valid \((S,a,L)\) tuples; verify matching predictions and residuals, then measure their distinct partial action derivatives and matching total derivatives. Test off-manifold actor queries separately.
++- **Falsifier:** An error in the explicit equal-value/different-gradient construction under these premises invalidates the proof. More generally, demonstrate unique partial-derivative identification using only the stipulated manifold values over the stipulated function class, without adding derivative constraints or removing admissible extensions. Finding one well-trained leaky critic with correct gradients does **not** falsify a non-identifiability claim; finding that the real V3 class/data lack premise (iv) or (iii) defeats applicability and must be recorded as a scope failure.
++- **Promotion requirement:** Independent proof verification and the human lead's signature under Appendix B.9. A passing spike cannot promote this claim to Locked.
++
++### C-B01-B-02 — Distinguishing generator states is necessary for state-specific load prediction
++
++- **State / grade:** Candidate, Grade 1, conditional information lower bound.
++- **Premises:** Two equally likely pre-action physical/generator states map to the same retained observation, their scalar Bellman target means are \(u\ne v\), and the predictor receives no further distinguishing information. Loss is squared error on that common observation. Any intrinsic target noise is additional.
++- **Conclusion shape — lower bound:** Mean prediction error is at least \((u-v)^2/4\). Achieving a strictly smaller error requires information distinguishing these states, or a change to the target/task or state distribution.
++- **Derivation:** Minimize \(\tfrac12(f-u)^2+\tfrac12(f-v)^2\) over \(f\); its minimum occurs at \((u+v)/2\). Randomizing the predictor cannot lower the bound.
++- **Operational test:** The paired release-countdown construction in §3.2 fixes identical retained histories while varying the current release state. Measure the target separation using repeated physical continuations and then compare predictors with and without that state.
++- **Falsifier:** A predictor beating the bound on a balanced population with genuinely identical retained inputs and verified target means, without extra information, would contradict the claim. Nonidentical inputs, unequal sampling, or finite-sample uncertainty invalidate the test rather than establish a counterexample.
++- **Scope / implementation independence:** Some sufficient distinguishing information is necessary, not this exact `726`-D encoding, a specific EMA, or a named neural module. This claim also remains Candidate pending independent review and signature.
++
++The charter's `>95%` explained-variance preservation hypothesis and the engineering thresholds below remain phenomenological tests. Neither follows as a theorem from these claims. No inherited ledger claim is changed by this author proposal.
++
++## 5. Pre-Registered Empirical Spike Protocol
++
++### 5.1 Status, hypothesis, and fixed arms
++
++**Execution status:** protocol only; no learned-critic or physics experiment is reported as run. A read-only environment probe on 2026-10-23 found `python3` available and `torch` absent (`torch_installed: False`); the `python` executable was absent. CUDA availability is consequently **unverified**, not established as false. The spike is specified for CPU and needs no CUDA. At execution, record the PyTorch version, `torch.cuda.is_available()`, device count, selected device, and determinism settings. If CUDA is unavailable, explicitly record that fact and run on CPU. Installation/setup belongs to the designated experiment runner.
++
++**Mechanism hypothesis:** realized endogenous future fields can dominate critic sensitivity while hiding action dependence; replacing them with causal generator state removes this route and recovers a physically correct partial action gradient without materially sacrificing causal target prediction. This is separate from proving converged motor control.
++
++Freeze seeds `101, 202, 303, 404, 505`. Permit one registered training attempt per seed and arm; infrastructure failures remain logged and do not authorize selecting a better seed. Use three arms with identical physical transitions, target-construction rules, optimizer schedule, and paired initial weights:
++
++1. **RAW:** original Groups 18–21, including separately identified endogenous future slices.
++2. **DETACH:** same values as RAW, explicitly detached. This is a negative control and should be equivalent to normal replay input handling.
++3. **CAUSAL:** the replacement in §1.3, with all other groups identically repaired to the verified pre-action contract in **every** arm. This isolates the effect of Groups 18–21.
++
++RAW/DETACH exist only as controlled diagnostic arms. Hold \(B\), the evaluation policy, and latent samples fixed across arms to avoid changing target coordinates or action distributions. Test both forward heads separately; do not hide a failing head by averaging. First run the exact \(F_c\) diagnostic; then train the actual V3 forward architecture if its implementation is available. A smaller surrogate may validate instrumentation but cannot stand in for V3 evidence.
++
++### 5.2 Exact diagnostic and physical sampling
++
++**Stage A: analytic control.** In FP64 CPU PyTorch, choose \(v=e_1\), \(z=4e_1\), \(b\sim U[-0.5,0.5]\), \(a\sim U[-0.8,0.8]\), and \(l=b+a\), for `1,024` samples per seed. Embed \(l\) in an identified diagnostic future coordinate and use fixed zero padding elsewhere. Evaluate \(F_c\) for \(c=0,1,2\). This directly tests the theorem and metric implementation; it is not a trained-model result. The analytic causal comparator is \(F=v(b+a)\) built from pre-action \(b\) and \(a\), with no dependence on \(l\).
++
++**Stage B: physical paired snapshots.** Require `4` independently generated training episodes and `2` held-out episodes for each of the `144 × 5 = 720` configuration/regime cells. Use `64` transitions per episode, comprising `184,320` training and `92,160` held-out transitions before provenance exclusions. These can be streamed into the bounded replay ring; they do not require expanding the `98,304`-transition replay capacity. Preserve the `1/3` rule and `2/3` policy sampling split and scene quotas `20/15/20/15/30%` during updates; report evaluation both equally weighted over the 720 cells and weighted by the declared quotas. Split by episode and generator seed, never by adjacent rows. Pre-action snapshots must include enough simulator state to restore contact/solver history exactly. This deliberately small episode panel is a causal diagnostic; its cell counts are not the program's behavioral readiness counts.
++
++Use a synchronized E3/E4 schedule that actually produces a sustained interval of at least 25 steps and a release/recovery interval. At each selected snapshot, restore the same state and common exogenous randomness for action branches. Preserve a local grid of actions including \(a\), \(a\pm0.01\), and \(a\pm0.02\) when within `[-1,1]`. This creates action intervention support instead of relying only on unrelated replay actions. Record a joint 720-cell sample ledger and all exclusions. Missing cells or unsynchronized regimes block a full-regime conclusion.
++
++Choose `2` held-out interior-action snapshots per cell for Jacobians (`1,440` total), one from each held-out episode. Fix two latent vectors per snapshot: one sampled uniformly on \(\mathcal S^{15}(4)\) and one held-out target-encoded latent, with no privileged conditioning. Never choose \(z\) after inspecting a model's gradients. Use the same indices and latents for all arms.
++
++**Training prescription:** train each twin forward critic for `2,000` updates, batch `128`, Adam at `3e-4`, no weight decay, using the same frozen \(B\), frozen behavior/evaluation policy, transition/latent draws, and replay order across arms. Freeze normalizers from causal training data; RAW future-field scales use training-only data and are documented separately. Use the minimal successor TD loss with \(\gamma=0.95\), a target-critic EMA coefficient `0.01`, and the vector squared Bellman error from §2.1. Each head bootstraps from its own target copy; resulting numerical training targets can differ by arm. The independent evaluation target in §5.5 is shared. This is a specified diagnostic loss, not a claim that it reproduces an unspecified production FB loss. Any later production-loss validation is a separately labeled run. Evaluate at update 0 and 2,000; do not select the best intermediate checkpoint. Failure to fit within this bounded spike is reported, not repaired through unregistered extra updates. Record wall time and resource use; CPU execution may still be substantial for the full V3 critics.
++
++### 5.3 PyTorch measurement contract
++
++Use a public wrapper around each actual critic with signature `F(x, p, a, z) -> (16,)`; set evaluation mode and freeze all running statistics. Let `idx_future` contain **only audited endogenous future fields** from the original Groups 18–21. Do not combine exogenous schedules and endogenous reactions into one reported future norm. Let `sanitize(raw, current)` replace the entire block from an independently saved pre-action generator snapshot `current`; it must never derive replacements from `raw[idx_future]`.
++
++The following kernel is executable once those adapters and manifest indices are supplied. It computes exact small-output Jacobians; batch it over samples, not over a training-mode network with cross-sample normalization:
++
++```python
++import torch
++from torch.func import jacrev
++
++def sensitivity(F, x, p_raw, a, z, idx_future, sanitize, current,
++                a_scale, future_scales, causal):
++    # a: (1,), p_raw: (5065,), outputs: (16,); all are floating tensors.
++    # Re-leaf raw values: this probes functional dependence even for DETACH.
++    a0 = a.detach().clone()
++    p0 = p_raw.detach().clone()
++
++    def value(aa, pp):
++        packed = sanitize(pp, current) if causal else pp
++        return F(x, packed, aa, z).reshape(16)
++
++    Ja, Jp = jacrev(value, argnums=(0, 1))(a0, p0)
++    JL = Jp[:, idx_future]
++    Ja_std = Ja * a_scale
++    JL_std = JL * future_scales[None, :]
++    A = torch.linalg.vector_norm(Ja_std)
++    P = torch.linalg.matrix_norm(JL_std, ord=2)
++    g = (Ja.T @ z).reshape(())
++    return {"Ja": Ja, "JL": JL, "A": A, "P": P,
++            "ratio": A / (P + 1e-12), "actor_gradient": g}
++```
++
++Here \(J_L\) in CAUSAL is the derivative of the **composite sanitized model with respect to original forbidden input values**; it must be zero. Derivatives with respect to the new generator-state slots are measured separately and may be large. Comparing those legal-state derivatives to the original future-force derivatives as though they were the same quantity would be invalid. If `idx_future` is empty, the tested implementation lacks the claimed leak and the RAW mechanism test is not applicable.
++
++Compute \(H_a\) from simulator branches as \([L(a+h)-L(a-h)]/(2h)\), with the same future policy and random innovations; record \(\|J_LH_a\|_2\), \(\|J_a\|_2\), and their latent projections. Compute the reference derivative \(D_{\mathrm{ref}}\) from branch returns under the fixed evaluation policy:
++
++\[
++G_H=\sum_{k=0}^{H-1}\gamma^k(1-d_{<k})B(g_{t+k+1}),\qquad
++D_{\mathrm{ref}}=\frac{\mathbb E G_H(a+h)-\mathbb E G_H(a-h)}{2h}.
++\]
++
++Use \(H=200\), \(\gamma=0.95\), and `16` common-random-number continuations per action for stochastic scenes (one for deterministic scenes). With \(\|B\|=4\), omitted return norm is at most \(4\gamma^{200}/(1-\gamma)<0.0029\). This bounds values, not derivative error; also compare \(H=100\) versus 200 and \(h=0.01\) versus 0.02. Include a snapshot in the smooth derivative gate only when both derivative comparisons differ by at most `10%` of the reference norm and reference uncertainty is at most `10%`. Define the controllable subset by \(\|D_{\mathrm{ref}}\|_2\ge0.05\) per unit normalized action. Define the scalar sign subset additionally by \(|D_{\mathrm{ref}}^\top z|\ge0.05\). These inclusion rules depend only on independent physical references, not critic outputs.
++
++At contact switches, report one-sided finite changes and their prediction errors separately; do not interpret a discontinuity as an autograd failure. If fewer than `50%` of selected snapshots overall, or fewer than `10%` in any regime, meet the smooth/controllable criteria, mark the derivative test underpowered. A large number of immobile stop samples cannot be used to manufacture a successful nonzero-gradient gate.
++
++### 5.4 Quantitative gates
++
++All thresholds below are pre-registered engineering criteria. Report the complete distribution by seed, head, regime, and configuration, together with paired differences. For statistical claims use `2,000` episode-cluster bootstrap resamples within each configuration/regime cell, followed by paired resampling of the five training seeds; preserve branch pairings. Report 95% intervals, including per-regime results. No threshold may be chosen after seeing the Jacobians.
++
++| Gate | Pass criterion | Failure interpretation |
++|---|---|---|
++| Provenance and packing | All 5,065 positions assigned once; widths sum to `4,822 + 243`; all retained values precede action latch; manifest and normalizer hashes recorded. | Audit incomplete; no claim of an exact sanitized schema. |
++| Counterfactual invariance | Across action branches, packed \(p_t^{\mathrm{causal}}\) is identical for identical snapshots; FP32 maximum absolute difference ≤ `1e-7`. Changing arbitrary forbidden future values leaves outputs invariant to the same tolerance. | Remaining leak, aliasing of mutable buffers, or nondeterministic packing. |
++| Analytic control | For all \(c\), maximum prediction/residual error ≤ `1e-10` in FP64; \(J_a=(1-c)v\), \(J_L=cv\), and total derivative \(v\) agree within `1e-10`. | Proof implementation or measurement failure; stop learned-critic interpretation. |
++| Forbidden sensitivity | CAUSAL \(\|J_L\|_2\le10^{-10}\) in FP64 evaluation for every tested sample; random future-field finite perturbations agree with this result. | Adapter failed; legal generator-state gradients are exempt. |
++| RAW bypass reproduction | In at least `4/5` seeds and each head, at least `25%` of smooth controllable samples have \(\|J_a\|_2\le0.1\|J_LH_a\|_2\), with nonzero omitted projected sensitivity where scalar failure is claimed. Also report standardized \(R_{a/L}\). | Shortcut not reproduced in this learned model; do not claim an empirical cure merely because CAUSAL masks an input. |
++| Action derivative recovery | CAUSAL median relative vector error \(\|J_a-D_{\mathrm{ref}}\|_2/\|D_{\mathrm{ref}}\|_2\le0.20\), 90th percentile ≤ `0.50`; median norm ratio lies in `[0.8,1.2]`; scalar sign agreement ≥ `95%` on the sign subset. Each head and at least `4/5` seeds must pass; no regime median vector error may exceed `0.35`. | Remaining critic/representation/coverage problem; masking alone is insufficient. |
++| Paired causal improvement | When RAW bypass reproduces, CAUSAL reduces median vector derivative error by at least `30%` relative to RAW, and the 95% interval for the paired improvement excludes zero. DETACH differs from RAW median error by no more than `5%` under deterministic paired runs. | No demonstrated gradient benefit, or invalid negative-control implementation. |
++| Bellman consistency | Held-out causal counterfactual normalized RMS Bellman residual ≤ `0.15` for CAUSAL; no regime exceeds `0.25`; CAUSAL is not more than `0.02` worse than RAW when RAW is queried with fixed recorded future windows under the same action interventions. | Fit/backup accuracy is inadequate or the proposed repair sacrifices too much accuracy. |
++| H1 prediction preservation | Held-out target explained-variance ratio \(EV_{\mathrm{CAUSAL}}/EV_{\mathrm{RAW}}>0.95\), with 95% lower confidence bound > `0.95`; require \(EV_{\mathrm{RAW}}>0.20\) for an interpretable ratio. Report all regimes; a regime loss exceeding `0.05` absolute EV blocks full-regime acceptance. | H1 unconfirmed or falsified in this panel; do not relabel poor RAW fit as preservation. |
++
++### 5.5 Bellman residual and explained-variance definitions
++
++Freeze a common reference target before comparing arms. Use a reference evaluator \(\widehat F_{\mathrm{ref}}^\pi(S',\pi(x',z),z)\) estimated by independent physical Monte Carlo continuations with the same fixed \(B,\pi,\gamma\), and form
++
++\[
++Y_{\mathrm{ref}}=B(g_{t+1})+\gamma(1-d_t)\widehat F_{\mathrm{ref}}^\pi(S_{t+1},\pi(x_{t+1},z),z).
++\]
++
++Estimate its conditional mean by repeated branches as needed; use common reference samples for all arms. Report Monte Carlo uncertainty and do not count irreducible target noise as approximation bias. For model prediction \(\widehat F\), define
++
++\[
++\mathrm{NRBR}=\sqrt{\frac{\mathbb E\|\widehat F-Y_{\mathrm{ref}}\|_2^2}
++{\mathbb E\|Y_{\mathrm{ref}}-\mathbb EY_{\mathrm{ref}}\|_2^2+10^{-12}}},\qquad
++EV=1-\frac{\operatorname{tr}\operatorname{Cov}(Y_{\mathrm{ref}}-\widehat F)}
++{\operatorname{tr}\operatorname{Cov}(Y_{\mathrm{ref}})+10^{-12}}.
++\]
++
++Report mean vector bias alongside EV because EV alone ignores constant prediction offsets. Mark a near-zero target-variance cell undefined rather than divide it into a favorable score.
++
++Measure two distinct panels: (i) **factual prediction**, where each RAW future window corresponds to the recorded action, used for the charter's H1 comparison; (ii) **actor-query counterfactuals**, where RAW retains the recorded window but the simulator independently evaluates the new action, used for causal Bellman consistency. CAUSAL retains the same pre-action state in both panels. Also report each arm's ordinary self-bootstrapped TD residual, but do not use it as the sole acceptance criterion: the proof supplies a critic with zero such residual and a wrong gradient. If a sampled factual RAW window reveals stochastic innovation, H1 can fail because that information was never causally predictable; report the gap rather than restoring the forbidden preview.
++
++### 5.6 Outputs, stop conditions, and interpretation
++
++The designated runner should freeze adapters and the exact invocation in the experiment plan before execution. Proposed invocation after implementation is `python3 run_b01_causality_spike.py --device cpu --seeds 101 202 303 404 505 --arms raw detach causal --updates 2000 --gamma 0.95 --output results/`; this names a proposed harness, not an existing file. Record the command, dependency versions, source/schema hashes, snapshots/episode identifiers, sampled latent vectors, normalizer statistics, arm configs, and any deviation. Produce per-sample Jacobian/finite-difference metrics, per-cell provenance/count ledgers, residual/EV tables, raw seed results, and a machine-readable gate verdict. Missing physics code, manifest, checkpoint compatibility, or PyTorch is reported as a setup block, never as a passing run.
++
++The author writes only this proposal. The experiment runner owns code and execution artifacts under the method's write-permission rules; this proposal does not modify the sealed spike plan or publish a claim lock. Failure of the analytic/invariance gates stops scientific interpretation. Failure of a learned-critic gate leaves the empirical repair unverified, even if the causal boundary proof remains sound.
++
++Passing this spike would support a causal forward-input repair and a measured gradient benefit for the tested distribution. It would not establish `coverage_ready`, converged holding, the remaining eight audit repairs, or multi-joint transfer. Those require their own real-physics evidence, including all 720 configuration/regime cells and the program's load-hold/recovery gates. The existing 101-update V3 result remains pipeline verification only.
+
+exec
+/bin/bash -lc "python3 - <<'PY'
+from pathlib import Path
+import re
+p=Path('/srv/claude/research/motor-unit-representation/packets/B01/drafts/B/proposal.md')
+s=p.read_text()
+rows=re.findall(r'"'^'"\\| (\\d+) \\| ([RG]) \\|',s,re.M)
+assert [int(n) for n,_ in rows]==list(range(1,23))
+assert 1920+1024+1152+726==4822 and 4822+243==5065
+assert 144*5*4*64==184320 and 144*5*2*64==92160
+assert 144*5*2==1440
+for code in re.findall(r'"'```python'"\\n(.*?)\\n"'```'"',s,re.S):
+ compile(code,'proposal_kernel','exec')
+assert 4*.95**200/(1-.95)<.0029
+assert len(re.findall(r'"'^## [1-5]'"\\. ',s,re.M))==5
+assert s.count('"'```'"')==2
+print('PASS: five required sections, all 22 group rows, dimension and sample totals, tail bound, Python kernel syntax.')
+print('Word count:',len(s.split()))
+PY" in /srv/claude
+ succeeded in 0ms:
+PASS: five required sections, all 22 group rows, dimension and sample totals, tail bound, Python kernel syntax.
+Word count: 6490
+
+codex
+Wrote [proposal.md](/srv/claude/research/motor-unit-representation/packets/B01/drafts/B/proposal.md) with all five required sections and the 22-group audit.
+
+Validated structure, dimensional totals, and Python kernel syntax. The spike remains unexecuted; PyTorch is unavailable. Exact field offsets require manifest verification, as documented.
+tokens used
+59,864
+Wrote [proposal.md](/srv/claude/research/motor-unit-representation/packets/B01/drafts/B/proposal.md) with all five required sections and the 22-group audit.
+
+Validated structure, dimensional totals, and Python kernel syntax. The spike remains unexecuted; PyTorch is unavailable. Exact field offsets require manifest verification, as documented.

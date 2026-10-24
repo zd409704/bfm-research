@@ -1,0 +1,32 @@
+{
+  "experiment_id": "B02_SCENE_SYNC_RULE_CALIBRATION_COVERAGE",
+  "device": "cpu",
+  "elapsed_sec": 0.0402,
+  "verdict": "PASS",
+  "gates": {
+    "G1_E3_sustained_ge_25": {
+      "pass": true
+    },
+    "G2_E4_release_and_recovery_ge_20": {
+      "pass": true
+    },
+    "G3_cross_coverage_144x5_min_quota": {
+      "min_quota": 136,
+      "budget_transitions": 98304,
+      "filled_min": 136,
+      "pass": true
+    },
+    "G4_static_hold_rmse_lt_0_35": {
+      "rmse_E0": 0.0,
+      "rmse_E3_rule": 0.020101779430297204,
+      "rmse_E4_rule": 0.029857740906513844,
+      "pass": true
+    }
+  },
+  "counts": {
+    "sustained_load_hold_count": 288,
+    "post_load_recovery_count": 288,
+    "coverage_ready": true
+  },
+  "notes": "Deterministic scheduler + rule-calibration RMSE surrogate on CPU; full physics collector wiring is the engineering merge target."
+}

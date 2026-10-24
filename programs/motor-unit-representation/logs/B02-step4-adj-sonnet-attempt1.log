@@ -1,0 +1,21 @@
+I've written the adjudication report. I recommend Candidate P, who scores 80.0 against 71.0 for Q. The 9-point margin is above the 5-point tie margin.
+
+I scored from the text alone, so no physics or memory behaviour is tested for either candidate. I also had no baseline files or Methodology text, and the principle-claim assessments rest on technical merit only.
+
+- **Eligibility:** Both candidates pass all charter and brief gates. Two things stay open. The orchestrator needs to confirm that `D-B01-001` is admissible context, since the brief's ledger snapshot doesn't list it. P's memory layout depends on an unverified assumption that 512 privileged slots can be stored once per configuration.
+- **Scores by rubric row (P / Q):**
+
+| Row | Weight | P | Q |
+|---|---:|---:|---:|
+| Audit Issues #1, #2, #3, #5, #6, #8 | 35 | 29.0 | 26.0 |
+| 720-cell cross-coverage | 25 | 20.0 | 17.0 |
+| Memory and compute | 20 | 15.0 | 13.0 |
+| Spike falsifiability | 20 | 16.0 | 15.0 |
+
+- **Why P leads:** It commits to one exact static-holding target, gates position and contact as well as velocity, and commits windows atomically. Q has several defects I confirmed: two E4 variants share one deterministic key, rollback has no storage for overwritten data, and the "always resident" episode claim fails during writes.
+- **Principle claims:** All five (two from P, three from Q) stay Candidate, and I recommend none for Locked status. Q-01 needs its mean-length bound corrected to 45.51, and its i.i.d.-only part narrowed. Q-02 overstates the penalty's effect, so I narrowed it.
+- **Disposition:** Recommend P, with Q as alternate for specific mechanisms only. The report lists seven required fixes to P, including the single training load sign, phase-locked sub-cases, and the unverified 512-slot assumption. It also lists the Q mechanisms to adopt, such as the evaluator negative control and the rule positive control.
+
+The report ends with a confounds paragraph on text-only scoring and critique depth.
+
+I wrote the report to `/srv/claude/research/motor-unit-representation/packets/B02/adjudication-sonnet-order2.md`.

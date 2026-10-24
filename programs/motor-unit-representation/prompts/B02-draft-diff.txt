@@ -1,0 +1,30 @@
+--- /srv/claude/research/motor-unit-representation/prompts/B02-draft-A.txt	2026-10-23 22:54:10.190606374 -0400
++++ /srv/claude/research/motor-unit-representation/prompts/B02-draft-B.txt	2026-10-23 22:54:10.222606573 -0400
+@@ -1,4 +1,4 @@
+-You are Primary Author A on Packet B02 of the research program at `/srv/claude/research/motor-unit-representation`.
++You are Primary Author B on Packet B02 of the research program at `/srv/claude/research/motor-unit-representation`.
+ 
+ Read the following frozen context files before writing your proposal:
+ 1. `/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md`
+@@ -9,16 +9,16 @@
+ 6. `/srv/claude/research/motor-unit-representation/synthesis/B01-synthesis.md` (if present; else skip)
+ 
+ Isolation & Firewall Rules:
+-- Do NOT read or list any directory under `packets/B02/drafts/` other than your own directory `/srv/claude/research/motor-unit-representation/packets/B02/drafts/A/`.
+-- Write your complete proposal to `/srv/claude/research/motor-unit-representation/packets/B02/drafts/A/proposal.md`.
++- Do NOT read or list any directory under `packets/B02/drafts/` other than your own directory `/srv/claude/research/motor-unit-representation/packets/B02/drafts/B/`.
++- Write your complete proposal to `/srv/claude/research/motor-unit-representation/packets/B02/drafts/B/proposal.md`.
+ 
+-Required Sections in `/srv/claude/research/motor-unit-representation/packets/B02/drafts/A/proposal.md`:
+-1. `# Proposal A (Packet B02): E0–E4 Scene Synchronization, Inertia-Scaled Rule Calibration Wiring, and Coverage Gate Closure`
++Required Sections in `/srv/claude/research/motor-unit-representation/packets/B02/drafts/B/proposal.md`:
++1. `# Proposal B (Packet B02): E0–E4 Scene Synchronization, Inertia-Scaled Rule Calibration Wiring, and Coverage Gate Closure`
+ 2. `## 1. Synchronized E0–E4 Step-Level Generator Contract`: Exact deterministic episode-level and step-level torque/contact schedules for E0(20%), E1(15%), E2(20%), E3(15%), E4(30%) guaranteeing every E3 episode has >=25 consecutive sustained-load steps and every E4 episode has a load-release edge plus >=20 recovery steps. Resolve Audit Issues #1 and #5.
+ 3. `## 2. Rule Calibration Wiring, Normalizer Contract, and Anti-Saturation Actor Loss`: How `rule_calibration` populates the 32,768 rule buffer across all 720 (config, scene) cells; normalizer update without rule/policy covariate shift (#6); pre-activation penalty or target smoothing for tanh saturation (#8); wiring into P0 and rule partition (#2).
+ 4. `## 3. Frozen Static-Holding Evaluation and 720-Cell Cross-Coverage Gate`: Exact $g_{13}^{hold}(q^*)$, pass threshold zero-vel RMSE < 0.35 rad/s across E0/E3/E4; hard gate on `cross_coverage_144_x_5` (#3).
+ 5. `## 4. Serious Alternative Considered and Rejected` (method §11.5).
+-6. `## 5. Candidate Necessity Claims (Appendix B)` with at least `C-B02-A-01`.
++6. `## 5. Candidate Necessity Claims (Appendix B)` with at least `C-B02-B-01`.
+ 7. `## 6. Pre-Registered Empirical Spike Protocol` with quantitative `coverage_ready=true` and RMSE gates; CPU-honest if no CUDA.
+ 
+ Stay inside the 98,304 transition / 4.10 GB tensor memory budget.

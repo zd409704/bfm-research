@@ -1,0 +1,50 @@
+{
+  "experiment_id": "B04_2DOF_COUPLING_ENVELOPE_AND_MODES",
+  "device": "cpu",
+  "elapsed_sec": 0.0054,
+  "verdict": "PASS",
+  "gates": {
+    "G1_coupling_vs_E3E4_envelope": {
+      "fraction_inside_envelope": 1.0,
+      "couple_p50": 0.4609251084782917,
+      "couple_p95": 0.7367008743937671,
+      "E3_amp": 6.0,
+      "E4_amp": 9.0,
+      "pass": true
+    },
+    "G2_fair_ablation_scaffold": {
+      "fair": {
+        "obs_history_match": true,
+        "control_rate_hz": 50,
+        "equal_update_budget": true,
+        "frozen_local_modules": true,
+        "modes": [
+          "A_direct_latent",
+          "B_target_outcome_via_B",
+          "C_raw_torque_baseline"
+        ]
+      },
+      "pass": true
+    },
+    "G3_morphology_swap_protocol": {
+      "morph": {
+        "L2_swap": [
+          0.12,
+          0.25,
+          0.4
+        ],
+        "C0_swap": [
+          3.0,
+          6.0,
+          9.0
+        ],
+        "metrics": [
+          "sample_efficiency_to_hold_rmse_0.35",
+          "zero_shot_transfer_return"
+        ]
+      },
+      "pass": true
+    }
+  },
+  "notes": "Analytic 2-DoF RR coupling magnitudes vs single-unit E3/E4 torque envelope; composition learning curves deferred to full sim."
+}

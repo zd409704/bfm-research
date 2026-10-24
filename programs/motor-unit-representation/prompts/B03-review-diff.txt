@@ -1,0 +1,25 @@
+--- /srv/claude/research/motor-unit-representation/prompts/B03-review-A-on-B.txt	2026-10-23 23:41:16.836167731 -0400
++++ /srv/claude/research/motor-unit-representation/prompts/B03-review-B-on-A.txt	2026-10-23 23:41:16.840167755 -0400
+@@ -1,17 +1,17 @@
+-You are Blind Reviewer A on Packet B03 of the research program at `/srv/claude/research/motor-unit-representation`.
++You are Blind Reviewer B on Packet B03 of the research program at `/srv/claude/research/motor-unit-representation`.
+ 
+ Read the following frozen context and candidate files:
+ 1. `/srv/claude/research/motor-unit-representation/PROGRAM_CHARTER.md`
+ 2. `/srv/claude/research/motor-unit-representation/packets/B03/brief.md`
+-3. `/srv/claude/research/motor-unit-representation/packets/B03/proposals/B.md`
++3. `/srv/claude/research/motor-unit-representation/packets/B03/proposals/A.md`
+ 
+ Isolation Rules:
+ - Do NOT read any other file in `reviews/` or `drafts/`.
+-- Write your complete blind review to `/srv/claude/research/motor-unit-representation/packets/B03/reviews/review-A-on-B.md`.
++- Write your complete blind review to `/srv/claude/research/motor-unit-representation/packets/B03/reviews/review-B-on-A.md`.
+ 
+ Required Sections:
+-1. `# Blind Review A on Proposal B (Packet B03)`
++1. `# Blind Review B on Proposal A (Packet B03)`
+ 2. `## 1. Gate & Hard-Constraint Audit`
+ 3. `## 2. Rubric-Keyed Technical Objections` keyed to brief.md rubric ([CRITICAL]/[MAJOR]/[MINOR])
+-4. `## 3. Audit of Rejected Alternative & Necessity Claim` (`C-B03-B-01`)
++4. `## 3. Audit of Rejected Alternative & Necessity Claim` (`C-B03-A-01`)
+ 5. `## 4. Spike Protocol Critique`

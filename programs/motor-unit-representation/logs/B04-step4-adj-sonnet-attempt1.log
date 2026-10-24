@@ -1,0 +1,27 @@
+I've written the adjudication report. It recommends **Candidate P**, 75 to 66 over Candidate Q, which is outside the 5-point tie margin. I scored from the sealed candidates and critiques only and made no attempt to identify authors.
+
+- **Eligibility:** both candidates pass every Charter §2 boundary and the brief's frozen-weights and fair-baseline constraints. Neither is disqualified. Neither reports executed experiments, so the scores reflect specification quality only.
+- **Scores:**
+
+  | Row | Weight | P | Q |
+  |---|---:|---:|---:|
+  | Serial-chain coupling reduction | 30 | 21 | 24 |
+  | Fairness of modular vs raw-torque ablation | 25 | 22 | 17 |
+  | Morphology-transfer falsifiability | 25 | 17 | 14 |
+  | Benchmark reproducibility | 20 | 15 | 11 |
+  | **Total** | 100 | **75** | **66** |
+
+  Q wins the coupling row because it quantifies coupling against the E3 ceiling at task conditions. P's transfer-grid design and fully specified fairness contract carry it overall.
+- **Principle claims:**
+  - **C-B04-P-01:** accepted only as a true but near-tautological Grade-1 lemma, not a necessity claim.
+  - **C-B04-P-02:** accepted as a narrow conditional claim.
+  - **C-B04-Q-01:** downgraded to the narrow statement that an amplitude-only bound doesn't guarantee stability. Its part (c) does not follow.
+  - **C-B04-Q-02:** accepted as a derivation for the terminal (knee) joint only.
+  - **C-B04-Q-03:** accepted as a conditional statement that does not apply to V3 until measured.
+- **Disposition:** Recommend P, Alternate Q.
+  - **Merge from Q into P:** quantified coupling against S_max at the benchmark's own operating points, the housing-transport identity, the extra controls, and the coverage-certificate codes with eligibility fixed before learning.
+  - **Repairs P needs:** a blocking feasibility gate, a torso or carriage payload, a recalibrated support test, a comparative transfer-PASS rule, and an evaluation action mode.
+
+I also ran two numerical checks on the candidates' own equations. The first confirmed the critique's knee-demand figures for P's squat poses (0.97 to 1.21) when the horizontal foot force is zero. With horizontal force as a free variable the demand drops to about 0.56 to 0.70, so I treated P's infeasibility as serious but fixable, not fatal. The second confirmed Q's inconsistent hip inertia (0.0207 vs about 0.0500). The report's Confounds paragraph covers these checks, the unread baselines, and a possible length bias in P's favour.
+
+The report is at `/srv/claude/research/motor-unit-representation/packets/B04/adjudication-sonnet-order2.md`.

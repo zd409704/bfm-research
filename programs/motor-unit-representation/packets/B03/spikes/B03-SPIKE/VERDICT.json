@@ -1,0 +1,25 @@
+{
+  "experiment_id": "B03_RANK16_144_MORPHOLOGY_ERANK",
+  "device": "cpu",
+  "elapsed_sec": 0.93,
+  "verdict": "PASS",
+  "gates": {
+    "G1_worst_nondim_erank_ge_12": {
+      "worst": 13.57608413696289,
+      "pass": true
+    },
+    "G2_global_raw_collapse": {
+      "worst_raw": 10.285623550415039,
+      "pass": true
+    },
+    "G3_tip_decode_retains_lever_arm": {
+      "tip_rmse": 0.2228996753692627,
+      "tip_rmse_ang_only": 0.9537878632545471,
+      "pass": true
+    }
+  },
+  "summary": {
+    "mean_erank_raw": 11.615224639574686,
+    "mean_erank_nd": 13.782200555006662
+  }
+}

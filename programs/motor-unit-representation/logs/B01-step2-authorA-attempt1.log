@@ -1,0 +1,23 @@
+I've written the full proposal to `packets/B01/drafts/A/proposal.md`, with all six required sections. I only read the five frozen files plus the pinned method v1.0 (§11.5 and Appendix B, for the claim format). I didn't open anything else under `packets/B01/drafts/`, `anonymized/` or `proposals/`, or the existing script in `gpu_experiments/`, so the draft stays independent.
+
+**Assumption to check first:** baseline/02 only gives block totals (1,920 / 1,024 / 1,152 / 726 / 243). The per-group widths in my table are a reconstruction that matches those totals, as is the future-window length K = 10. The proposal says so and makes the spike reconcile them against the real V3 schema manifest. The classification itself is defined per field and checked by a per-field action-invariance test, so it holds even if my widths are off.
+
+**Main positions:**
+- **The leak comes from what the critic is conditioned on, not from gradient flow.** The future force values in replay are stored data, so no gradient ever flows from the action into them. Wrapping them in a stop-gradient therefore changes nothing; I prove this and use it to reject that alternative.
+- **One step is enough to fully break the action gradient.** If the privileged input reveals the next state, the best-fit critic F is flat in the action (or its slope is set by the architecture, not the data). The policy gradient then vanishes, and the Bellman backup turns into evaluation of the replay behavior policy, so F stops depending on z. Shortening the window does not help.
+- **Partial leaks shrink or flip the gradient.** A closed-form linear model gives the fraction of action sensitivity that F keeps, and an explicit condition under which stiff end-stops make F believe pushing harder makes things worse.
+- **Degeneracy condition.** The ratio ‖∂F/∂aₜ‖ / ‖∂F/∂p_future‖ only diagnoses degeneracy when read against how strongly the simulator's future window responds to the action, so the spike measures all three.
+- **22-group audit.** 3,929 dims are kept as-is, 816 are replaced by causal state or generator state at t (Groups 14, 20, 21), and 320 are masked (Group 6, solver residuals). The total width stays 5,065, so the critic and deployed parameter counts are unchanged. E0–E4 disambiguation is preserved because the full Markov state at t remains recoverable from the sanitized input.
+- **Rejected alternatives:**
+  - **Stop-gradient on the future windows:** proven to change nothing.
+  - **Load information in Group 22's moving averages only:** proven to confuse states that differ only in release countdown or remaining hold time, and it deletes the regime one-hot.
+  - **Keeping the realized future window when the disturbance looks state-independent:** rejected because three of the five disturbance modes fail that test.
+- **Claims:** C-B01-A-01 (Grade 1, the action gradient cannot be recovered), C-B01-A-02 (Grade 1, the action's total effect is conserved and only rerouted by the leak), C-B01-A-03 (Grade 2, the disturbance schedule's phase is a required critic input for E3/E4). Each has premises, an operational test and a falsifier.
+- **Spike:** a field-by-field action-invariance audit comes first. Six critic variants are then trained against frozen B and π in two tiers, a synthetic one on CPU and one on the V3 pipeline. The PyTorch Jacobian code is included, and gates G-0 to G-9 have fixed thresholds, including a counterfactual Bellman residual check.
+
+**Points for adjudication:**
+- **Interaction with B02:** if B02 fixes Issue 1 by triggering the load release from robot state, the release countdown becomes action-dependent and can no longer go in p. Only the trigger rule and a causal progress counter would be allowed.
+- **Possible problem with H1:** its ">95% explained variance" threshold is measured against the leaky critic, whose accuracy the leak inflates. If the leak accounts for more than 5% of target variance, H1 can fail with no loss of regime disambiguation. I flag this as a reading note, not an amendment.
+- **Group orientation:** if the current collector assembles p after the physics step, Groups 1–5 contain the next state outright. That leak would be worse than Groups 20–21, and the fix is an index shift rather than masking.
+
+This host has no CUDA and no PyTorch, which the proposal records; the protocol picks the device automatically, and I did not run anything.

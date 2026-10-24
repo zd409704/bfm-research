@@ -1,0 +1,23 @@
+I wrote the adjudication to `/srv/claude/research/motor-unit-representation/packets/B01/adjudication-sonnet-order2.md`. It recommends Q, 77 to 71 over P. The 6-point margin is just above the 5-point tie margin, so the recommendation is a moderate one.
+
+- **Eligibility:** both candidates pass the hard constraints. Both get a conditional pass on the 22-group classification. P gives a policy per block with no per-group content. Q gives a per-group table whose widths are a self-declared nominal reconstruction. I couldn't check Appendix B.5 against its own text, because it wasn't in the files you listed. I used the candidates' descriptions and the reviews instead.
+- **Scores (weighted points):**
+
+| Rubric row | Max | P | Q |
+|---|---:|---:|---:|
+| Action-Jacobian degeneracy proof | 35 | 25 | 26 |
+| 22-group audit completeness | 25 | 16 | 21 |
+| E0–E4 disambiguation | 20 | 14 | 15 |
+| Spike falsifiability | 20 | 16 | 15 |
+| **Total** | 100 | **71** | **77** |
+
+- **Why Q wins:** its audit gives a specific causal replacement for each acausal slice, and it has more complete spike arms.
+- **Why not by more:** its headline Theorem 2 is wrong as stated. I checked review-B's counterexample and it holds: recovering the next state does not make the Bellman target independent of the action. P's proof is correct but narrower. It shows non-identification only, and its main claim's falsifier is effectively vacuous.
+- **Principle claims:** none is promoted.
+  - P-01: tighten premises.
+  - P-02: stays.
+  - Q-01: tighten premises, and withdraw Grade 1 until repaired.
+  - Q-02: tighten premises.
+  - Q-03: stays, with a correction. Q's claim that EMAs saturate after 25 steps is wrong: about 21% of the discrepancy remains.
+- **Disposition:** recommend Q, with P as alternate. There are ten mandatory merge items from P, including its non-identification construction, its reactive-generator rule, its Jacobian measurement design and its pre-registration rules. Two further arms come from the reviews: EXO-PREVIEW and RAW-PERMUTED.
+- **Confounds:** the main ones are possible order effects (I didn't compare against order1), Q being credited for supplying unverified field content, and neither spike having been run.
